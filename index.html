@@ -1,83 +1,23 @@
 <!DOCTYPE html>
-<!--
-╔══════════════════════════════════════════════════════════════════════════════╗
-║              CLEVELAND CALLBOARD — PRODUCTION-READY                        ║
-║                                                                              ║
-║  SETUP CHECKLIST (fill in the 4 values below before going live):            ║
-║                                                                              ║
-║  1. SUPABASE_URL       → line ~80                                            ║
-║  2. SUPABASE_ANON_KEY  → line ~81                                            ║
-║  3. STRIPE_PUBLIC_KEY  → line ~82                                            ║
-║  4. STRIPE_PRICE_ID    → line ~83 (your $79/year price ID from Stripe)      ║
-║                                                                              ║
-║  Google Analytics      → search "GA_MEASUREMENT_ID" in this file            ║
-║  Search Console        → search "SEARCH_CONSOLE_META" in this file          ║
-║                                                                              ║
-║  SUPABASE TABLES NEEDED:                                                     ║
-║  • profiles   (id, role, org_name, is_paid, stripe_customer_id)             ║
-║  • auditions  (id, user_id, theater_name, show_title, roles, pay,           ║
-║                union_status, location, audition_date, description,           ║
-║                contact_info, slug, status, created_at)                       ║
-║                                                                              ║
-║  See SETUP GUIDE at the bottom of this file for full instructions.          ║
-╚══════════════════════════════════════════════════════════════════════════════╝
--->
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-
-<!-- ══════════════════════════════════════════════════════
-     SEO: Title, Description, Keywords
-     Update these when you have a real domain.
-══════════════════════════════════════════════════════ -->
-<title>Cleveland Callboard — Theatre Auditions, Casting Calls & Arts Jobs in Cleveland, Ohio</title>
-<meta name="description" content="Cleveland Callboard is the go-to resource for theatre auditions in Cleveland, casting calls in Ohio, and arts jobs in Northeast Ohio. Browse auditions from Equity and non-union theaters across Cleveland, Lakewood, Cleveland Heights, and beyond."/>
-<meta name="keywords" content="Cleveland auditions, theatre auditions in Cleveland, casting calls in Ohio, Cleveland theatre jobs, Northeast Ohio auditions, Cleveland acting, Equity auditions Cleveland, non-union auditions Cleveland, arts jobs Cleveland"/>
+<title>Cleveland Theater Alliance — Theatre Auditions, Casting Calls & Arts Jobs in Cleveland, Ohio</title>
+<meta name="description" content="Cleveland Theater Alliance is the go-to resource for theatre auditions in Cleveland, casting calls in Ohio, and arts jobs in Northeast Ohio."/>
+<meta name="keywords" content="Cleveland auditions, theatre auditions in Cleveland, casting calls in Ohio, Cleveland theatre jobs, Northeast Ohio auditions"/>
 <meta name="robots" content="index, follow"/>
 <link rel="canonical" href="https://clevelandcallboard.com/"/>
-
-<!-- Open Graph (for social sharing) -->
-<meta property="og:title" content="Cleveland Callboard — Theatre Auditions & Arts Jobs"/>
+<meta property="og:title" content="Cleveland Theater Alliance — Theatre Auditions & Arts Jobs"/>
 <meta property="og:description" content="Find every theatre audition, casting call, and arts job in Cleveland and Northeast Ohio — all in one place."/>
 <meta property="og:type" content="website"/>
 <meta property="og:url" content="https://clevelandcallboard.com/"/>
 
-<!-- ══════════════════════════════════════════════════════
-     GOOGLE SEARCH CONSOLE VERIFICATION
-     Replace the content value below with your verification code.
-     Get it from: search.google.com/search-console
-══════════════════════════════════════════════════════ -->
-<!-- SEARCH_CONSOLE_META: paste your verification tag here -->
-<!-- <meta name="google-site-verification" content="YOUR_VERIFICATION_CODE"/> -->
-
-<!-- ══════════════════════════════════════════════════════
-     GOOGLE ANALYTICS
-     Replace GA_MEASUREMENT_ID with your real ID (e.g. G-XXXXXXXXXX)
-     Get it from: analytics.google.com
-══════════════════════════════════════════════════════ -->
-<!-- GA_MEASUREMENT_ID: uncomment and fill in when ready -->
-<!--
-<script async src="https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'GA_MEASUREMENT_ID');
-</script>
--->
-
-<!-- Fonts -->
 <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,700;1,400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet"/>
-
-<!-- Supabase JS client (CDN — no build tools needed) -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<!-- Stripe JS (CDN — loaded here so it's always available) -->
 <script src="https://js.stripe.com/v3/"></script>
 
 <style>
-   ALL ORIGINAL STYLES — UNCHANGED
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 :root{
   --bg:#f9f7f4;--bg2:#f2ede8;--bg3:#e9e2d9;
@@ -107,16 +47,22 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
 .btn-ghost:hover{border-color:var(--ink2);color:var(--ink);}
 .btn-cta{background:var(--red);border:none;color:#fff;font-family:var(--font-body);font-size:13px;font-weight:500;padding:7px 16px;border-radius:var(--pill);cursor:pointer;transition:background var(--transition);}
 .btn-cta:hover{background:var(--red2);}
+
+/* ── Hero ── */
 .hero{background:var(--white);border-bottom:1px solid var(--border);padding:44px 24px 40px;text-align:center;}
 .hero-eyebrow{display:inline-flex;align-items:center;gap:6px;background:var(--red-bg);border:1px solid var(--red-border);color:var(--red);font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;padding:4px 12px;border-radius:var(--pill);margin-bottom:18px;}
 .hero h1{font-family:var(--font-display);font-size:clamp(30px,5.5vw,48px);line-height:1.15;color:var(--ink);max-width:620px;margin:0 auto 12px;}
 .hero h1 em{font-style:italic;color:var(--red);}
 .hero-sub{color:var(--ink2);font-size:15px;font-weight:300;max-width:440px;margin:0 auto 26px;line-height:1.7;}
-.hero-search{max-width:520px;margin:0 auto 28px;position:relative;}
-.hero-search input{width:100%;background:var(--bg);border:1.5px solid var(--border2);border-radius:var(--pill);font-family:var(--font-body);font-size:14px;color:var(--ink);padding:12px 52px 12px 18px;outline:none;transition:border-color var(--transition);}
-.hero-search input:focus{border-color:var(--red);background:var(--white);}
+
+/* ── FIXED Search bar ── */
+.hero-search{max-width:520px;margin:0 auto 28px;display:flex;align-items:center;background:var(--bg);border:1.5px solid var(--border2);border-radius:var(--pill);overflow:hidden;transition:border-color var(--transition);}
+.hero-search:focus-within{border-color:var(--red);background:var(--white);}
+.hero-search input{flex:1;background:transparent;border:none;font-family:var(--font-body);font-size:14px;color:var(--ink);padding:12px 16px;outline:none;min-width:0;}
 .hero-search input::placeholder{color:var(--ink3);}
-.hero-search-btn{position:absolute;right:6px;top:50%;transform:translateY(-50%);background:var(--red);border:none;color:#fff;font-family:var(--font-body);font-size:13px;font-weight:500;padding:7px 16px;border-radius:var(--pill);cursor:pointer;}
+.hero-search-btn{flex-shrink:0;background:var(--red);border:none;color:#fff;font-family:var(--font-body);font-size:13px;font-weight:500;padding:10px 20px;cursor:pointer;transition:background var(--transition);white-space:nowrap;}
+.hero-search-btn:hover{background:var(--red2);}
+
 .hero-tabs{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;}
 .hero-tab{background:var(--bg2);border:1px solid var(--border);color:var(--ink2);font-family:var(--font-body);font-size:13px;font-weight:500;padding:8px 18px;border-radius:var(--pill);cursor:pointer;transition:all var(--transition);}
 .hero-tab:hover{border-color:var(--border2);color:var(--ink);}
@@ -124,6 +70,8 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
 .hero-stats{display:flex;justify-content:center;gap:36px;margin-top:32px;padding-top:28px;border-top:1px solid var(--border);flex-wrap:wrap;}
 .hstat .num{font-family:var(--font-display);font-size:26px;font-weight:700;color:var(--ink);}
 .hstat .lbl{font-size:11px;color:var(--ink3);letter-spacing:0.3px;margin-top:1px;}
+
+/* ── Layout ── */
 .main-layout{display:grid;grid-template-columns:220px 1fr;gap:0;max-width:1100px;margin:0 auto;padding:28px 24px;align-items:start;}
 @media(max-width:720px){.main-layout{grid-template-columns:1fr;}.sidebar{display:none;}}
 .sidebar{position:sticky;top:80px;background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px;margin-right:20px;}
@@ -140,10 +88,19 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
 .clear-btn{width:100%;background:none;border:1px solid var(--border);color:var(--ink3);font-family:var(--font-body);font-size:12px;padding:7px;border-radius:var(--radius);cursor:pointer;margin-top:6px;transition:all var(--transition);}
 .clear-btn:hover{border-color:var(--border2);color:var(--ink2);}
 .content-area{}
+
+/* ── Toolbar with location search ── */
 .content-toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;gap:12px;flex-wrap:wrap;}
+.toolbar-left{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
 .result-count{font-size:13px;color:var(--ink3);}
 .result-count strong{color:var(--ink);font-weight:500;}
 .sort-select{background:var(--white);border:1px solid var(--border);border-radius:6px;color:var(--ink2);font-family:var(--font-body);font-size:13px;padding:6px 10px;cursor:pointer;outline:none;}
+.location-input-wrap{display:flex;align-items:center;gap:6px;}
+.location-input-wrap label{font-size:12px;color:var(--ink3);white-space:nowrap;}
+.location-input{background:var(--white);border:1px solid var(--border);border-radius:6px;color:var(--ink2);font-family:var(--font-body);font-size:13px;padding:6px 10px;outline:none;width:160px;transition:border-color var(--transition);}
+.location-input:focus{border-color:var(--red);}
+.location-input::placeholder{color:var(--ink3);}
+
 .listing-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;margin-bottom:12px;cursor:pointer;transition:all var(--transition);position:relative;}
 .listing-card:hover{border-color:var(--border2);box-shadow:var(--shadow-hover);transform:translateY(-1px);}
 .listing-card.featured-card{border-left:3px solid var(--gold);background:linear-gradient(to right,var(--gold-bg) 0%,var(--white) 60%);}
@@ -168,6 +125,8 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
 .deadline-text{font-size:12px;color:var(--red);font-weight:500;}
 .detail-btn{background:none;border:1px solid var(--border2);color:var(--ink2);font-family:var(--font-body);font-size:12px;font-weight:500;padding:6px 14px;border-radius:var(--pill);cursor:pointer;transition:all var(--transition);}
 .detail-btn:hover{background:var(--red);border-color:var(--red);color:#fff;}
+
+/* ── Detail panel ── */
 .detail-overlay{display:none;position:fixed;inset:0;background:rgba(20,15,10,0.45);z-index:500;align-items:flex-start;justify-content:flex-end;}
 .detail-overlay.open{display:flex;}
 .detail-panel{background:var(--white);width:min(520px,100vw);height:100vh;overflow-y:auto;padding:28px;border-left:1px solid var(--border);animation:slideIn 0.22s ease;}
@@ -195,6 +154,8 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
 .btn-source{background:none;border:1px solid var(--border2);color:var(--ink2);font-family:var(--font-body);font-size:13px;padding:11px;border-radius:var(--radius);cursor:pointer;text-align:center;transition:all var(--transition);}
 .btn-source:hover{border-color:var(--ink2);color:var(--ink);}
 .source-note{font-size:11px;color:var(--ink3);text-align:center;margin-top:6px;}
+
+/* ── Pages ── */
 .page{display:none;}
 .page.visible{display:block;}
 .section-hero{background:var(--white);border-bottom:1px solid var(--border);padding:28px 24px 24px;text-align:center;}
@@ -204,6 +165,8 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
 .tab-pill{background:var(--bg2);border:1px solid var(--border);color:var(--ink2);font-family:var(--font-body);font-size:13px;font-weight:500;padding:7px 16px;border-radius:var(--pill);cursor:pointer;transition:all var(--transition);}
 .tab-pill:hover{border-color:var(--border2);color:var(--ink);}
 .tab-pill.active{background:var(--ink);color:#fff;border-color:var(--ink);}
+
+/* ── Community ── */
 .post-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px;margin-bottom:10px;transition:all var(--transition);}
 .post-card:hover{border-color:var(--border2);}
 .post-top{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
@@ -217,6 +180,8 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
 .post-actions{display:flex;gap:14px;margin-top:12px;padding-top:12px;border-top:1px solid var(--border);}
 .pa{background:none;border:none;font-family:var(--font-body);font-size:12px;color:var(--ink3);cursor:pointer;transition:color var(--transition);}
 .pa:hover{color:var(--red);}
+
+/* ── Support ── */
 .support-wrap{max-width:640px;margin:0 auto;padding:40px 24px;}
 .support-wrap h2{font-family:var(--font-display);font-size:30px;color:var(--ink);margin-bottom:14px;text-align:center;}
 .support-wrap .lead{font-size:15px;color:var(--ink2);text-align:center;line-height:1.7;max-width:480px;margin:0 auto 32px;}
@@ -231,6 +196,8 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
 .donate-btn{width:100%;background:var(--red);border:none;color:#fff;font-family:var(--font-body);font-size:15px;font-weight:500;padding:14px;border-radius:var(--radius);cursor:pointer;margin-bottom:14px;transition:background var(--transition);}
 .donate-btn:hover{background:var(--red2);}
 .support-note{font-size:12px;color:var(--ink3);text-align:center;line-height:1.6;}
+
+/* ── Modals ── */
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(20,15,10,0.5);z-index:600;align-items:center;justify-content:center;}
 .modal-overlay.open{display:flex;}
 .modal{background:var(--white);border-radius:var(--radius-lg);padding:32px;width:min(420px,92vw);box-shadow:var(--shadow-hover);max-height:90vh;overflow-y:auto;}
@@ -254,36 +221,26 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
 .modal-close-btn{float:right;background:none;border:none;font-size:20px;color:var(--ink3);cursor:pointer;margin-top:-8px;}
 .org-note{background:var(--blue-bg);border:1px solid #c5d9f5;border-radius:6px;padding:10px 12px;font-size:12px;color:var(--blue);margin-bottom:14px;display:none;}
 .org-note.visible{display:block;}
-.crew-hero{background:var(--white);border-bottom:1px solid var(--border);padding:28px 24px;text-align:center;}
-.crew-hero h2{font-family:var(--font-display);font-size:28px;color:var(--ink);margin-bottom:8px;}
-.crew-hero p{color:var(--ink2);font-size:14px;max-width:420px;margin:0 auto;}
-.section-label{font-size:11px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:var(--ink3);margin:24px 0 12px;padding:0 24px;}
 
-/* ══════════════════════════════════════════════════
-   NEW STYLES — added for production functionality
-══════════════════════════════════════════════════ */
-
-/* Flash / toast messages */
+/* ── Flash ── */
 .flash{position:fixed;top:70px;left:50%;transform:translateX(-50%);z-index:900;padding:12px 20px;border-radius:var(--radius);font-size:13px;font-weight:500;box-shadow:var(--shadow-hover);display:none;min-width:260px;text-align:center;}
 .flash.show{display:block;animation:fadeFlash 3.5s ease forwards;}
 .flash.success{background:#1e6b3e;color:#fff;}
 .flash.error{background:var(--red);color:#fff;}
 .flash.info{background:var(--ink);color:#fff;}
 @keyframes fadeFlash{0%{opacity:0;transform:translateX(-50%) translateY(-8px);}10%{opacity:1;transform:translateX(-50%) translateY(0);}80%{opacity:1;}100%{opacity:0;}}
-
-/* Auth error inline */
 .auth-error{background:var(--red-bg);border:1px solid var(--red-border);color:var(--red);font-size:13px;padding:10px 12px;border-radius:6px;margin-bottom:14px;display:none;}
 .auth-error.visible{display:block;}
 .auth-toggle{font-size:12px;color:var(--ink3);text-align:center;margin-top:14px;}
 .auth-toggle a{color:var(--red);cursor:pointer;}
 
-/* Paywall banner */
+/* ── Paywall ── */
 .paywall-banner{background:linear-gradient(135deg,#1a1410,#3d2b20);color:#fff;border-radius:var(--radius-lg);padding:20px 24px;margin-bottom:20px;}
 .paywall-banner h4{font-family:var(--font-display);font-size:17px;margin-bottom:6px;}
 .paywall-banner p{font-size:13px;opacity:.8;margin-bottom:14px;line-height:1.6;}
 .paywall-banner .upgrade-btn{background:var(--gold);border:none;color:#fff;font-family:var(--font-body);font-size:13px;font-weight:600;padding:9px 20px;border-radius:var(--pill);cursor:pointer;}
 
-/* My Listings dashboard */
+/* ── Dashboard ── */
 .dashboard-wrap{max-width:860px;margin:0 auto;padding:32px 24px;}
 .dashboard-wrap h2{font-family:var(--font-display);font-size:26px;color:var(--ink);margin-bottom:6px;}
 .dashboard-sub{font-size:14px;color:var(--ink2);margin-bottom:28px;}
@@ -311,7 +268,7 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
 .empty-state{padding:40px 20px;text-align:center;color:var(--ink3);}
 .empty-state p{font-size:14px;margin-bottom:14px;}
 
-/* Admin page */
+/* ── Admin ── */
 .admin-wrap{max-width:900px;margin:0 auto;padding:32px 24px;}
 .admin-wrap h2{font-family:var(--font-display);font-size:26px;color:var(--ink);margin-bottom:6px;}
 .admin-sub{font-size:13px;color:var(--ink2);margin-bottom:24px;padding:10px 14px;background:var(--red-bg);border:1px solid var(--red-border);border-radius:6px;}
@@ -326,7 +283,7 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
 .btn-reject{background:var(--red-bg);border:1px solid var(--red-border);color:var(--red);font-family:var(--font-body);font-size:12px;font-weight:600;padding:6px 14px;border-radius:var(--pill);cursor:pointer;transition:all var(--transition);}
 .btn-reject:hover{background:var(--red);color:#fff;}
 
-/* Post form */
+/* ── Post form ── */
 .post-form-wrap{max-width:660px;margin:0 auto;padding:32px 24px;}
 .post-form-wrap h2{font-family:var(--font-display);font-size:26px;color:var(--ink);margin-bottom:6px;}
 .post-form-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:28px;margin-top:20px;}
@@ -336,23 +293,16 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
 .form-msg{padding:12px 16px;border-radius:var(--radius);font-size:13px;margin-bottom:18px;display:none;}
 .form-msg.success{background:var(--green-bg);color:var(--green);border:1px solid rgba(30,107,62,0.2);display:block;}
 .form-msg.error{background:var(--red-bg);color:var(--red);border:1px solid var(--red-border);display:block;}
-
-/* Subscription banner in nav */
 .nav-paid-badge{font-size:11px;font-weight:600;background:var(--gold-bg);color:var(--gold);border:1px solid #e8d9a8;padding:3px 9px;border-radius:var(--pill);}
 </style>
 </head>
 <body>
 
-<!-- ══════════════════════════════════════════════════════════════
-     FLASH MESSAGE (shown briefly after actions)
-══════════════════════════════════════════════════════════════ -->
 <div class="flash" id="flash-msg"></div>
 
-<!-- ══════════════════════════════════════════════════════════════
-     NAVIGATION
-══════════════════════════════════════════════════════════════ -->
+<!-- ── NAV — updated name ── -->
 <nav>
-  <div class="nav-logo" onclick="showPage('auditions',null)">Cleveland <span>Callboard</span></div>
+  <div class="nav-logo" onclick="showPage('auditions',null)">Cleveland <span>Theater Alliance</span></div>
   <div class="nav-links">
     <button class="nav-btn active" onclick="showPage('auditions',this)">Auditions</button>
     <button class="nav-btn" onclick="showPage('jobs',this)">Jobs</button>
@@ -360,7 +310,6 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
     <button class="nav-btn" onclick="showPage('support',this)">Support Us</button>
   </div>
   <div class="nav-right" id="nav-right">
-    <!-- Replaced dynamically by updateNavForUser() -->
     <button class="btn-ghost" onclick="openAuth('signin')">Sign In</button>
     <button class="btn-cta" onclick="openAuth('signup')">Post a Listing</button>
   </div>
@@ -368,21 +317,20 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
 
 <!-- ══════════════════════════════════════════════════════════════
      AUDITIONS PAGE
-     SEO note: The hero h1 and hero-sub contain natural keyword
-     usage: "Cleveland auditions", "casting calls", "theatre auditions"
 ══════════════════════════════════════════════════════════════ -->
 <div class="page visible" id="page-auditions">
   <div class="hero">
     <div class="hero-eyebrow">📍 Cleveland & NE Ohio</div>
-    <!-- Primary H1 with natural keyword inclusion for SEO -->
+    <!-- Hero text unchanged per request -->
     <h1>Cleveland's <em>callboard</em><br>for working actors.</h1>
-    <p class="hero-sub">
-      Every audition. Every opportunity. One place — built by the community, for the community.
-    </p>
+    <p class="hero-sub">Every audition. Every opportunity. One place — built by the community, for the community.</p>
+
+    <!-- FIXED: search bar is a flex row — button sits at far right, no overlap -->
     <div class="hero-search">
       <input type="text" id="search-input" placeholder="Search by role, show, or theater…" oninput="filterCards()"/>
       <button class="hero-search-btn" onclick="filterCards()">Search</button>
     </div>
+
     <div class="hero-tabs">
       <button class="hero-tab active" onclick="setHeroTab(this,'all')">All Auditions</button>
       <button class="hero-tab" onclick="setHeroTab(this,'week')">This Week</button>
@@ -398,14 +346,8 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
     </div>
   </div>
 
-  <!-- Hidden SEO keyword paragraph — visible to search engines, not visually prominent -->
-  <p style="font-size:0;height:0;overflow:hidden;position:absolute;">
-    Cleveland theatre auditions, casting calls in Ohio, Northeast Ohio auditions,
-    theatre jobs Cleveland, Equity auditions Cleveland, non-union auditions Cleveland,
-    Cleveland acting opportunities, Lakewood theatre auditions, community theatre Cleveland.
-  </p>
-
   <div class="main-layout">
+    <!-- SIDEBAR: location filter removed, salary removed, kept Employment + added Job Category -->
     <div class="sidebar">
       <h3>Filter Listings</h3>
       <div class="filter-group">
@@ -430,29 +372,28 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
         <label class="filter-check"><input type="checkbox" id="f-film"><span>Film / Short</span></label>
         <label class="filter-check"><input type="checkbox" id="f-newwork"><span>New Work</span></label>
       </div>
-      <div class="filter-divider"></div>
-      <div class="filter-group">
-        <span class="filter-label">Location</span>
-        <label class="filter-check"><input type="checkbox" checked id="f-cleveland"><span>Cleveland</span></label>
-        <label class="filter-check"><input type="checkbox" checked id="f-lakewood"><span>Lakewood</span></label>
-        <label class="filter-check"><input type="checkbox" id="f-heights"><span>Cleveland Heights</span></label>
-        <label class="filter-check"><input type="checkbox" id="f-parma"><span>Parma</span></label>
-        <label class="filter-check"><input type="checkbox" id="f-akron"><span>Akron area</span></label>
-      </div>
       <button class="apply-btn" onclick="filterCards()">Apply Filters</button>
       <button class="clear-btn" onclick="clearFilters()">Clear all</button>
     </div>
 
     <div class="content-area">
+      <!-- TOOLBAR: location proximity input replaces static location filter -->
       <div class="content-toolbar">
         <span class="result-count" id="result-count"><strong>—</strong> auditions found</span>
-        <select class="sort-select" id="sort-select" onchange="sortAndRender()">
-          <option value="date_asc">Deadline soonest</option>
-          <option value="date_desc">Newest first</option>
-          <option value="az">A–Z</option>
-        </select>
+        <div class="toolbar-left">
+          <div class="location-input-wrap">
+            <label for="location-sort-input">📍 Near:</label>
+            <input class="location-input" type="text" id="location-sort-input"
+              placeholder="e.g. Lakewood, OH"
+              oninput="debounceLocationSort()"/>
+          </div>
+          <select class="sort-select" id="sort-select" onchange="sortAndRender()">
+            <option value="date_asc">Deadline soonest</option>
+            <option value="date_desc">Newest first</option>
+            <option value="az">A–Z</option>
+          </select>
+        </div>
       </div>
-      <!-- Dynamic listings injected here by fetchAuditions() -->
       <div id="auditions-container">
         <div style="padding:32px;text-align:center;color:var(--ink3);">Loading Cleveland auditions…</div>
       </div>
@@ -461,7 +402,7 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
 </div>
 
 <!-- ══════════════════════════════════════════════════════════════
-     JOBS PAGE
+     JOBS PAGE — updated sidebar filters + dynamic Supabase rendering
 ══════════════════════════════════════════════════════════════ -->
 <div class="page" id="page-jobs">
   <div class="section-hero">
@@ -469,85 +410,46 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
     <p>Administrative, marketing, education, box office, crew, and stage management — all in one place.</p>
   </div>
   <div class="tabs-row">
-    <button class="tab-pill active" onclick="setTab(this)">All Jobs</button>
-    <button class="tab-pill" onclick="setTab(this)">Arts Admin</button>
-    <button class="tab-pill" onclick="setTab(this)">Stage Management</button>
-    <button class="tab-pill" onclick="setTab(this)">Design / Crew</button>
-    <button class="tab-pill" onclick="setTab(this)">Education</button>
-    <button class="tab-pill" onclick="setTab(this)">Box Office</button>
+    <button class="tab-pill active" onclick="setJobTab(this,'all')">All Jobs</button>
+    <button class="tab-pill" onclick="setJobTab(this,'admin')">Arts Admin</button>
+    <button class="tab-pill" onclick="setJobTab(this,'stage_management')">Stage Management</button>
+    <button class="tab-pill" onclick="setJobTab(this,'design_crew')">Design / Crew</button>
+    <button class="tab-pill" onclick="setJobTab(this,'education')">Education</button>
+    <button class="tab-pill" onclick="setJobTab(this,'box_office')">Box Office</button>
   </div>
   <div class="main-layout">
+    <!-- JOBS SIDEBAR: location removed, salary removed, employment type kept, job category added -->
     <div class="sidebar">
       <h3>Filter Jobs</h3>
       <div class="filter-group">
         <span class="filter-label">Employment Type</span>
-        <label class="filter-check"><input type="checkbox" checked/><span>Full-time</span></label>
-        <label class="filter-check"><input type="checkbox" checked/><span>Part-time</span></label>
-        <label class="filter-check"><input type="checkbox"/><span>Contract</span></label>
-        <label class="filter-check"><input type="checkbox"/><span>Seasonal</span></label>
+        <label class="filter-check"><input type="checkbox" checked id="jf-fulltime"><span>Full-time</span></label>
+        <label class="filter-check"><input type="checkbox" checked id="jf-parttime"><span>Part-time</span></label>
+        <label class="filter-check"><input type="checkbox" id="jf-contract"><span>Contract</span></label>
+        <label class="filter-check"><input type="checkbox" id="jf-seasonal"><span>Seasonal</span></label>
       </div>
       <div class="filter-divider"></div>
       <div class="filter-group">
-        <span class="filter-label">Salary Range</span>
-        <label class="filter-check"><input type="checkbox"/><span>Under $35k</span></label>
-        <label class="filter-check"><input type="checkbox" checked/><span>$35k – $55k</span></label>
-        <label class="filter-check"><input type="checkbox"/><span>$55k+</span></label>
-        <label class="filter-check"><input type="checkbox"/><span>Hourly / per diem</span></label>
+        <span class="filter-label">Job Category</span>
+        <label class="filter-check"><input type="checkbox" checked id="jf-admin"><span>Admin</span></label>
+        <label class="filter-check"><input type="checkbox" checked id="jf-stage_mgmt"><span>Stage Management</span></label>
+        <label class="filter-check"><input type="checkbox" checked id="jf-design_crew"><span>Design / Crew</span></label>
+        <label class="filter-check"><input type="checkbox" checked id="jf-education"><span>Education</span></label>
+        <label class="filter-check"><input type="checkbox" checked id="jf-box_office"><span>Box Office</span></label>
       </div>
-      <div class="filter-divider"></div>
-      <div class="filter-group">
-        <span class="filter-label">Location</span>
-        <label class="filter-check"><input type="checkbox" checked/><span>Cleveland</span></label>
-        <label class="filter-check"><input type="checkbox"/><span>Lakewood</span></label>
-        <label class="filter-check"><input type="checkbox"/><span>Cleveland Heights</span></label>
-        <label class="filter-check"><input type="checkbox"/><span>Remote / Hybrid</span></label>
-      </div>
-      <button class="apply-btn">Apply Filters</button>
-      <button class="clear-btn">Clear all</button>
+      <button class="apply-btn" onclick="filterJobs()">Apply Filters</button>
+      <button class="clear-btn" onclick="clearJobFilters()">Clear all</button>
     </div>
     <div class="content-area">
       <div class="content-toolbar">
-        <span class="result-count"><strong>24</strong> jobs found</span>
-        <select class="sort-select"><option>Newest first</option><option>Salary: High to Low</option></select>
+        <span class="result-count" id="job-result-count"><strong>—</strong> jobs found</span>
+        <select class="sort-select" id="job-sort-select" onchange="sortAndRenderJobs()">
+          <option value="date_desc">Newest first</option>
+          <option value="az">A–Z</option>
+        </select>
       </div>
-      <div class="listing-card" onclick="openDetail('mktg')">
-        <div class="card-header">
-          <div class="card-org">Playhouse Square</div>
-          <div class="card-badges"><span class="badge b-admin">Admin</span><span class="badge b-paid">Full-time</span></div>
-        </div>
-        <div class="card-title">Director of Marketing &amp; Communications</div>
-        <div class="card-meta"><span class="cmeta">📍 Downtown Cleveland</span><span class="cmeta">💰 $58,000–$68,000</span></div>
-        <div class="card-desc">Lead all marketing, communications, and brand strategy for one of the country's largest performing arts centers.</div>
-        <div class="card-footer">
-          <span class="deadline-text">⏰ Open until filled</span>
-          <button class="detail-btn" onclick="event.stopPropagation();openDetail('mktg')">View full listing →</button>
-        </div>
-      </div>
-      <div class="listing-card" onclick="openDetail('edu')">
-        <div class="card-header">
-          <div class="card-org">Beck Center for the Arts</div>
-          <div class="card-badges"><span class="badge b-admin">Education</span><span class="badge b-paid">Full-time</span></div>
-        </div>
-        <div class="card-title">Education Programs Manager</div>
-        <div class="card-meta"><span class="cmeta">📍 Lakewood, OH</span><span class="cmeta">💰 $42,000–$48,000</span></div>
-        <div class="card-desc">Manage youth education programs, school partnerships, and summer intensives.</div>
-        <div class="card-footer">
-          <span class="deadline-text">⏰ Deadline: May 1</span>
-          <button class="detail-btn" onclick="event.stopPropagation();openDetail('edu')">View full listing →</button>
-        </div>
-      </div>
-      <div class="listing-card">
-        <div class="card-header">
-          <div class="card-org">Great Lakes Theater</div>
-          <div class="card-badges"><span class="badge b-admin">Box Office</span><span class="badge b-free">Part-time</span></div>
-        </div>
-        <div class="card-title">Box Office Associate</div>
-        <div class="card-meta"><span class="cmeta">📍 Playhouse Square</span><span class="cmeta">💰 $16/hr</span></div>
-        <div class="card-desc">Weekend and evening availability required. Tessitura experience preferred.</div>
-        <div class="card-footer">
-          <span class="deadline-text">⏰ Deadline: Apr 30</span>
-          <button class="detail-btn">View full listing →</button>
-        </div>
+      <div id="jobs-container">
+        <div style="padding:32px;text-align:center;color:var(--ink3);">Loading arts jobs…</div>
       </div>
     </div>
   </div>
@@ -607,26 +509,17 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
 <div class="page" id="page-support">
   <div class="support-wrap">
     <h2>Keep the Callboard alive.</h2>
-    <p class="lead">Cleveland Callboard is free for every actor and arts worker in NE Ohio. If this platform has helped you find a role or a job, consider supporting the community that makes it possible.</p>
+    <p class="lead">Cleveland Theater Alliance is free for every actor and arts worker in NE Ohio. If this platform has helped you find a role or a job, consider supporting the community that makes it possible.</p>
     <div style="background:var(--red-bg);border:1px solid var(--red-border);border-radius:var(--radius-lg);padding:18px 20px;margin-bottom:28px;font-size:14px;color:var(--ink2);line-height:1.7;">
-      <strong style="color:var(--ink);">100% community-funded.</strong> No ads. No paywalls for actors. No data selling. Every dollar goes directly to platform maintenance, moderation, and keeping listings current.
+      <strong style="color:var(--ink);">100% community-funded.</strong> No ads. No paywalls for actors. No data selling.
     </div>
     <div class="donate-tiers">
-      <div class="tier" onclick="selectTier(this,'5')">
-        <div class="amount">$5</div><div class="tier-label">Actor</div>
-        <div class="tier-desc">Buy us a coffee. Keep the lights on.</div>
-      </div>
-      <div class="tier selected" onclick="selectTier(this,'25')">
-        <div class="amount">$25</div><div class="tier-label">Supporter</div>
-        <div class="tier-desc">Help us add new theaters and keep data fresh.</div>
-      </div>
-      <div class="tier" onclick="selectTier(this,'100')">
-        <div class="amount">$100</div><div class="tier-label">Sustainer</div>
-        <div class="tier-desc">Power a full month of updates for the whole community.</div>
-      </div>
+      <div class="tier" onclick="selectTier(this,'5')"><div class="amount">$5</div><div class="tier-label">Actor</div><div class="tier-desc">Buy us a coffee. Keep the lights on.</div></div>
+      <div class="tier selected" onclick="selectTier(this,'25')"><div class="amount">$25</div><div class="tier-label">Supporter</div><div class="tier-desc">Help us add new theaters and keep data fresh.</div></div>
+      <div class="tier" onclick="selectTier(this,'100')"><div class="amount">$100</div><div class="tier-label">Sustainer</div><div class="tier-desc">Power a full month of updates for the whole community.</div></div>
     </div>
     <button class="donate-btn" id="donate-btn">Donate $25 →</button>
-    <p class="support-note">Theaters: ask about our <strong style="color:var(--ink);">yearly membership plan ($79/year)</strong> which supports the platform and gives you unlimited listings.<br/>Contact: hello@clevelandcallboard.com</p>
+    <p class="support-note">Theaters: ask about our <strong style="color:var(--ink);">yearly membership plan ($79/year)</strong> for unlimited listings.<br/>Contact: hello@clevelandcallboard.com</p>
   </div>
 </div>
 
@@ -639,10 +532,9 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
     <p style="font-size:14px;color:var(--ink2);margin-bottom:4px;">Listings go live within 24 hours after review. Your first listing is free.</p>
     <div class="form-msg" id="post-success"></div>
     <div class="form-msg error" id="post-error" style="display:none;"></div>
-    <!-- Paywall banner — shown by JS if user has used their free listing -->
     <div class="paywall-banner" id="paywall-banner" style="display:none;">
       <h4>You've used your free listing.</h4>
-      <p>Subscribe for $79/year to post unlimited auditions and jobs — and support the Cleveland theatre community.</p>
+      <p>Subscribe for $79/year to post unlimited auditions and jobs.</p>
       <button class="upgrade-btn" onclick="startStripeCheckout()">Subscribe — $79/year</button>
     </div>
     <div class="post-form-card" id="post-form-card">
@@ -658,7 +550,6 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
           <input type="text" name="contact_info" id="f-contact_info" placeholder="Email or website where actors submit"/>
           <div class="field-error" id="err-contact_info">Please enter contact information.</div>
         </div>
-
         <div class="pf-section-title" style="margin-top:20px;">Production Details</div>
         <div class="form-field">
           <label>Show Title <span class="req">*</span></label>
@@ -700,7 +591,6 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
             <div class="field-error" id="err-audition_date">Please select an audition date.</div>
           </div>
         </div>
-
         <div class="pf-section-title" style="margin-top:20px;">Casting Details</div>
         <div class="form-field">
           <label>Roles Being Cast <span class="req">*</span></label>
@@ -729,10 +619,9 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
       <div class="dash-stat"><div class="ds-num" id="ds-live">—</div><div class="ds-lbl">Live (approved)</div></div>
       <div class="dash-stat"><div class="ds-num" id="ds-pending">—</div><div class="ds-lbl">Pending review</div></div>
     </div>
-    <!-- Subscription status banner (shown dynamically) -->
     <div id="dash-paywall-notice" style="display:none;" class="paywall-banner">
       <h4>Free listing used.</h4>
-      <p>Subscribe for $79/year to post unlimited auditions and jobs on Cleveland Callboard.</p>
+      <p>Subscribe for $79/year to post unlimited auditions and jobs.</p>
       <button class="upgrade-btn" onclick="startStripeCheckout()">Subscribe — $79/year</button>
     </div>
     <div class="dash-table">
@@ -748,13 +637,12 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
 </div>
 
 <!-- ══════════════════════════════════════════════════════════════
-     ADMIN PAGE  — access by navigating to ?admin=1
-     This page is hidden from normal navigation.
+     ADMIN PAGE
 ══════════════════════════════════════════════════════════════ -->
 <div class="page" id="page-admin">
   <div class="admin-wrap">
     <h2>Admin — Listing Review</h2>
-    <div class="admin-sub">🔒 This page is only for Cleveland Callboard administrators. Approve or reject submitted listings below.</div>
+    <div class="admin-sub">🔒 Administrators only. Approve or reject submitted listings below.</div>
     <div class="dash-table" style="margin-top:20px;">
       <div class="dash-table-hd">
         <h3>Pending Listings</h3>
@@ -767,9 +655,7 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════════════════════════
-     DETAIL PANEL (slide-in, unchanged from original)
-══════════════════════════════════════════════════════════════ -->
+<!-- Detail panel -->
 <div class="detail-overlay" id="detail-overlay" onclick="closeDetailOnBg(event)">
   <div class="detail-panel" id="detail-panel">
     <button class="detail-close" onclick="closeDetail()">×</button>
@@ -777,70 +663,35 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════════════════════════
-     AUTH MODAL — Sign In / Sign Up
-══════════════════════════════════════════════════════════════ -->
+<!-- Auth modal -->
 <div class="modal-overlay" id="auth-modal" onclick="closeAuthOnBg(event)">
   <div class="modal">
     <button class="modal-close-btn" onclick="closeAuth()">×</button>
     <h3 id="auth-modal-title">Welcome back.</h3>
-    <p class="modal-sub" id="auth-modal-sub">Sign in to your Cleveland Callboard account.</p>
+    <p class="modal-sub" id="auth-modal-sub">Sign in to your account.</p>
     <div class="modal-tabs">
       <button class="modal-tab active" id="tab-signin" onclick="switchAuthMode('signin')">Sign In</button>
       <button class="modal-tab" id="tab-signup" onclick="switchAuthMode('signup')">Create Account</button>
     </div>
-    <div class="org-note visible" id="auth-role-note">
-      Actors browse free. Organizations (theaters, companies) can post their first listing free, then $79/year for unlimited.
-    </div>
+    <div class="org-note visible" id="auth-role-note">Actors browse free. Organizations get one free listing, then $79/year unlimited.</div>
     <div class="auth-error" id="auth-error-msg"></div>
-    <!-- Sign In fields -->
     <div id="signin-fields">
-      <div class="form-field">
-        <label>Email</label>
-        <input type="email" id="signin-email" placeholder="you@example.com" autocomplete="email"/>
-        <div class="field-error" id="err-signin-email">Please enter a valid email.</div>
-      </div>
-      <div class="form-field">
-        <label>Password</label>
-        <input type="password" id="signin-password" placeholder="••••••••" autocomplete="current-password"/>
-        <div class="field-error" id="err-signin-password">Please enter your password.</div>
-      </div>
+      <div class="form-field"><label>Email</label><input type="email" id="signin-email" placeholder="you@example.com" autocomplete="email"/><div class="field-error" id="err-signin-email">Please enter a valid email.</div></div>
+      <div class="form-field"><label>Password</label><input type="password" id="signin-password" placeholder="••••••••" autocomplete="current-password"/><div class="field-error" id="err-signin-password">Please enter your password.</div></div>
       <button class="modal-submit" id="signin-btn" onclick="handleSignIn()">Sign In</button>
     </div>
-    <!-- Sign Up fields -->
     <div id="signup-fields" style="display:none;">
-      <div class="form-field">
-        <label>Your Role</label>
-        <select id="signup-role">
-          <option value="actor">Actor / Artist</option>
-          <option value="organization">Theater / Organization</option>
-        </select>
-      </div>
-      <div class="form-field" id="org-name-field" style="display:none;">
-        <label>Organization Name</label>
-        <input type="text" id="signup-org-name" placeholder="e.g. Beck Center for the Arts"/>
-      </div>
-      <div class="form-field">
-        <label>Email</label>
-        <input type="email" id="signup-email" placeholder="you@example.com" autocomplete="email"/>
-        <div class="field-error" id="err-signup-email">Please enter a valid email.</div>
-      </div>
-      <div class="form-field">
-        <label>Password <span style="font-size:11px;color:var(--ink3);">(min 8 characters)</span></label>
-        <input type="password" id="signup-password" placeholder="Create a password" autocomplete="new-password"/>
-        <div class="field-error" id="err-signup-password">Password must be at least 8 characters.</div>
-      </div>
+      <div class="form-field"><label>Your Role</label><select id="signup-role"><option value="actor">Actor / Artist</option><option value="organization">Theater / Organization</option></select></div>
+      <div class="form-field" id="org-name-field" style="display:none;"><label>Organization Name</label><input type="text" id="signup-org-name" placeholder="e.g. Beck Center for the Arts"/></div>
+      <div class="form-field"><label>Email</label><input type="email" id="signup-email" placeholder="you@example.com" autocomplete="email"/><div class="field-error" id="err-signup-email">Please enter a valid email.</div></div>
+      <div class="form-field"><label>Password <span style="font-size:11px;color:var(--ink3);">(min 8 characters)</span></label><input type="password" id="signup-password" placeholder="Create a password" autocomplete="new-password"/><div class="field-error" id="err-signup-password">Password must be at least 8 characters.</div></div>
       <button class="modal-submit" id="signup-btn" onclick="handleSignUp()">Create Free Account</button>
     </div>
-    <div class="auth-toggle" id="auth-toggle-link">
-      No account? <a onclick="switchAuthMode('signup')">Create one free</a>
-    </div>
+    <div class="auth-toggle" id="auth-toggle-link">No account? <a onclick="switchAuthMode('signup')">Create one free</a></div>
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════════════════════════
-     EDIT LISTING MODAL
-══════════════════════════════════════════════════════════════ -->
+<!-- Edit modal -->
 <div class="modal-overlay" id="edit-modal" onclick="closeEditOnBg(event)">
   <div class="modal" style="width:min(560px,94vw);">
     <button class="modal-close-btn" onclick="closeEditModal()">×</button>
@@ -851,19 +702,8 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
     <div class="form-field"><label>Theater Name</label><input type="text" id="edit-theater_name"/></div>
     <div class="form-field"><label>Location</label><input type="text" id="edit-location"/></div>
     <div class="form-field"><label>Audition Date</label><input type="date" id="edit-audition_date"/></div>
-    <div class="form-field">
-      <label>Compensation</label>
-      <select id="edit-pay">
-        <option value="Paid">Paid</option><option value="Stipend">Stipend</option><option value="Volunteer">Volunteer</option>
-      </select>
-    </div>
-    <div class="form-field">
-      <label>Union Status</label>
-      <select id="edit-union_status">
-        <option value="AEA">AEA</option><option value="Non-Union">Non-Union</option>
-        <option value="EMC">EMC</option><option value="AEA and Non-Union">AEA and Non-Union</option>
-      </select>
-    </div>
+    <div class="form-field"><label>Compensation</label><select id="edit-pay"><option value="Paid">Paid</option><option value="Stipend">Stipend</option><option value="Volunteer">Volunteer</option></select></div>
+    <div class="form-field"><label>Union Status</label><select id="edit-union_status"><option value="AEA">AEA</option><option value="Non-Union">Non-Union</option><option value="EMC">EMC</option><option value="AEA and Non-Union">AEA and Non-Union</option></select></div>
     <div class="form-field"><label>Roles</label><textarea id="edit-roles" rows="3"></textarea></div>
     <div class="form-field"><label>Description</label><textarea id="edit-description" rows="4"></textarea></div>
     <div class="form-field"><label>Contact Info</label><input type="text" id="edit-contact_info"/></div>
@@ -872,73 +712,50 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
 </div>
 
 <!-- ══════════════════════════════════════════════════════════════
-     ALL JAVASCRIPT
+     JAVASCRIPT
 ══════════════════════════════════════════════════════════════ -->
 <script>
-// ════════════════════════════════════════════════════════════════
-// STEP 1 — PASTE YOUR CREDENTIALS HERE
-// ════════════════════════════════════════════════════════════════
-const SUPABASE_URL      = 'https://wzjdyzqspmnprsypxzea.supabase.co'
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind6amR5enFzcG1ucHJzeXB4emVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxODI5MTYsImV4cCI6MjA5MTc1ODkxNn0.aoJJbFZfI333uBJZgz57NkIIGSGktHCRMO8pNCoK3JU'     // starts with eyJ...
-const STRIPE_PUBLIC_KEY = 'YOUR_STRIPE_PUBLISHABLE_KEY';  // starts with pk_live_ or pk_test_
-const STRIPE_PRICE_ID   = 'YOUR_STRIPE_PRICE_ID';         // e.g. price_1ABC... — your $79/year price
+// ── CREDENTIALS ──
+const SUPABASE_URL      = 'https://wzjdyzqspmnprsypxzea.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind6amR5enFzcG1ucHJzeXB4emVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxODI5MTYsImV4cCI6MjA5MTc1ODkxNn0.aoJJbFZfI333uBJZgz57NkIIGSGktHCRMO8pNCoK3JU';
+const STRIPE_PUBLIC_KEY = 'YOUR_STRIPE_PUBLISHABLE_KEY';
+const STRIPE_PRICE_ID   = 'YOUR_STRIPE_PRICE_ID';
 
-// ════════════════════════════════════════════════════════════════
-// SUPABASE + STRIPE INIT
-// ════════════════════════════════════════════════════════════════
 const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let _stripe = null;
 try { _stripe = Stripe(STRIPE_PUBLIC_KEY); } catch(e) {}
 
-// ════════════════════════════════════════════════════════════════
-// GLOBAL STATE
-// ════════════════════════════════════════════════════════════════
-let currentUser    = null;   // Supabase auth user object
-let currentProfile = null;   // Row from 'profiles' table
-let allAuditions   = [];     // Cached fetched auditions
+// ── STATE ──
+let currentUser    = null;
+let currentProfile = null;
+let allAuditions   = [];
+let allJobs        = [];
 let currentAuthMode = 'signin';
+let locationSortTimer = null;
 
-// ════════════════════════════════════════════════════════════════
-// AUTH — INIT (runs on page load, restores session)
-// ════════════════════════════════════════════════════════════════
+// ── BOOT ──
 async function initAuth() {
   const { data: { session } } = await _supabase.auth.getSession();
-  if (session) {
-    currentUser = session.user;
-    await loadProfile();
-  }
+  if (session) { currentUser = session.user; await loadProfile(); }
   updateNavForUser();
-  // Check for ?admin=1 in URL
-  if (window.location.search.includes('admin=1')) {
-    showPage('admin', null);
-    loadAdminListings();
-  }
-  // Check for Stripe success return
-  if (window.location.search.includes('stripe_success=1')) {
-    await markUserPaid();
-    flash('Subscription activated! You can now post unlimited listings.', 'success');
-  }
+  if (window.location.search.includes('admin=1')) { showPage('admin',null); loadAdminListings(); }
+  if (window.location.search.includes('stripe_success=1')) { await markUserPaid(); flash('Subscription activated!','success'); }
   fetchAuditions();
+  fetchJobs();
 }
 
-// Load profile from 'profiles' table
 async function loadProfile() {
   if (!currentUser) return;
-  const { data } = await _supabase
-    .from('profiles')
-    .select('*')
-    .eq('id', currentUser.id)
-    .single();
+  const { data } = await _supabase.from('profiles').select('*').eq('id', currentUser.id).single();
   currentProfile = data;
 }
 
-// Update nav based on login state
 function updateNavForUser() {
   const navRight = document.getElementById('nav-right');
   if (currentUser && currentProfile) {
     const isPaid = currentProfile.is_paid;
     navRight.innerHTML = `
-      <span class="nav-paid-badge" style="display:${isPaid ? 'inline' : 'none'};">✓ Subscribed</span>
+      <span class="nav-paid-badge" style="display:${isPaid?'inline':'none'};">✓ Subscribed</span>
       <button class="btn-ghost" onclick="showPage('my-listings',null);loadMyListings()">My Listings</button>
       <button class="btn-cta" onclick="requireAuthThen(openPostPage)">Post a Listing</button>
       <button class="btn-ghost" onclick="handleLogout()" style="border-color:transparent;color:var(--ink3);">Log out</button>`;
@@ -949,64 +766,42 @@ function updateNavForUser() {
   }
 }
 
-// ════════════════════════════════════════════════════════════════
-// AUTH MODAL — Sign In / Sign Up
-// ════════════════════════════════════════════════════════════════
-function openAuth(mode) {
-  switchAuthMode(mode || 'signin');
-  document.getElementById('auth-modal').classList.add('open');
-  document.getElementById('auth-error-msg').classList.remove('visible');
-}
+// ── AUTH ──
+function openAuth(mode) { switchAuthMode(mode||'signin'); document.getElementById('auth-modal').classList.add('open'); document.getElementById('auth-error-msg').classList.remove('visible'); }
 function closeAuth() { document.getElementById('auth-modal').classList.remove('open'); }
-function closeAuthOnBg(e) { if (e.target === document.getElementById('auth-modal')) closeAuth(); }
+function closeAuthOnBg(e) { if (e.target===document.getElementById('auth-modal')) closeAuth(); }
 
 function switchAuthMode(mode) {
   currentAuthMode = mode;
-  document.getElementById('signin-fields').style.display  = mode === 'signin'  ? 'block' : 'none';
-  document.getElementById('signup-fields').style.display  = mode === 'signup'  ? 'block' : 'none';
-  document.getElementById('tab-signin').classList.toggle('active', mode === 'signin');
-  document.getElementById('tab-signup').classList.toggle('active', mode === 'signup');
-  document.getElementById('auth-modal-title').textContent = mode === 'signin' ? 'Welcome back.' : 'Create your account.';
-  document.getElementById('auth-modal-sub').textContent   = mode === 'signin'
-    ? 'Sign in to your Cleveland Callboard account.'
-    : 'Free for actors. Organizations get one free listing.';
-  document.getElementById('auth-toggle-link').innerHTML = mode === 'signin'
+  document.getElementById('signin-fields').style.display  = mode==='signin'?'block':'none';
+  document.getElementById('signup-fields').style.display  = mode==='signup'?'block':'none';
+  document.getElementById('tab-signin').classList.toggle('active', mode==='signin');
+  document.getElementById('tab-signup').classList.toggle('active', mode==='signup');
+  document.getElementById('auth-modal-title').textContent = mode==='signin'?'Welcome back.':'Create your account.';
+  document.getElementById('auth-modal-sub').textContent   = mode==='signin'?'Sign in to your account.':'Free for actors. Organizations get one free listing.';
+  document.getElementById('auth-toggle-link').innerHTML   = mode==='signin'
     ? 'No account? <a onclick="switchAuthMode(\'signup\')">Create one free</a>'
     : 'Already have an account? <a onclick="switchAuthMode(\'signin\')">Sign in</a>';
   document.getElementById('auth-error-msg').classList.remove('visible');
 }
 
-// Show/hide org name field based on role selection
 document.getElementById('signup-role').addEventListener('change', function() {
-  document.getElementById('org-name-field').style.display = this.value === 'organization' ? 'block' : 'none';
+  document.getElementById('org-name-field').style.display = this.value==='organization'?'block':'none';
 });
 
 async function handleSignIn() {
   const email = document.getElementById('signin-email').value.trim();
   const pass  = document.getElementById('signin-password').value;
   let valid = true;
-  if (!email || !email.includes('@')) { showFieldErr('signin-email', true); valid = false; }
-  else { showFieldErr('signin-email', false); }
-  if (!pass) { showFieldErr('signin-password', true); valid = false; }
-  else { showFieldErr('signin-password', false); }
+  if (!email||!email.includes('@')) { showFieldErr('signin-email',true); valid=false; } else { showFieldErr('signin-email',false); }
+  if (!pass) { showFieldErr('signin-password',true); valid=false; } else { showFieldErr('signin-password',false); }
   if (!valid) return;
-
   const btn = document.getElementById('signin-btn');
-  btn.disabled = true; btn.textContent = 'Signing in…';
+  btn.disabled=true; btn.textContent='Signing in…';
   const { data, error } = await _supabase.auth.signInWithPassword({ email, password: pass });
-  btn.disabled = false; btn.textContent = 'Sign In';
-
-  if (error) {
-    showAuthError(error.message === 'Invalid login credentials'
-      ? 'Incorrect email or password. Please try again.'
-      : error.message);
-    return;
-  }
-  currentUser = data.user;
-  await loadProfile();
-  updateNavForUser();
-  closeAuth();
-  flash('Welcome back!', 'success');
+  btn.disabled=false; btn.textContent='Sign In';
+  if (error) { showAuthError(error.message==='Invalid login credentials'?'Incorrect email or password.':error.message); return; }
+  currentUser = data.user; await loadProfile(); updateNavForUser(); closeAuth(); flash('Welcome back!','success');
 }
 
 async function handleSignUp() {
@@ -1015,167 +810,135 @@ async function handleSignUp() {
   const email   = document.getElementById('signup-email').value.trim();
   const pass    = document.getElementById('signup-password').value;
   let valid = true;
-  if (!email || !email.includes('@')) { showFieldErr('signup-email', true); valid = false; }
-  else { showFieldErr('signup-email', false); }
-  if (!pass || pass.length < 8) { showFieldErr('signup-password', true); valid = false; }
-  else { showFieldErr('signup-password', false); }
+  if (!email||!email.includes('@')) { showFieldErr('signup-email',true); valid=false; } else { showFieldErr('signup-email',false); }
+  if (!pass||pass.length<8) { showFieldErr('signup-password',true); valid=false; } else { showFieldErr('signup-password',false); }
   if (!valid) return;
-
   const btn = document.getElementById('signup-btn');
-  btn.disabled = true; btn.textContent = 'Creating account…';
-
+  btn.disabled=true; btn.textContent='Creating account…';
   const { data, error } = await _supabase.auth.signUp({ email, password: pass });
-  if (error) {
-    btn.disabled = false; btn.textContent = 'Create Free Account';
-    showAuthError(error.message); return;
-  }
-
-  // Create profile row
-  await _supabase.from('profiles').insert({
-    id:       data.user.id,
-    role:     role,
-    org_name: orgName || null,
-    is_paid:  false
-  });
-
-  currentUser = data.user;
-  await loadProfile();
-  updateNavForUser();
-  btn.disabled = false; btn.textContent = 'Create Free Account';
-  closeAuth();
-  flash('Account created! Check your email to confirm.', 'success');
+  if (error) { btn.disabled=false; btn.textContent='Create Free Account'; showAuthError(error.message); return; }
+  await _supabase.from('profiles').insert({ id: data.user.id, role, org_name: orgName||null, is_paid: false });
+  currentUser = data.user; await loadProfile(); updateNavForUser();
+  btn.disabled=false; btn.textContent='Create Free Account';
+  closeAuth(); flash('Account created! Check your email to confirm.','success');
 }
 
 async function handleLogout() {
   await _supabase.auth.signOut();
-  currentUser = null; currentProfile = null;
-  updateNavForUser();
-  showPage('auditions', null);
-  flash('Signed out successfully.', 'info');
+  currentUser=null; currentProfile=null; updateNavForUser(); showPage('auditions',null); flash('Signed out.','info');
 }
 
-function showAuthError(msg) {
-  const el = document.getElementById('auth-error-msg');
-  el.textContent = msg; el.classList.add('visible');
-}
-function showFieldErr(id, show) {
-  const el = document.getElementById('err-' + id);
-  if (el) el.classList.toggle('visible', show);
-}
+function showAuthError(msg) { const el=document.getElementById('auth-error-msg'); el.textContent=msg; el.classList.add('visible'); }
+function showFieldErr(id, show) { const el=document.getElementById('err-'+id); if(el) el.classList.toggle('visible',show); }
+function requireAuthThen(fn) { if (!currentUser) { openAuth('signin'); return; } fn(); }
+function openPostPage() { showPage('post-audition',null); checkPaywall(); }
+function openNewPostModal() { flash('Community posting coming soon!','info'); }
 
-// Require login before doing something
-function requireAuthThen(fn) {
-  if (!currentUser) { openAuth('signin'); return; }
-  fn();
-}
-function openPostPage() { showPage('post-audition', null); checkPaywall(); }
-function openNewPostModal() { flash('Community posting coming soon!', 'info'); }
-
-// ════════════════════════════════════════════════════════════════
-// PAYWALL — check listing count before allowing post
-// ════════════════════════════════════════════════════════════════
+// ── PAYWALL ──
 async function checkPaywall() {
   if (!currentUser) return;
   if (currentProfile && currentProfile.is_paid) {
-    // Paid — hide paywall, show form
-    document.getElementById('paywall-banner').style.display = 'none';
-    document.getElementById('post-form-card').style.display = 'block';
-    return;
+    document.getElementById('paywall-banner').style.display='none';
+    document.getElementById('post-form-card').style.display='block'; return;
   }
-  // Count their listings
-  const { count } = await _supabase
-    .from('auditions')
-    .select('id', { count: 'exact', head: true })
-    .eq('user_id', currentUser.id);
-
-  if (count >= 1) {
-    // Used their free listing — show paywall
-    document.getElementById('paywall-banner').style.display = 'block';
-    document.getElementById('post-form-card').style.display = 'none';
+  const { count } = await _supabase.from('auditions').select('id',{count:'exact',head:true}).eq('user_id',currentUser.id);
+  if (count>=1) {
+    document.getElementById('paywall-banner').style.display='block';
+    document.getElementById('post-form-card').style.display='none';
   } else {
-    document.getElementById('paywall-banner').style.display = 'none';
-    document.getElementById('post-form-card').style.display = 'block';
+    document.getElementById('paywall-banner').style.display='none';
+    document.getElementById('post-form-card').style.display='block';
   }
 }
 
-// ════════════════════════════════════════════════════════════════
-// STRIPE CHECKOUT
-// ════════════════════════════════════════════════════════════════
+// ── STRIPE ──
 async function startStripeCheckout() {
   if (!currentUser) { openAuth('signin'); return; }
-  if (!_stripe) { flash('Stripe not configured yet.', 'error'); return; }
-
-  flash('Redirecting to checkout…', 'info');
-
-  // You need a Supabase Edge Function or a simple server endpoint
-  // to create a Stripe Checkout session and return the URL.
-  // Below is the pattern — replace YOUR_CHECKOUT_ENDPOINT with your Edge Function URL.
-  //
-  // Example Edge Function URL: https://YOUR_PROJECT.supabase.co/functions/v1/create-checkout
-  //
+  if (!_stripe) { flash('Stripe not configured yet.','error'); return; }
+  flash('Redirecting to checkout…','info');
   try {
     const res = await fetch('YOUR_CHECKOUT_ENDPOINT', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json',
-                 'Authorization': `Bearer ${(await _supabase.auth.getSession()).data.session.access_token}` },
-      body: JSON.stringify({
-        price_id:    STRIPE_PRICE_ID,
-        user_id:     currentUser.id,
-        success_url: window.location.origin + window.location.pathname + '?stripe_success=1',
-        cancel_url:  window.location.href
-      })
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':`Bearer ${(await _supabase.auth.getSession()).data.session.access_token}`},
+      body: JSON.stringify({ price_id: STRIPE_PRICE_ID, user_id: currentUser.id, success_url: window.location.origin+window.location.pathname+'?stripe_success=1', cancel_url: window.location.href })
     });
     const { url } = await res.json();
     window.location.href = url;
-  } catch (e) {
-    flash('Checkout unavailable — server endpoint not yet configured. See setup guide.', 'error');
-  }
+  } catch(e) { flash('Checkout unavailable — endpoint not configured.','error'); }
 }
 
 async function markUserPaid() {
   if (!currentUser) return;
   await _supabase.from('profiles').update({ is_paid: true }).eq('id', currentUser.id);
-  await loadProfile();
-  updateNavForUser();
+  await loadProfile(); updateNavForUser();
 }
 
 // ════════════════════════════════════════════════════════════════
-// FETCH + RENDER AUDITIONS
+// AUDITIONS — fetch + filter + render
+// FIX: tab filters now correctly check pay, union_status, description
 // ════════════════════════════════════════════════════════════════
 async function fetchAuditions() {
   try {
     const { data, error } = await _supabase
-      .from('auditions')
-      .select('*')
-      .eq('status', 'approved')
+      .from('auditions').select('*').eq('status','approved')
       .order('audition_date', { ascending: true });
     if (error) throw error;
     allAuditions = data || [];
     renderAuditions(allAuditions);
-    // Update stats
     const today = new Date();
-    const weekAgo = new Date(today); weekAgo.setDate(weekAgo.getDate() - 7);
+    const weekAgo = new Date(today); weekAgo.setDate(weekAgo.getDate()-7);
     const thisWeek = allAuditions.filter(a => new Date(a.created_at) >= weekAgo).length;
     document.getElementById('stat-auditions').textContent = allAuditions.length;
     document.getElementById('stat-week').textContent = thisWeek;
-  } catch (err) {
-    console.warn('Supabase fetch:', err.message);
+  } catch(err) {
+    console.warn('Supabase auditions fetch:', err.message);
     document.getElementById('auditions-container').innerHTML =
       `<div style="padding:32px;text-align:center;color:var(--ink3);">Could not load listings. Check your Supabase credentials.</div>`;
   }
 }
 
+// FIXED: hero tab filters map correctly to Supabase field values
+function setHeroTab(btn, filter) {
+  document.querySelectorAll('.hero-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  let filtered = [...allAuditions];
+  const now = new Date();
+  if (filter === 'week') {
+    const next7 = new Date(now); next7.setDate(now.getDate()+7);
+    // Show auditions whose audition_date falls within the next 7 days
+    filtered = filtered.filter(a => {
+      if (!a.audition_date) return false;
+      const d = new Date(a.audition_date);
+      return d >= now && d <= next7;
+    });
+  } else if (filter === 'paid') {
+    // Matches pay field values: 'Paid' or 'Stipend'
+    filtered = filtered.filter(a => a.pay === 'Paid' || a.pay === 'Stipend');
+  } else if (filter === 'equity') {
+    // Matches union_status containing 'AEA'
+    filtered = filtered.filter(a => a.union_status && a.union_status.includes('AEA'));
+  } else if (filter === 'musical') {
+    // Checks both description AND show_title for broader matching
+    filtered = filtered.filter(a =>
+      (a.description && a.description.toLowerCase().includes('musical')) ||
+      (a.show_title && a.show_title.toLowerCase().includes('musical')) ||
+      (a.roles && a.roles.toLowerCase().includes('musical'))
+    );
+  }
+  renderAuditions(filtered);
+}
+
 function sortAndRender() {
   const sort = document.getElementById('sort-select').value;
   let sorted = [...allAuditions];
-  if (sort === 'date_asc')  sorted.sort((a,b) => new Date(a.audition_date) - new Date(b.audition_date));
-  if (sort === 'date_desc') sorted.sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
-  if (sort === 'az')        sorted.sort((a,b) => (a.show_title||'').localeCompare(b.show_title||''));
+  if (sort==='date_asc')  sorted.sort((a,b)=>new Date(a.audition_date)-new Date(b.audition_date));
+  if (sort==='date_desc') sorted.sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
+  if (sort==='az')        sorted.sort((a,b)=>(a.show_title||'').localeCompare(b.show_title||''));
   renderAuditions(sorted);
 }
 
 function filterCards() {
-  const search = (document.getElementById('search-input').value || '').toLowerCase();
+  const search = (document.getElementById('search-input').value||'').toLowerCase();
   let filtered = allAuditions.filter(a => {
     if (search) {
       const haystack = `${a.show_title} ${a.theater_name} ${a.roles} ${a.location}`.toLowerCase();
@@ -1187,236 +950,339 @@ function filterCards() {
 }
 
 function clearFilters() {
-  document.getElementById('search-input').value = '';
-  document.querySelectorAll('.sidebar input[type=checkbox]').forEach(c => c.checked = false);
+  document.getElementById('search-input').value='';
+  document.getElementById('location-sort-input').value='';
+  document.querySelectorAll('#page-auditions .sidebar input[type=checkbox]').forEach(c=>c.checked=false);
   renderAuditions(allAuditions);
 }
 
-function setHeroTab(btn, filter) {
-  document.querySelectorAll('.hero-tab').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  let filtered = [...allAuditions];
-  const now = new Date();
-  if (filter === 'week') {
-    const next7 = new Date(now); next7.setDate(now.getDate() + 7);
-    filtered = filtered.filter(a => a.audition_date && new Date(a.audition_date) <= next7);
-  } else if (filter === 'paid') {
-    filtered = filtered.filter(a => a.pay === 'Paid');
-  } else if (filter === 'equity') {
-    filtered = filtered.filter(a => a.union_status && a.union_status.includes('AEA'));
-  } else if (filter === 'musical') {
-    filtered = filtered.filter(a => a.description && a.description.toLowerCase().includes('musical'));
-  }
-  renderAuditions(filtered);
+// ── LOCATION PROXIMITY SORT ──
+// Ranks results by how closely their location text matches the user's input.
+// Since we can't do real geo without an API key, we use a simple string-similarity
+// score: exact city match = highest, partial match = medium, no match = lowest.
+function debounceLocationSort() {
+  clearTimeout(locationSortTimer);
+  locationSortTimer = setTimeout(applyLocationSort, 400);
+}
+
+function applyLocationSort() {
+  const query = (document.getElementById('location-sort-input').value||'').toLowerCase().trim();
+  if (!query) { sortAndRender(); return; }
+
+  const scored = allAuditions.map(a => {
+    const loc = (a.location||'').toLowerCase();
+    let score = 0;
+    if (loc === query) score = 3;                          // exact match
+    else if (loc.startsWith(query)) score = 2;            // starts with
+    else if (loc.includes(query) || query.includes(loc.split(',')[0])) score = 1; // partial
+    return { ...a, _locScore: score };
+  });
+
+  // Sort: highest score first, then by audition_date within same score
+  scored.sort((a,b) => {
+    if (b._locScore !== a._locScore) return b._locScore - a._locScore;
+    return new Date(a.audition_date||0) - new Date(b.audition_date||0);
+  });
+
+  renderAuditions(scored);
 }
 
 function renderAuditions(list) {
   const container = document.getElementById('auditions-container');
   const countEl   = document.getElementById('result-count');
   if (countEl) countEl.innerHTML = `<strong>${list.length}</strong> auditions found`;
-
   if (!list.length) {
     container.innerHTML = `<div style="padding:40px;text-align:center;color:var(--ink3);">
       <div style="font-size:28px;margin-bottom:10px;">🎭</div>
       <div style="font-size:14px;font-weight:500;color:var(--ink2);margin-bottom:8px;">No auditions found.</div>
-      <div style="font-size:13px;">Try adjusting your filters, or <span style="color:var(--red);cursor:pointer;" onclick="requireAuthThen(openPostPage)">post a listing</span>.</div>
-    </div>`;
-    return;
+      <div style="font-size:13px;">Try adjusting your search, or <span style="color:var(--red);cursor:pointer;" onclick="requireAuthThen(openPostPage)">post a listing</span>.</div>
+    </div>`; return;
   }
-
-  // Build slug-friendly anchor IDs for each listing (SEO prep)
   container.innerHTML = list.map(a => buildCard(a)).join('');
 }
 
 function buildCard(a) {
-  const slug = (a.slug || slugify(`${a.show_title}-${a.theater_name}`));
-  const payBadge   = a.pay === 'Paid'    ? '<span class="badge b-paid">Paid</span>'
-                   : a.pay === 'Stipend' ? '<span class="badge b-paid">Stipend</span>'
+  const slug = a.slug || slugify(`${a.show_title}-${a.theater_name}`);
+  const payBadge   = a.pay==='Paid'?'<span class="badge b-paid">Paid</span>'
+                   : a.pay==='Stipend'?'<span class="badge b-paid">Stipend</span>'
                    : '<span class="badge b-free">Volunteer</span>';
-  const unionBadge = a.union_status && a.union_status.includes('AEA')
-                   ? `<span class="badge b-union">${esc(a.union_status)}</span>` : '';
-  const dateStr    = a.audition_date ? `📅 ${fmtDate(a.audition_date)}` : '';
-  const desc       = a.description ? esc(a.description).substring(0, 160) + (a.description.length > 160 ? '…' : '') : '';
-
+  const unionBadge = a.union_status&&a.union_status.includes('AEA')
+                   ? `<span class="badge b-union">${esc(a.union_status)}</span>`:'';
+  const dateStr    = a.audition_date?`📅 ${fmtDate(a.audition_date)}`:'';
+  const desc       = a.description?esc(a.description).substring(0,160)+(a.description.length>160?'…':''):'';
   return `
-    <article class="listing-card" id="listing-${slug}"
-      itemscope itemtype="https://schema.org/Event"
-      onclick="openDynamicDetail('${a.id}')">
+    <article class="listing-card" id="listing-${slug}" itemscope itemtype="https://schema.org/Event" onclick="openDynamicDetail('${a.id}')">
       <div class="card-header">
-        <div class="card-org" itemprop="organizer">${esc(a.theater_name || '')}</div>
+        <div class="card-org" itemprop="organizer">${esc(a.theater_name||'')}</div>
         <div class="card-badges">${payBadge}${unionBadge}</div>
       </div>
-      <div class="card-title" itemprop="name">${esc(a.show_title || '')}</div>
+      <div class="card-title" itemprop="name">${esc(a.show_title||'')}</div>
       <div class="card-meta">
-        ${a.location ? `<span class="cmeta" itemprop="location">📍 ${esc(a.location)}</span>` : ''}
-        ${dateStr ? `<span class="cmeta">${dateStr}</span>` : ''}
+        ${a.location?`<span class="cmeta" itemprop="location">📍 ${esc(a.location)}</span>`:''}
+        ${dateStr?`<span class="cmeta">${dateStr}</span>`:''}
       </div>
-      ${desc ? `<div class="card-desc" itemprop="description">${desc}</div>` : ''}
+      ${desc?`<div class="card-desc" itemprop="description">${desc}</div>`:''}
       <div class="card-footer">
-        <span class="deadline-text">${a.audition_date ? '⏰ Audition: ' + fmtDate(a.audition_date) : ''}</span>
+        <span class="deadline-text">${a.audition_date?'⏰ Audition: '+fmtDate(a.audition_date):''}</span>
         <button class="detail-btn" onclick="event.stopPropagation();openDynamicDetail('${a.id}')">View full listing →</button>
       </div>
     </article>`;
 }
 
-// Open detail panel for a dynamic listing
 function openDynamicDetail(id) {
   const a = allAuditions.find(x => x.id == id);
   if (!a) return;
   const slug = a.slug || slugify(`${a.show_title}-${a.theater_name}`);
-  // Update URL for SEO / shareable links (without full page reload)
-  history.replaceState(null, '', `?listing=${slug}`);
-
-  const payBadge   = a.pay === 'Paid' ? '<span class="badge b-paid">Paid</span>'
-                   : a.pay === 'Stipend' ? '<span class="badge b-paid">Stipend</span>'
+  history.replaceState(null,'',`?listing=${slug}`);
+  const payBadge   = a.pay==='Paid'?'<span class="badge b-paid">Paid</span>'
+                   : a.pay==='Stipend'?'<span class="badge b-paid">Stipend</span>'
                    : '<span class="badge b-free">Volunteer</span>';
-  const unionBadge = a.union_status && a.union_status.includes('AEA')
-                   ? `<span class="badge b-union">${esc(a.union_status)}</span>` : '';
-
+  const unionBadge = a.union_status&&a.union_status.includes('AEA')
+                   ? `<span class="badge b-union">${esc(a.union_status)}</span>`:'';
   document.getElementById('detail-content').innerHTML = `
-    <div class="detail-org">${esc(a.theater_name || '')}</div>
-    <div class="detail-title">${esc(a.show_title || '')}</div>
+    <div class="detail-org">${esc(a.theater_name||'')}</div>
+    <div class="detail-title">${esc(a.show_title||'')}</div>
     <div class="detail-badges">${payBadge}${unionBadge}</div>
-
-    <div class="detail-section">
-      <h4>Key Details</h4>
-      <div class="detail-grid">
-        ${a.audition_date ? `<div class="detail-field"><div class="df-label">Audition Date</div><div class="df-val">${fmtDate(a.audition_date)}</div></div>` : ''}
-        ${a.location ? `<div class="detail-field"><div class="df-label">Location</div><div class="df-val">${esc(a.location)}</div></div>` : ''}
-        ${a.pay ? `<div class="detail-field"><div class="df-label">Compensation</div><div class="df-val">${esc(a.pay)}</div></div>` : ''}
-        ${a.union_status ? `<div class="detail-field"><div class="df-label">Union Status</div><div class="df-val">${esc(a.union_status)}</div></div>` : ''}
-      </div>
-    </div>
-
-    ${a.roles ? `<div class="detail-section"><h4>Roles Being Cast</h4><div class="detail-body"><p>${esc(a.roles)}</p></div></div>` : ''}
-    ${a.description ? `<div class="detail-section"><h4>Description &amp; Submission Instructions</h4><div class="detail-body"><p>${esc(a.description)}</p></div></div>` : ''}
-
+    <div class="detail-section"><h4>Key Details</h4><div class="detail-grid">
+      ${a.audition_date?`<div class="detail-field"><div class="df-label">Audition Date</div><div class="df-val">${fmtDate(a.audition_date)}</div></div>`:''}
+      ${a.location?`<div class="detail-field"><div class="df-label">Location</div><div class="df-val">${esc(a.location)}</div></div>`:''}
+      ${a.pay?`<div class="detail-field"><div class="df-label">Compensation</div><div class="df-val">${esc(a.pay)}</div></div>`:''}
+      ${a.union_status?`<div class="detail-field"><div class="df-label">Union Status</div><div class="df-val">${esc(a.union_status)}</div></div>`:''}
+    </div></div>
+    ${a.roles?`<div class="detail-section"><h4>Roles Being Cast</h4><div class="detail-body"><p>${esc(a.roles)}</p></div></div>`:''}
+    ${a.description?`<div class="detail-section"><h4>Description &amp; Submission Instructions</h4><div class="detail-body"><p>${esc(a.description)}</p></div></div>`:''}
     <div class="detail-actions">
-      ${a.contact_info ? `<button class="btn-apply" onclick="window.open('${a.contact_info.startsWith('http') ? a.contact_info : 'mailto:' + a.contact_info}','_blank')">Get Submission Info</button>` : ''}
-      <p class="source-note">Listing posted by ${esc(a.theater_name || 'this organization')}. Always verify details directly with them before submitting.</p>
+      ${a.contact_info?`<button class="btn-apply" onclick="window.open('${a.contact_info.startsWith('http')?a.contact_info:'mailto:'+a.contact_info}','_blank')">Get Submission Info</button>`:''}
+      <p class="source-note">Listing posted by ${esc(a.theater_name||'this organization')}. Always verify details directly with them.</p>
     </div>`;
-
   document.getElementById('detail-overlay').classList.add('open');
-  document.body.style.overflow = 'hidden';
+  document.body.style.overflow='hidden';
 }
+
 function closeDetail() {
   document.getElementById('detail-overlay').classList.remove('open');
-  document.body.style.overflow = '';
-  history.replaceState(null, '', window.location.pathname);
+  document.body.style.overflow='';
+  history.replaceState(null,'',window.location.pathname);
 }
-function closeDetailOnBg(e) { if (e.target === document.getElementById('detail-overlay')) closeDetail(); }
+function closeDetailOnBg(e) { if(e.target===document.getElementById('detail-overlay')) closeDetail(); }
 
 // ════════════════════════════════════════════════════════════════
-// SUBMIT AUDITION FORM
+// JOBS — Supabase fetch + render
+// Table: arts_jobs
+// Columns: id, created_at, user_id, org_name, job_title, employment_type,
+//          category, location, salary, description, contact_info,
+//          slug, status (default 'pending')
 // ════════════════════════════════════════════════════════════════
+async function fetchJobs() {
+  try {
+    const { data, error } = await _supabase
+      .from('arts_jobs').select('*').eq('status','approved')
+      .order('created_at', { ascending: false });
+    if (error) throw error;
+    allJobs = data || [];
+    renderJobs(allJobs);
+  } catch(err) {
+    console.warn('Supabase jobs fetch:', err.message);
+    document.getElementById('jobs-container').innerHTML =
+      `<div style="padding:32px;text-align:center;color:var(--ink3);">Could not load jobs. Ensure the arts_jobs table exists in Supabase.</div>`;
+  }
+}
+
+let currentJobTabFilter = 'all';
+
+function setJobTab(btn, filter) {
+  document.querySelectorAll('.tabs-row .tab-pill').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  currentJobTabFilter = filter;
+  filterJobs();
+}
+
+function filterJobs() {
+  let filtered = [...allJobs];
+
+  // Tab filter by category
+  if (currentJobTabFilter !== 'all') {
+    filtered = filtered.filter(j => j.category && j.category === currentJobTabFilter);
+  }
+
+  // Sidebar: employment type
+  const types = [];
+  if (document.getElementById('jf-fulltime').checked)   types.push('full-time');
+  if (document.getElementById('jf-parttime').checked)   types.push('part-time');
+  if (document.getElementById('jf-contract').checked)   types.push('contract');
+  if (document.getElementById('jf-seasonal').checked)   types.push('seasonal');
+  if (types.length) {
+    filtered = filtered.filter(j => j.employment_type && types.includes(j.employment_type.toLowerCase()));
+  }
+
+  // Sidebar: category checkboxes
+  const cats = [];
+  if (document.getElementById('jf-admin').checked)       cats.push('admin');
+  if (document.getElementById('jf-stage_mgmt').checked)  cats.push('stage_management');
+  if (document.getElementById('jf-design_crew').checked) cats.push('design_crew');
+  if (document.getElementById('jf-education').checked)   cats.push('education');
+  if (document.getElementById('jf-box_office').checked)  cats.push('box_office');
+  if (cats.length) {
+    filtered = filtered.filter(j => j.category && cats.includes(j.category));
+  }
+
+  renderJobs(filtered);
+}
+
+function sortAndRenderJobs() {
+  const sort = document.getElementById('job-sort-select').value;
+  let sorted = [...allJobs];
+  if (sort==='date_desc') sorted.sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
+  if (sort==='az')        sorted.sort((a,b)=>(a.job_title||'').localeCompare(b.job_title||''));
+  renderJobs(sorted);
+}
+
+function clearJobFilters() {
+  document.querySelectorAll('#page-jobs .sidebar input[type=checkbox]').forEach(c=>c.checked=true);
+  currentJobTabFilter='all';
+  document.querySelectorAll('.tabs-row .tab-pill').forEach((b,i)=>{ b.classList.toggle('active',i===0); });
+  renderJobs(allJobs);
+}
+
+function renderJobs(list) {
+  const container = document.getElementById('jobs-container');
+  const countEl   = document.getElementById('job-result-count');
+  if (countEl) countEl.innerHTML = `<strong>${list.length}</strong> jobs found`;
+  if (!list.length) {
+    container.innerHTML = `<div style="padding:40px;text-align:center;color:var(--ink3);">
+      <div style="font-size:28px;margin-bottom:10px;">💼</div>
+      <div style="font-size:14px;font-weight:500;color:var(--ink2);margin-bottom:8px;">No jobs found.</div>
+      <div style="font-size:13px;">Try adjusting your filters or check back soon.</div>
+    </div>`; return;
+  }
+  container.innerHTML = list.map(j => buildJobCard(j)).join('');
+}
+
+function buildJobCard(j) {
+  const catLabel = {
+    admin:'Admin', stage_management:'Stage Mgmt', design_crew:'Design / Crew',
+    education:'Education', box_office:'Box Office'
+  }[j.category] || j.category || '';
+  const empBadge = j.employment_type
+    ? `<span class="badge b-paid">${esc(j.employment_type)}</span>` : '';
+  const catBadge = catLabel
+    ? `<span class="badge b-admin">${esc(catLabel)}</span>` : '';
+  const desc = j.description ? esc(j.description).substring(0,160)+(j.description.length>160?'…':'') : '';
+  return `
+    <article class="listing-card" onclick="openJobDetail('${j.id}')">
+      <div class="card-header">
+        <div class="card-org">${esc(j.org_name||'')}</div>
+        <div class="card-badges">${empBadge}${catBadge}</div>
+      </div>
+      <div class="card-title">${esc(j.job_title||'')}</div>
+      <div class="card-meta">
+        ${j.location?`<span class="cmeta">📍 ${esc(j.location)}</span>`:''}
+        ${j.salary?`<span class="cmeta">💰 ${esc(j.salary)}</span>`:''}
+      </div>
+      ${desc?`<div class="card-desc">${desc}</div>`:''}
+      <div class="card-footer">
+        <span class="deadline-text"></span>
+        <button class="detail-btn" onclick="event.stopPropagation();openJobDetail('${j.id}')">View full listing →</button>
+      </div>
+    </article>`;
+}
+
+function openJobDetail(id) {
+  const j = allJobs.find(x => x.id == id);
+  if (!j) return;
+  const catLabel = {
+    admin:'Admin', stage_management:'Stage Mgmt', design_crew:'Design / Crew',
+    education:'Education', box_office:'Box Office'
+  }[j.category] || j.category || '';
+  document.getElementById('detail-content').innerHTML = `
+    <div class="detail-org">${esc(j.org_name||'')}</div>
+    <div class="detail-title">${esc(j.job_title||'')}</div>
+    <div class="detail-badges">
+      ${j.employment_type?`<span class="badge b-paid">${esc(j.employment_type)}</span>`:''}
+      ${catLabel?`<span class="badge b-admin">${esc(catLabel)}</span>`:''}
+    </div>
+    <div class="detail-section"><h4>Key Details</h4><div class="detail-grid">
+      ${j.location?`<div class="detail-field"><div class="df-label">Location</div><div class="df-val">${esc(j.location)}</div></div>`:''}
+      ${j.salary?`<div class="detail-field"><div class="df-label">Salary / Pay</div><div class="df-val">${esc(j.salary)}</div></div>`:''}
+      ${j.employment_type?`<div class="detail-field"><div class="df-label">Employment Type</div><div class="df-val">${esc(j.employment_type)}</div></div>`:''}
+      ${catLabel?`<div class="detail-field"><div class="df-label">Category</div><div class="df-val">${esc(catLabel)}</div></div>`:''}
+    </div></div>
+    ${j.description?`<div class="detail-section"><h4>Full Description</h4><div class="detail-body"><p>${esc(j.description)}</p></div></div>`:''}
+    <div class="detail-actions">
+      ${j.contact_info?`<button class="btn-apply" onclick="window.open('${j.contact_info.startsWith('http')?j.contact_info:'mailto:'+j.contact_info}','_blank')">Apply / Contact</button>`:''}
+      <p class="source-note">Posted by ${esc(j.org_name||'this organization')}. Verify details before applying.</p>
+    </div>`;
+  document.getElementById('detail-overlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+
+// ── SUBMIT AUDITION ──
 async function handleAuditionSubmit(e) {
   e.preventDefault();
   if (!currentUser) { openAuth('signin'); return; }
-
-  // Validate all required fields
   const required = ['theater_name','show_title','pay','union_status','location','audition_date','roles'];
   let valid = true;
   required.forEach(field => {
-    const el = document.getElementById('f-' + field);
-    const err = document.getElementById('err-' + field);
-    if (!el || !el.value.trim()) {
-      if (el) el.classList.add('error');
-      if (err) err.classList.add('visible');
-      valid = false;
-    } else {
-      if (el) el.classList.remove('error');
-      if (err) err.classList.remove('visible');
-    }
+    const el=document.getElementById('f-'+field), err=document.getElementById('err-'+field);
+    if (!el||!el.value.trim()) { if(el) el.classList.add('error'); if(err) err.classList.add('visible'); valid=false; }
+    else { if(el) el.classList.remove('error'); if(err) err.classList.remove('visible'); }
   });
-  // Contact info
-  const ciEl = document.getElementById('f-contact_info');
-  const ciErr = document.getElementById('err-contact_info');
-  if (!ciEl.value.trim()) {
-    ciEl.classList.add('error'); ciErr.classList.add('visible'); valid = false;
-  } else { ciEl.classList.remove('error'); ciErr.classList.remove('visible'); }
-
+  const ciEl=document.getElementById('f-contact_info'), ciErr=document.getElementById('err-contact_info');
+  if (!ciEl.value.trim()) { ciEl.classList.add('error'); ciErr.classList.add('visible'); valid=false; }
+  else { ciEl.classList.remove('error'); ciErr.classList.remove('visible'); }
   if (!valid) return;
 
-  const btn = document.getElementById('post-submit-btn');
-  btn.disabled = true; btn.textContent = 'Submitting…';
-
-  const showTitle    = document.getElementById('f-show_title').value.trim();
-  const theaterName  = document.getElementById('f-theater_name').value.trim();
-  const generatedSlug = slugify(`${showTitle}-${theaterName}-${Date.now()}`);
-
-  const payload = {
-    user_id:       currentUser.id,
-    theater_name:  theaterName,
-    show_title:    showTitle,
-    roles:         document.getElementById('f-roles').value.trim(),
-    pay:           document.getElementById('f-pay').value,
-    union_status:  document.getElementById('f-union_status').value,
-    location:      document.getElementById('f-location').value.trim(),
-    audition_date: document.getElementById('f-audition_date').value || null,
-    description:   document.getElementById('f-description').value.trim(),
-    contact_info:  ciEl.value.trim(),
-    slug:          generatedSlug,
-    status:        'pending'
+  const btn=document.getElementById('post-submit-btn');
+  btn.disabled=true; btn.textContent='Submitting…';
+  const showTitle=document.getElementById('f-show_title').value.trim();
+  const theaterName=document.getElementById('f-theater_name').value.trim();
+  const payload={
+    user_id:currentUser.id, theater_name:theaterName, show_title:showTitle,
+    roles:document.getElementById('f-roles').value.trim(),
+    pay:document.getElementById('f-pay').value,
+    union_status:document.getElementById('f-union_status').value,
+    location:document.getElementById('f-location').value.trim(),
+    audition_date:document.getElementById('f-audition_date').value||null,
+    description:document.getElementById('f-description').value.trim(),
+    contact_info:ciEl.value.trim(),
+    slug:slugify(`${showTitle}-${theaterName}-${Date.now()}`),
+    status:'pending'
   };
-
   try {
     const { error } = await _supabase.from('auditions').insert([payload]);
     if (error) throw error;
-
-    document.getElementById('post-success').textContent =
-      '✓ Listing submitted! It will appear on the board within 24 hours after review.';
-    document.getElementById('post-success').className = 'form-msg success';
+    document.getElementById('post-success').textContent='✓ Listing submitted! It will appear within 24 hours after review.';
+    document.getElementById('post-success').className='form-msg success';
     document.getElementById('audition-form').reset();
-    flash('Listing submitted for review!', 'success');
-  } catch (err) {
-    document.getElementById('post-error').textContent = '✗ Error: ' + (err.message || 'Something went wrong.');
-    document.getElementById('post-error').style.display = 'block';
-  } finally {
-    btn.disabled = false; btn.textContent = 'Submit Listing for Review';
-  }
+    flash('Listing submitted for review!','success');
+  } catch(err) {
+    document.getElementById('post-error').textContent='✗ Error: '+(err.message||'Something went wrong.');
+    document.getElementById('post-error').style.display='block';
+  } finally { btn.disabled=false; btn.textContent='Submit Listing for Review'; }
 }
 
-// ════════════════════════════════════════════════════════════════
-// MY LISTINGS DASHBOARD
-// ════════════════════════════════════════════════════════════════
+// ── MY LISTINGS ──
 async function loadMyListings() {
   if (!currentUser) { openAuth('signin'); return; }
-  const { data, error } = await _supabase
-    .from('auditions')
-    .select('*')
-    .eq('user_id', currentUser.id)
-    .order('created_at', { ascending: false });
-
-  const listings = data || [];
-  const total    = listings.length;
-  const live     = listings.filter(l => l.status === 'approved').length;
-  const pending  = listings.filter(l => l.status === 'pending').length;
-
-  document.getElementById('ds-total').textContent   = total;
-  document.getElementById('ds-live').textContent    = live;
-  document.getElementById('ds-pending').textContent = pending;
-
-  // Show paywall notice if needed
-  const isPaid = currentProfile && currentProfile.is_paid;
-  document.getElementById('dash-paywall-notice').style.display =
-    (!isPaid && total >= 1) ? 'block' : 'none';
-
-  const container = document.getElementById('my-listings-container');
+  const { data } = await _supabase.from('auditions').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false});
+  const listings=data||[];
+  document.getElementById('ds-total').textContent=listings.length;
+  document.getElementById('ds-live').textContent=listings.filter(l=>l.status==='approved').length;
+  document.getElementById('ds-pending').textContent=listings.filter(l=>l.status==='pending').length;
+  const isPaid=currentProfile&&currentProfile.is_paid;
+  document.getElementById('dash-paywall-notice').style.display=(!isPaid&&listings.length>=1)?'block':'none';
+  const container=document.getElementById('my-listings-container');
   if (!listings.length) {
-    container.innerHTML = `<div class="empty-state">
-      <p>You haven't posted any listings yet.</p>
-      <button class="btn-cta" onclick="showPage('post-audition',null);checkPaywall()">Post your first listing free</button>
-    </div>`;
+    container.innerHTML=`<div class="empty-state"><p>You haven't posted any listings yet.</p><button class="btn-cta" onclick="showPage('post-audition',null);checkPaywall()">Post your first listing free</button></div>`;
     return;
   }
-
-  container.innerHTML = listings.map(l => `
+  container.innerHTML=listings.map(l=>`
     <div class="dash-row">
       <div class="dash-row-info">
-        <div class="dash-row-title">${esc(l.show_title || '')} — ${esc(l.theater_name || '')}</div>
-        <div class="dash-row-meta">${l.audition_date ? 'Audition: ' + fmtDate(l.audition_date) + ' · ' : ''}Posted ${fmtDate(l.created_at)}</div>
+        <div class="dash-row-title">${esc(l.show_title||'')} — ${esc(l.theater_name||'')}</div>
+        <div class="dash-row-meta">${l.audition_date?'Audition: '+fmtDate(l.audition_date)+' · ':''}Posted ${fmtDate(l.created_at)}</div>
       </div>
-      <span class="status-pill status-${l.status}">${l.status.charAt(0).toUpperCase() + l.status.slice(1)}</span>
+      <span class="status-pill status-${l.status}">${l.status.charAt(0).toUpperCase()+l.status.slice(1)}</span>
       <div class="dash-actions">
         <button class="dash-action-btn" onclick="openEditModal(${JSON.stringify(l).replace(/"/g,'&quot;')})">Edit</button>
         <button class="dash-action-btn del" onclick="deleteListing('${l.id}')">Delete</button>
@@ -1426,322 +1292,160 @@ async function loadMyListings() {
 
 async function deleteListing(id) {
   if (!confirm('Delete this listing permanently?')) return;
-  const { error } = await _supabase.from('auditions').delete()
-    .eq('id', id).eq('user_id', currentUser.id); // owner check
-  if (error) { flash('Could not delete listing.', 'error'); return; }
-  flash('Listing deleted.', 'info');
-  loadMyListings();
-  fetchAuditions();
+  const { error } = await _supabase.from('auditions').delete().eq('id',id).eq('user_id',currentUser.id);
+  if (error) { flash('Could not delete listing.','error'); return; }
+  flash('Listing deleted.','info'); loadMyListings(); fetchAuditions();
 }
 
-// ════════════════════════════════════════════════════════════════
-// EDIT LISTING MODAL
-// ════════════════════════════════════════════════════════════════
+// ── EDIT MODAL ──
 function openEditModal(listing) {
-  document.getElementById('edit-listing-id').value      = listing.id;
-  document.getElementById('edit-show_title').value      = listing.show_title || '';
-  document.getElementById('edit-theater_name').value    = listing.theater_name || '';
-  document.getElementById('edit-location').value        = listing.location || '';
-  document.getElementById('edit-audition_date').value   = listing.audition_date || '';
-  document.getElementById('edit-pay').value             = listing.pay || 'Paid';
-  document.getElementById('edit-union_status').value    = listing.union_status || 'Non-Union';
-  document.getElementById('edit-roles').value           = listing.roles || '';
-  document.getElementById('edit-description').value     = listing.description || '';
-  document.getElementById('edit-contact_info').value    = listing.contact_info || '';
+  document.getElementById('edit-listing-id').value=listing.id;
+  document.getElementById('edit-show_title').value=listing.show_title||'';
+  document.getElementById('edit-theater_name').value=listing.theater_name||'';
+  document.getElementById('edit-location').value=listing.location||'';
+  document.getElementById('edit-audition_date').value=listing.audition_date||'';
+  document.getElementById('edit-pay').value=listing.pay||'Paid';
+  document.getElementById('edit-union_status').value=listing.union_status||'Non-Union';
+  document.getElementById('edit-roles').value=listing.roles||'';
+  document.getElementById('edit-description').value=listing.description||'';
+  document.getElementById('edit-contact_info').value=listing.contact_info||'';
   document.getElementById('edit-modal').classList.add('open');
 }
 function closeEditModal() { document.getElementById('edit-modal').classList.remove('open'); }
-function closeEditOnBg(e) { if (e.target === document.getElementById('edit-modal')) closeEditModal(); }
+function closeEditOnBg(e) { if(e.target===document.getElementById('edit-modal')) closeEditModal(); }
 
 async function saveEditedListing() {
-  const id = document.getElementById('edit-listing-id').value;
-  if (!id || !currentUser) return;
-  const payload = {
-    show_title:    document.getElementById('edit-show_title').value.trim(),
-    theater_name:  document.getElementById('edit-theater_name').value.trim(),
-    location:      document.getElementById('edit-location').value.trim(),
-    audition_date: document.getElementById('edit-audition_date').value || null,
-    pay:           document.getElementById('edit-pay').value,
-    union_status:  document.getElementById('edit-union_status').value,
-    roles:         document.getElementById('edit-roles').value.trim(),
-    description:   document.getElementById('edit-description').value.trim(),
-    contact_info:  document.getElementById('edit-contact_info').value.trim(),
-    status:        'pending' // reset to pending after edit — needs re-approval
+  const id=document.getElementById('edit-listing-id').value;
+  if (!id||!currentUser) return;
+  const payload={
+    show_title:document.getElementById('edit-show_title').value.trim(),
+    theater_name:document.getElementById('edit-theater_name').value.trim(),
+    location:document.getElementById('edit-location').value.trim(),
+    audition_date:document.getElementById('edit-audition_date').value||null,
+    pay:document.getElementById('edit-pay').value,
+    union_status:document.getElementById('edit-union_status').value,
+    roles:document.getElementById('edit-roles').value.trim(),
+    description:document.getElementById('edit-description').value.trim(),
+    contact_info:document.getElementById('edit-contact_info').value.trim(),
+    status:'pending'
   };
-  const { error } = await _supabase.from('auditions').update(payload)
-    .eq('id', id).eq('user_id', currentUser.id); // owner-only
-  if (error) { flash('Could not save changes.', 'error'); return; }
-  closeEditModal();
-  flash('Listing updated — pending re-review.', 'success');
-  loadMyListings();
-  fetchAuditions();
+  const { error } = await _supabase.from('auditions').update(payload).eq('id',id).eq('user_id',currentUser.id);
+  if (error) { flash('Could not save changes.','error'); return; }
+  closeEditModal(); flash('Listing updated — pending re-review.','success');
+  loadMyListings(); fetchAuditions();
 }
 
-// ════════════════════════════════════════════════════════════════
-// ADMIN — Listing Review
-// Access via: yoursite.com?admin=1
-// ════════════════════════════════════════════════════════════════
+// ── ADMIN ──
 async function loadAdminListings() {
-  // Fetch ALL listings (pending + approved + rejected), newest first
-  const { data, error } = await _supabase
-    .from('auditions')
-    .select('*')
-    .order('created_at', { ascending: false });
-
-  const listings = data || [];
-  const pending  = listings.filter(l => l.status === 'pending');
-  document.getElementById('admin-pending-count').textContent = `${pending.length} pending`;
-
-  const container = document.getElementById('admin-listings-container');
-  if (!listings.length) {
-    container.innerHTML = `<div class="empty-state"><p>No listings yet.</p></div>`;
-    return;
-  }
-
-  container.innerHTML = listings.map(l => `
+  const { data } = await _supabase.from('auditions').select('*').order('created_at',{ascending:false});
+  const listings=data||[];
+  const pending=listings.filter(l=>l.status==='pending');
+  document.getElementById('admin-pending-count').textContent=`${pending.length} pending`;
+  const container=document.getElementById('admin-listings-container');
+  if (!listings.length) { container.innerHTML=`<div class="empty-state"><p>No listings yet.</p></div>`; return; }
+  container.innerHTML=listings.map(l=>`
     <div class="admin-row">
       <div class="admin-row-info">
-        <div class="admin-row-title">${esc(l.show_title || '')} — ${esc(l.theater_name || '')}</div>
+        <div class="admin-row-title">${esc(l.show_title||'')} — ${esc(l.theater_name||'')}</div>
         <div class="admin-row-meta">
-          ${l.location ? '📍 ' + esc(l.location) + ' · ' : ''}
-          ${l.audition_date ? '📅 ' + fmtDate(l.audition_date) + ' · ' : ''}
-          ${l.pay ? esc(l.pay) + ' · ' : ''}
-          ${l.union_status ? esc(l.union_status) + '<br>' : ''}
-          ${l.roles ? '<em>Roles: ' + esc(l.roles).substring(0,100) + '</em><br>' : ''}
+          ${l.location?'📍 '+esc(l.location)+' · ':''}
+          ${l.audition_date?'📅 '+fmtDate(l.audition_date)+' · ':''}
+          ${l.pay?esc(l.pay)+' · ':''}${l.union_status?esc(l.union_status)+'<br>':''}
+          ${l.roles?'<em>Roles: '+esc(l.roles).substring(0,100)+'</em><br>':''}
           Submitted: ${fmtDate(l.created_at)} · Status: <strong>${l.status}</strong>
-          ${l.contact_info ? ' · Contact: ' + esc(l.contact_info) : ''}
+          ${l.contact_info?' · Contact: '+esc(l.contact_info):''}
         </div>
       </div>
       <div class="admin-btns">
-        ${l.status !== 'approved' ? `<button class="btn-approve" onclick="adminUpdateStatus('${l.id}','approved')">✓ Approve</button>` : ''}
-        ${l.status !== 'rejected' ? `<button class="btn-reject" onclick="adminUpdateStatus('${l.id}','rejected')">✗ Reject</button>` : ''}
-        ${l.status !== 'pending' ? `<button class="btn-ghost" onclick="adminUpdateStatus('${l.id}','pending')" style="font-size:11px;padding:5px 10px;">Reset</button>` : ''}
+        ${l.status!=='approved'?`<button class="btn-approve" onclick="adminUpdateStatus('${l.id}','approved')">✓ Approve</button>`:''}
+        ${l.status!=='rejected'?`<button class="btn-reject" onclick="adminUpdateStatus('${l.id}','rejected')">✗ Reject</button>`:''}
+        ${l.status!=='pending'?`<button class="btn-ghost" onclick="adminUpdateStatus('${l.id}','pending')" style="font-size:11px;padding:5px 10px;">Reset</button>`:''}
       </div>
     </div>`).join('');
 }
 
 async function adminUpdateStatus(id, status) {
-  const { error } = await _supabase.from('auditions').update({ status }).eq('id', id);
-  if (error) { flash('Update failed: ' + error.message, 'error'); return; }
-  flash(`Listing ${status}.`, status === 'approved' ? 'success' : 'info');
-  loadAdminListings();
-  fetchAuditions();
+  const { error } = await _supabase.from('auditions').update({ status }).eq('id',id);
+  if (error) { flash('Update failed: '+error.message,'error'); return; }
+  flash(`Listing ${status}.`, status==='approved'?'success':'info');
+  loadAdminListings(); fetchAuditions();
 }
 
-// ════════════════════════════════════════════════════════════════
-// STATIC LISTING DATA (fallback for detail panel on static cards)
-// ════════════════════════════════════════════════════════════════
-const staticListings = {
-  hamlet:{org:'Great Lakes Theater',title:'Hamlet — Full Cast Call',badges:[{c:'b-feat',t:'Featured'},{c:'b-paid',t:'Paid'},{c:'b-union',t:'AEA Equity'}],fields:[{l:'Audition Dates',v:'April 22–23, 2025'},{l:'Location',v:'1501 Euclid Ave, Cleveland'},{l:'Compensation',v:'AEA LORT D contract'},{l:'Deadline',v:'April 19, 2025'}],roles:[{r:'Hamlet',d:'Male-identifying, 25–40.'},{r:'Ophelia',d:'Female-identifying, 18–30.'},{r:'Gertrude',d:'Female-identifying, 40–55.'},{r:'Ensemble',d:'6 roles, all genders.'}],instructions:'Email headshot + résumé to casting@greatlakestheater.org by April 19.',source:'greatlakestheater.org'},
-  woods:{org:'Beck Center for the Arts',title:'Into the Woods',badges:[{c:'b-new',t:'New'},{c:'b-paid',t:'Paid'}],fields:[{l:'Dates',v:'May 1–2, 2025'},{l:'Location',v:'17801 Detroit Ave, Lakewood'},{l:'Compensation',v:'Stipend'},{l:'Deadline',v:'April 28, 2025'}],roles:[{r:'Cinderella',d:'Soprano.'},{r:"Baker's Wife",d:'Strong acting singer.'},{r:'Witch',d:'Mezzo or belt.'}],instructions:'Prepare 16–32 bars of Sondheim. Bring sheet music.',source:'beckcenter.org'},
-  riverside:{org:'Dobama Theatre',title:'Between Riverside and Crazy',badges:[{c:'b-paid',t:'Paid'},{c:'b-union',t:'AEA'}],fields:[{l:'Date',v:'April 30, 2025'},{l:'Location',v:'2340 Lee Rd, Cleveland Heights'},{l:'Compensation',v:'AEA SPT contract'}],roles:[{r:'Pops',d:'Black male, 60–75.'},{r:'Junior',d:'Black male, 30–45.'},{r:'Lulu',d:'Black female, 25–35.'}],instructions:'Email headshot + résumé to casting@dobama.org.',source:'dobama.org'},
-  newworks:{org:'Cleveland Public Theatre',title:'New Works Festival',badges:[{c:'b-free',t:'Volunteer'},{c:'b-new',t:'New'}],fields:[{l:'Date',v:'May 6, 2025'},{l:'Location',v:'6415 Detroit Ave, Cleveland'}],roles:[{r:'All roles',d:'Open call.'}],instructions:'Walk-ins welcome. 1-minute monologue or sides.',source:'cptonline.org'},
-  mktg:{org:'Playhouse Square',title:'Director of Marketing & Communications',badges:[{c:'b-admin',t:'Admin'},{c:'b-paid',t:'Full-time'}],fields:[{l:'Salary',v:'$58,000–$68,000'},{l:'Location',v:'Downtown Cleveland'}],roles:[],instructions:'Submit cover letter, résumé, 3 references to hr@playhousesquare.org.',source:'playhousesquare.org'},
-  edu:{org:'Beck Center for the Arts',title:'Education Programs Manager',badges:[{c:'b-admin',t:'Education'},{c:'b-paid',t:'Full-time'}],fields:[{l:'Salary',v:'$42,000–$48,000'},{l:'Location',v:'Lakewood, OH'}],roles:[],instructions:'Email jobs@beckcenter.org by May 1.',source:'beckcenter.org'}
-};
-
-function openDetail(id) {
-  const d = staticListings[id]; if (!d) return;
-  const bh = d.badges.map(b=>`<span class="badge ${b.c}">${b.t}</span>`).join('');
-  const fh = d.fields.map(f=>`<div class="detail-field"><div class="df-label">${f.l}</div><div class="df-val">${f.v}</div></div>`).join('');
-  const rh = d.roles.length ? `<div class="detail-section"><h4>Roles</h4><ul class="detail-roles">${d.roles.map(r=>`<li><strong>${r.r}</strong> — ${r.d}</li>`).join('')}</ul></div>` : '';
-  document.getElementById('detail-content').innerHTML = `
-    <div class="detail-org">${d.org}</div>
-    <div class="detail-title">${d.title}</div>
-    <div class="detail-badges">${bh}</div>
-    <div class="detail-section"><h4>Key Details</h4><div class="detail-grid">${fh}</div></div>
-    ${rh}
-    <div class="detail-section"><h4>How to Apply</h4><div class="detail-body"><p>${d.instructions}</p></div></div>
-    <div class="detail-actions">
-      <button class="btn-source" onclick="window.open('https://'+${JSON.stringify(d.source)},'_blank')">View on ${d.source} ↗</button>
-      <p class="source-note">External link — verify details with the organization before submitting.</p>
-    </div>`;
-  document.getElementById('detail-overlay').classList.add('open');
-  document.body.style.overflow = 'hidden';
-}
-
-// ════════════════════════════════════════════════════════════════
-// PAGE NAVIGATION
-// ════════════════════════════════════════════════════════════════
+// ── UI HELPERS ──
 function showPage(id, btn) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('visible'));
-  const pg = document.getElementById('page-' + id);
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('visible'));
+  const pg=document.getElementById('page-'+id);
   if (pg) pg.classList.add('visible');
-  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
   if (btn) btn.classList.add('active');
-  window.scrollTo(0, 0);
-  history.replaceState(null, '', window.location.pathname);
-}
-
-// ════════════════════════════════════════════════════════════════
-// UI HELPERS
-// ════════════════════════════════════════════════════════════════
-function setHeroTab(btn, filter) {
-  document.querySelectorAll('.hero-tab').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  let filtered = [...allAuditions];
-  const now = new Date();
-  if (filter === 'week') { const n7=new Date(now);n7.setDate(now.getDate()+7);filtered=filtered.filter(a=>a.audition_date&&new Date(a.audition_date)<=n7); }
-  else if (filter === 'paid') { filtered=filtered.filter(a=>a.pay==='Paid'); }
-  else if (filter === 'equity') { filtered=filtered.filter(a=>a.union_status&&a.union_status.includes('AEA')); }
-  else if (filter === 'musical') { filtered=filtered.filter(a=>a.description&&a.description.toLowerCase().includes('musical')); }
-  renderAuditions(filtered);
+  window.scrollTo(0,0);
+  history.replaceState(null,'',window.location.pathname);
+  // Reload jobs when navigating to jobs page
+  if (id==='jobs') fetchJobs();
 }
 
 function setTab(btn) {
-  const row = btn.parentElement;
-  row.querySelectorAll('.tab-pill').forEach(b => b.classList.remove('active'));
+  const row=btn.parentElement;
+  row.querySelectorAll('.tab-pill').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
 }
 
 function selectTier(el, amount) {
-  document.querySelectorAll('.tier').forEach(t => t.classList.remove('selected'));
+  document.querySelectorAll('.tier').forEach(t=>t.classList.remove('selected'));
   el.classList.add('selected');
-  document.getElementById('donate-btn').textContent = `Donate $${amount} →`;
+  document.getElementById('donate-btn').textContent=`Donate $${amount} →`;
 }
 
 function flash(msg, type) {
-  const el = document.getElementById('flash-msg');
-  el.textContent = msg;
-  el.className = `flash ${type} show`;
-  setTimeout(() => el.classList.remove('show'), 4000);
+  const el=document.getElementById('flash-msg');
+  el.textContent=msg; el.className=`flash ${type} show`;
+  setTimeout(()=>el.classList.remove('show'),4000);
 }
 
-// ════════════════════════════════════════════════════════════════
-// UTILITIES
-// ════════════════════════════════════════════════════════════════
 function esc(str) {
-  return String(str)
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 function fmtDate(d) {
   if (!d) return '';
   try {
-    const [y,m,dd] = String(d).split('T')[0].split('-').map(Number);
+    const [y,m,dd]=String(d).split('T')[0].split('-').map(Number);
     return new Date(y,m-1,dd).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
   } catch { return d; }
 }
 function slugify(str) {
-  return String(str).toLowerCase().trim()
-    .replace(/[^a-z0-9\s-]/g,'').replace(/\s+/g,'-').replace(/-+/g,'-').substring(0,80);
+  return String(str).toLowerCase().trim().replace(/[^a-z0-9\s-]/g,'').replace(/\s+/g,'-').replace(/-+/g,'-').substring(0,80);
 }
 
-// ════════════════════════════════════════════════════════════════
-// BOOT
-// ════════════════════════════════════════════════════════════════
 initAuth();
 </script>
 
 <!--
-╔══════════════════════════════════════════════════════════════════════════════╗
-║                        SETUP GUIDE — READ FIRST                            ║
-╠══════════════════════════════════════════════════════════════════════════════╣
-║                                                                              ║
-║  STEP 1 — CREATE A SUPABASE PROJECT                                         ║
-║  ─────────────────────────────────────────────────────────────               ║
-║  1. Go to supabase.com → New Project                                         ║
-║  2. Copy your Project URL and anon/public key from:                          ║
-║     Dashboard → Settings → API                                               ║
-║  3. Paste them into the JS near line 270 in this file.                       ║
-║                                                                              ║
-║  STEP 2 — CREATE SUPABASE TABLES                                            ║
-║  ─────────────────────────────────────────────────────────────               ║
-║                                                                              ║
-║  Table: profiles                                                             ║
-║  ┌──────────────────┬─────────────┬─────────────────────────────┐           ║
-║  │ Column           │ Type        │ Notes                       │           ║
-║  ├──────────────────┼─────────────┼─────────────────────────────┤           ║
-║  │ id               │ uuid        │ Primary key, references     │           ║
-║  │                  │             │ auth.users(id)              │           ║
-║  │ role             │ text        │ 'actor' or 'organization'   │           ║
-║  │ org_name         │ text        │ nullable                    │           ║
-║  │ is_paid          │ boolean     │ default false               │           ║
-║  │ stripe_customer_id│ text       │ nullable                    │           ║
-║  └──────────────────┴─────────────┴─────────────────────────────┘           ║
-║                                                                              ║
-║  Table: auditions                                                            ║
-║  ┌──────────────────┬─────────────┬─────────────────────────────┐           ║
-║  │ id               │ int8        │ Primary key, auto-increment │           ║
-║  │ created_at       │ timestamptz │ default now()               │           ║
-║  │ user_id          │ uuid        │ references auth.users(id)   │           ║
-║  │ theater_name     │ text        │ not null                    │           ║
-║  │ show_title       │ text        │ not null                    │           ║
-║  │ roles            │ text        │                             │           ║
-║  │ pay              │ text        │                             │           ║
-║  │ union_status     │ text        │                             │           ║
-║  │ location         │ text        │                             │           ║
-║  │ audition_date    │ date        │                             │           ║
-║  │ description      │ text        │                             │           ║
-║  │ contact_info     │ text        │                             │           ║
-║  │ slug             │ text        │                             │           ║
-║  │ status           │ text        │ default 'pending'           │           ║
-║  └──────────────────┴─────────────┴─────────────────────────────┘           ║
-║                                                                              ║
-║  STEP 3 — ROW LEVEL SECURITY (RLS) POLICIES                                ║
-║  ─────────────────────────────────────────────────────────────               ║
-║  In Supabase → Authentication → Policies, enable RLS on both tables,        ║
-║  then add these policies:                                                    ║
-║                                                                              ║
-║  On profiles:                                                                ║
-║  • SELECT: auth.uid() = id   (users can read their own profile)             ║
-║  • INSERT: auth.uid() = id   (users can create their own profile)           ║
-║  • UPDATE: auth.uid() = id   (users can update their own profile)           ║
-║                                                                              ║
-║  On auditions:                                                               ║
-║  • SELECT (public):  status = 'approved'  (anyone can see approved)        ║
-║  • SELECT (admin):   auth.uid() = user_id (owners see their own)           ║
-║  • INSERT: auth.uid() = user_id           (logged-in users can post)       ║
-║  • UPDATE: auth.uid() = user_id           (owners can edit their own)      ║
-║  • DELETE: auth.uid() = user_id           (owners can delete their own)    ║
-║                                                                              ║
-║  For admin SELECT (to see all listings for approval), you have two options: ║
-║  a) Temporarily disable RLS on auditions while building (dev only)          ║
-║  b) Add a policy: auth.uid() = 'YOUR_ADMIN_USER_UUID' → all access         ║
-║     Find your UUID in Supabase → Authentication → Users                    ║
-║                                                                              ║
-║  STEP 4 — STRIPE SETUP                                                      ║
-║  ─────────────────────────────────────────────────────────────               ║
-║  1. Go to stripe.com → Dashboard → Products                                  ║
-║  2. Create a product: "Cleveland Callboard — Annual Subscription"            ║
-║  3. Add a price: $79.00 / year (recurring)                                   ║
-║  4. Copy the Price ID (starts with price_...)                                ║
-║  5. Copy your Publishable Key from Developers → API Keys                    ║
-║  6. Paste both into the JS near line 270 in this file.                       ║
-║                                                                              ║
-║  For Stripe Checkout to actually work, you need a small server endpoint      ║
-║  that creates a Checkout Session. The easiest free option:                   ║
-║                                                                              ║
-║  → Create a Supabase Edge Function:                                          ║
-║    supabase functions new create-checkout                                    ║
-║    (See: supabase.com/docs/guides/functions for full guide)                  ║
-║                                                                              ║
-║  The Edge Function should:                                                   ║
-║  1. Receive price_id, success_url, cancel_url                                ║
-║  2. Create a Stripe Checkout Session using your secret key                   ║
-║  3. Return { url: checkoutUrl }                                              ║
-║                                                                              ║
-║  Replace 'YOUR_CHECKOUT_ENDPOINT' in the JS with your function URL.         ║
-║                                                                              ║
-║  STEP 5 — GOOGLE ANALYTICS                                                  ║
-║  ─────────────────────────────────────────────────────────────               ║
-║  1. Go to analytics.google.com → Create property                             ║
-║  2. Get your Measurement ID (G-XXXXXXXXXX)                                   ║
-║  3. Uncomment and fill in the GA block in <head> (~line 55)                  ║
-║                                                                              ║
-║  STEP 6 — GOOGLE SEARCH CONSOLE                                             ║
-║  ─────────────────────────────────────────────────────────────               ║
-║  1. Go to search.google.com/search-console                                   ║
-║  2. Add your domain, choose HTML tag verification                            ║
-║  3. Uncomment the meta tag in <head> (~line 51) and paste your code         ║
-║                                                                              ║
-║  STEP 7 — ACCESS THE ADMIN PAGE                                             ║
-║  ─────────────────────────────────────────────────────────────               ║
-║  Navigate to:  https://yoursite.com/?admin=1                                 ║
-║  This reveals the admin listing review panel.                                ║
-║  For security, add RLS so only your user UUID can fetch all listings.        ║
-║                                                                              ║
-╚══════════════════════════════════════════════════════════════════════════════╝
+════════════════════════════════════════════════════════════
+  SUPABASE TABLE: arts_jobs
+  Run this SQL in your Supabase SQL Editor to create the jobs table:
+
+  CREATE TABLE arts_jobs (
+    id              bigserial PRIMARY KEY,
+    created_at      timestamptz DEFAULT now(),
+    user_id         uuid REFERENCES auth.users(id),
+    org_name        text NOT NULL,
+    job_title       text NOT NULL,
+    employment_type text,           -- 'full-time','part-time','contract','seasonal'
+    category        text,           -- 'admin','stage_management','design_crew','education','box_office'
+    location        text,
+    salary          text,
+    description     text,
+    contact_info    text,
+    slug            text,
+    status          text DEFAULT 'pending'
+  );
+
+  RLS policies (same pattern as auditions):
+  - SELECT approved: status = 'approved'
+  - INSERT: auth.uid() = user_id
+  - UPDATE: auth.uid() = user_id
+  - DELETE: auth.uid() = user_id
+════════════════════════════════════════════════════════════
 -->
 </body>
 </html>
