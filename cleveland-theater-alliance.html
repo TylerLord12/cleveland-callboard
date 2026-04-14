@@ -1,0 +1,1451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Cleveland Theater Alliance — Theatre Auditions, Casting Calls & Arts Jobs in Cleveland, Ohio</title>
+<meta name="description" content="Cleveland Theater Alliance is the go-to resource for theatre auditions in Cleveland, casting calls in Ohio, and arts jobs in Northeast Ohio."/>
+<meta name="keywords" content="Cleveland auditions, theatre auditions in Cleveland, casting calls in Ohio, Cleveland theatre jobs, Northeast Ohio auditions"/>
+<meta name="robots" content="index, follow"/>
+<link rel="canonical" href="https://clevelandcallboard.com/"/>
+<meta property="og:title" content="Cleveland Theater Alliance — Theatre Auditions & Arts Jobs"/>
+<meta property="og:description" content="Find every theatre audition, casting call, and arts job in Cleveland and Northeast Ohio — all in one place."/>
+<meta property="og:type" content="website"/>
+<meta property="og:url" content="https://clevelandcallboard.com/"/>
+
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,700;1,400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://js.stripe.com/v3/"></script>
+
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#f9f7f4;--bg2:#f2ede8;--bg3:#e9e2d9;
+  --white:#ffffff;--border:#e0d8ce;--border2:#ccc3b7;
+  --red:#b5291c;--red2:#d63a2b;--red-bg:#fdf1f0;--red-border:#f5cac6;
+  --ink:#1a1410;--ink2:#5a4f45;--ink3:#9a8f84;
+  --gold:#9a7c3a;--gold-bg:#fdf8ee;
+  --green:#1e6b3e;--green-bg:#edf7f2;
+  --blue:#1a4f8a;--blue-bg:#eef4fc;
+  --radius:8px;--radius-lg:12px;--pill:100px;
+  --shadow:0 1px 3px rgba(0,0,0,0.07),0 4px 12px rgba(0,0,0,0.05);
+  --shadow-hover:0 2px 8px rgba(0,0,0,0.10),0 8px 24px rgba(0,0,0,0.08);
+  --transition:0.18s ease;
+  --font-display:'Libre Baskerville',Georgia,serif;
+  --font-body:'Outfit',sans-serif;
+}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:15px;line-height:1.6;min-height:100vh;}
+nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;gap:0;height:58px;position:sticky;top:0;z-index:200;box-shadow:0 1px 0 var(--border);}
+.nav-logo{font-family:var(--font-display);font-size:17px;font-weight:700;color:var(--ink);letter-spacing:-0.2px;white-space:nowrap;margin-right:28px;flex-shrink:0;cursor:pointer;}
+.nav-logo span{color:var(--red);}
+.nav-links{display:flex;align-items:center;gap:2px;flex:1;}
+.nav-btn{background:none;border:none;font-family:var(--font-body);font-size:13.5px;font-weight:400;color:var(--ink2);padding:6px 11px;border-radius:6px;cursor:pointer;transition:all var(--transition);white-space:nowrap;}
+.nav-btn:hover{background:var(--bg2);color:var(--ink);}
+.nav-btn.active{background:var(--red-bg);color:var(--red);font-weight:500;}
+.nav-right{display:flex;align-items:center;gap:8px;margin-left:auto;flex-shrink:0;}
+.btn-ghost{background:none;border:1px solid var(--border2);color:var(--ink2);font-family:var(--font-body);font-size:13px;padding:6px 14px;border-radius:var(--pill);cursor:pointer;transition:all var(--transition);}
+.btn-ghost:hover{border-color:var(--ink2);color:var(--ink);}
+.btn-cta{background:var(--red);border:none;color:#fff;font-family:var(--font-body);font-size:13px;font-weight:500;padding:7px 16px;border-radius:var(--pill);cursor:pointer;transition:background var(--transition);}
+.btn-cta:hover{background:var(--red2);}
+
+/* ── Hero ── */
+.hero{background:var(--white);border-bottom:1px solid var(--border);padding:44px 24px 40px;text-align:center;}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:6px;background:var(--red-bg);border:1px solid var(--red-border);color:var(--red);font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;padding:4px 12px;border-radius:var(--pill);margin-bottom:18px;}
+.hero h1{font-family:var(--font-display);font-size:clamp(30px,5.5vw,48px);line-height:1.15;color:var(--ink);max-width:620px;margin:0 auto 12px;}
+.hero h1 em{font-style:italic;color:var(--red);}
+.hero-sub{color:var(--ink2);font-size:15px;font-weight:300;max-width:440px;margin:0 auto 26px;line-height:1.7;}
+
+/* ── FIXED Search bar ── */
+.hero-search{max-width:520px;margin:0 auto 28px;display:flex;align-items:center;background:var(--bg);border:1.5px solid var(--border2);border-radius:var(--pill);overflow:hidden;transition:border-color var(--transition);}
+.hero-search:focus-within{border-color:var(--red);background:var(--white);}
+.hero-search input{flex:1;background:transparent;border:none;font-family:var(--font-body);font-size:14px;color:var(--ink);padding:12px 16px;outline:none;min-width:0;}
+.hero-search input::placeholder{color:var(--ink3);}
+.hero-search-btn{flex-shrink:0;background:var(--red);border:none;color:#fff;font-family:var(--font-body);font-size:13px;font-weight:500;padding:10px 20px;cursor:pointer;transition:background var(--transition);white-space:nowrap;}
+.hero-search-btn:hover{background:var(--red2);}
+
+.hero-tabs{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;}
+.hero-tab{background:var(--bg2);border:1px solid var(--border);color:var(--ink2);font-family:var(--font-body);font-size:13px;font-weight:500;padding:8px 18px;border-radius:var(--pill);cursor:pointer;transition:all var(--transition);}
+.hero-tab:hover{border-color:var(--border2);color:var(--ink);}
+.hero-tab.active{background:var(--red);border-color:var(--red);color:#fff;}
+.hero-stats{display:flex;justify-content:center;gap:36px;margin-top:32px;padding-top:28px;border-top:1px solid var(--border);flex-wrap:wrap;}
+.hstat .num{font-family:var(--font-display);font-size:26px;font-weight:700;color:var(--ink);}
+.hstat .lbl{font-size:11px;color:var(--ink3);letter-spacing:0.3px;margin-top:1px;}
+
+/* ── Layout ── */
+.main-layout{display:grid;grid-template-columns:220px 1fr;gap:0;max-width:1100px;margin:0 auto;padding:28px 24px;align-items:start;}
+@media(max-width:720px){.main-layout{grid-template-columns:1fr;}.sidebar{display:none;}}
+.sidebar{position:sticky;top:80px;background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px;margin-right:20px;}
+.sidebar h3{font-size:11px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:var(--ink3);margin-bottom:12px;}
+.filter-group{margin-bottom:20px;}
+.filter-label{font-size:12px;font-weight:600;color:var(--ink2);margin-bottom:8px;display:block;}
+.filter-check{display:flex;align-items:center;gap:8px;padding:5px 0;cursor:pointer;}
+.filter-check input{accent-color:var(--red);width:15px;height:15px;cursor:pointer;}
+.filter-check span{font-size:13px;color:var(--ink2);}
+.filter-check:hover span{color:var(--ink);}
+.filter-divider{height:1px;background:var(--border);margin:16px 0;}
+.apply-btn{width:100%;background:var(--red);border:none;color:#fff;font-family:var(--font-body);font-size:13px;font-weight:500;padding:9px;border-radius:var(--radius);cursor:pointer;margin-top:4px;transition:background var(--transition);}
+.apply-btn:hover{background:var(--red2);}
+.clear-btn{width:100%;background:none;border:1px solid var(--border);color:var(--ink3);font-family:var(--font-body);font-size:12px;padding:7px;border-radius:var(--radius);cursor:pointer;margin-top:6px;transition:all var(--transition);}
+.clear-btn:hover{border-color:var(--border2);color:var(--ink2);}
+.content-area{}
+
+/* ── Toolbar with location search ── */
+.content-toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;gap:12px;flex-wrap:wrap;}
+.toolbar-left{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.result-count{font-size:13px;color:var(--ink3);}
+.result-count strong{color:var(--ink);font-weight:500;}
+.sort-select{background:var(--white);border:1px solid var(--border);border-radius:6px;color:var(--ink2);font-family:var(--font-body);font-size:13px;padding:6px 10px;cursor:pointer;outline:none;}
+.location-input-wrap{display:flex;align-items:center;gap:6px;}
+.location-input-wrap label{font-size:12px;color:var(--ink3);white-space:nowrap;}
+.location-input{background:var(--white);border:1px solid var(--border);border-radius:6px;color:var(--ink2);font-family:var(--font-body);font-size:13px;padding:6px 10px;outline:none;width:160px;transition:border-color var(--transition);}
+.location-input:focus{border-color:var(--red);}
+.location-input::placeholder{color:var(--ink3);}
+
+.listing-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;margin-bottom:12px;cursor:pointer;transition:all var(--transition);position:relative;}
+.listing-card:hover{border-color:var(--border2);box-shadow:var(--shadow-hover);transform:translateY(-1px);}
+.listing-card.featured-card{border-left:3px solid var(--gold);background:linear-gradient(to right,var(--gold-bg) 0%,var(--white) 60%);}
+.card-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:10px;}
+.card-org{font-size:11px;font-weight:600;letter-spacing:0.6px;text-transform:uppercase;color:var(--ink3);}
+.card-badges{display:flex;gap:5px;flex-wrap:wrap;flex-shrink:0;}
+.badge{font-size:10px;font-weight:600;padding:3px 8px;border-radius:var(--pill);white-space:nowrap;}
+.b-paid{background:var(--green-bg);color:var(--green);}
+.b-union{background:var(--blue-bg);color:var(--blue);}
+.b-free{background:var(--bg2);color:var(--ink3);}
+.b-feat{background:var(--gold-bg);color:var(--gold);border:1px solid #e8d9a8;}
+.b-new{background:var(--red-bg);color:var(--red);}
+.b-admin{background:#f0f0ff;color:#4a4ab0;}
+.b-crew{background:#f5f0ff;color:#6a3aaa;}
+.card-title{font-family:var(--font-display);font-size:17px;font-weight:700;color:var(--ink);line-height:1.25;margin-bottom:6px;}
+.card-meta{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:10px;}
+.cmeta{font-size:12px;color:var(--ink3);display:flex;align-items:center;gap:4px;}
+.card-desc{font-size:13px;color:var(--ink2);line-height:1.6;margin-bottom:12px;}
+.card-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
+.tag{background:var(--bg2);color:var(--ink2);font-size:11px;padding:3px 9px;border-radius:var(--pill);}
+.card-footer{display:flex;align-items:center;justify-content:space-between;padding-top:12px;border-top:1px solid var(--border);}
+.deadline-text{font-size:12px;color:var(--red);font-weight:500;}
+.detail-btn{background:none;border:1px solid var(--border2);color:var(--ink2);font-family:var(--font-body);font-size:12px;font-weight:500;padding:6px 14px;border-radius:var(--pill);cursor:pointer;transition:all var(--transition);}
+.detail-btn:hover{background:var(--red);border-color:var(--red);color:#fff;}
+
+/* ── Detail panel ── */
+.detail-overlay{display:none;position:fixed;inset:0;background:rgba(20,15,10,0.45);z-index:500;align-items:flex-start;justify-content:flex-end;}
+.detail-overlay.open{display:flex;}
+.detail-panel{background:var(--white);width:min(520px,100vw);height:100vh;overflow-y:auto;padding:28px;border-left:1px solid var(--border);animation:slideIn 0.22s ease;}
+@keyframes slideIn{from{transform:translateX(30px);opacity:0;}to{transform:translateX(0);opacity:1;}}
+.detail-close{background:none;border:1px solid var(--border);color:var(--ink2);font-size:18px;width:34px;height:34px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;margin-bottom:20px;transition:all var(--transition);}
+.detail-close:hover{background:var(--bg2);}
+.detail-org{font-size:11px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:var(--ink3);margin-bottom:6px;}
+.detail-title{font-family:var(--font-display);font-size:24px;line-height:1.2;color:var(--ink);margin-bottom:14px;}
+.detail-badges{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px;}
+.detail-section{margin-bottom:22px;}
+.detail-section h4{font-size:11px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:var(--ink3);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border);}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.detail-field{background:var(--bg);border-radius:var(--radius);padding:10px 12px;}
+.detail-field .df-label{font-size:10px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:var(--ink3);margin-bottom:3px;}
+.detail-field .df-val{font-size:13px;color:var(--ink);font-weight:500;}
+.detail-body{font-size:14px;color:var(--ink2);line-height:1.7;}
+.detail-body p{margin-bottom:10px;}
+.detail-roles{list-style:none;}
+.detail-roles li{padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;color:var(--ink2);}
+.detail-roles li:last-child{border:none;}
+.detail-roles li strong{color:var(--ink);font-weight:500;}
+.detail-actions{display:flex;gap:10px;flex-direction:column;margin-top:24px;}
+.btn-apply{background:var(--red);border:none;color:#fff;font-family:var(--font-body);font-size:14px;font-weight:500;padding:13px;border-radius:var(--radius);cursor:pointer;text-align:center;transition:background var(--transition);}
+.btn-apply:hover{background:var(--red2);}
+.btn-source{background:none;border:1px solid var(--border2);color:var(--ink2);font-family:var(--font-body);font-size:13px;padding:11px;border-radius:var(--radius);cursor:pointer;text-align:center;transition:all var(--transition);}
+.btn-source:hover{border-color:var(--ink2);color:var(--ink);}
+.source-note{font-size:11px;color:var(--ink3);text-align:center;margin-top:6px;}
+
+/* ── Pages ── */
+.page{display:none;}
+.page.visible{display:block;}
+.section-hero{background:var(--white);border-bottom:1px solid var(--border);padding:28px 24px 24px;text-align:center;}
+.section-hero h2{font-family:var(--font-display);font-size:28px;color:var(--ink);margin-bottom:8px;}
+.section-hero p{color:var(--ink2);font-size:14px;max-width:440px;margin:0 auto;}
+.tabs-row{display:flex;gap:8px;justify-content:center;padding:16px 24px;border-bottom:1px solid var(--border);background:var(--white);flex-wrap:wrap;}
+.tab-pill{background:var(--bg2);border:1px solid var(--border);color:var(--ink2);font-family:var(--font-body);font-size:13px;font-weight:500;padding:7px 16px;border-radius:var(--pill);cursor:pointer;transition:all var(--transition);}
+.tab-pill:hover{border-color:var(--border2);color:var(--ink);}
+.tab-pill.active{background:var(--ink);color:#fff;border-color:var(--ink);}
+
+/* ── Community ── */
+.post-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px;margin-bottom:10px;transition:all var(--transition);}
+.post-card:hover{border-color:var(--border2);}
+.post-top{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:#fff;flex-shrink:0;}
+.av1{background:#b5291c;}.av2{background:#6a3aaa;}.av3{background:#1a4f8a;}.av4{background:#1e6b3e;}
+.av-name{font-size:13px;font-weight:500;color:var(--ink);}
+.av-time{font-size:11px;color:var(--ink3);}
+.post-type-badge{margin-left:auto;font-size:10px;font-weight:600;background:var(--red-bg);color:var(--red);padding:3px 9px;border-radius:var(--pill);}
+.post-body{font-size:14px;color:var(--ink2);line-height:1.65;}
+.post-body strong{color:var(--ink);font-weight:500;}
+.post-actions{display:flex;gap:14px;margin-top:12px;padding-top:12px;border-top:1px solid var(--border);}
+.pa{background:none;border:none;font-family:var(--font-body);font-size:12px;color:var(--ink3);cursor:pointer;transition:color var(--transition);}
+.pa:hover{color:var(--red);}
+
+/* ── Support ── */
+.support-wrap{max-width:640px;margin:0 auto;padding:40px 24px;}
+.support-wrap h2{font-family:var(--font-display);font-size:30px;color:var(--ink);margin-bottom:14px;text-align:center;}
+.support-wrap .lead{font-size:15px;color:var(--ink2);text-align:center;line-height:1.7;max-width:480px;margin:0 auto 32px;}
+.donate-tiers{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:28px;}
+@media(max-width:520px){.donate-tiers{grid-template-columns:1fr;}}
+.tier{background:var(--white);border:1.5px solid var(--border);border-radius:var(--radius-lg);padding:18px;text-align:center;cursor:pointer;transition:all var(--transition);}
+.tier:hover{border-color:var(--red);box-shadow:var(--shadow);}
+.tier.selected{border-color:var(--red);background:var(--red-bg);}
+.tier .amount{font-family:var(--font-display);font-size:26px;font-weight:700;color:var(--ink);margin-bottom:4px;}
+.tier .tier-label{font-size:12px;color:var(--ink3);}
+.tier .tier-desc{font-size:12px;color:var(--ink2);margin-top:8px;line-height:1.5;}
+.donate-btn{width:100%;background:var(--red);border:none;color:#fff;font-family:var(--font-body);font-size:15px;font-weight:500;padding:14px;border-radius:var(--radius);cursor:pointer;margin-bottom:14px;transition:background var(--transition);}
+.donate-btn:hover{background:var(--red2);}
+.support-note{font-size:12px;color:var(--ink3);text-align:center;line-height:1.6;}
+
+/* ── Modals ── */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(20,15,10,0.5);z-index:600;align-items:center;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--white);border-radius:var(--radius-lg);padding:32px;width:min(420px,92vw);box-shadow:var(--shadow-hover);max-height:90vh;overflow-y:auto;}
+.modal h3{font-family:var(--font-display);font-size:22px;color:var(--ink);margin-bottom:6px;}
+.modal-sub{font-size:13px;color:var(--ink2);margin-bottom:22px;}
+.modal-tabs{display:flex;gap:0;border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:22px;}
+.modal-tab{flex:1;background:none;border:none;font-family:var(--font-body);font-size:13px;font-weight:500;padding:9px;cursor:pointer;color:var(--ink2);transition:all var(--transition);}
+.modal-tab.active{background:var(--ink);color:#fff;}
+.form-field{margin-bottom:14px;}
+.form-field label{display:block;font-size:12px;font-weight:500;color:var(--ink2);margin-bottom:5px;}
+.form-field label .req{color:var(--red);}
+.form-field input,.form-field select,.form-field textarea{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:6px;font-family:var(--font-body);font-size:14px;color:var(--ink);padding:10px 12px;outline:none;transition:border-color var(--transition);}
+.form-field input:focus,.form-field select:focus,.form-field textarea:focus{border-color:var(--red);}
+.form-field input.error,.form-field select.error,.form-field textarea.error{border-color:var(--red);background:var(--red-bg);}
+.form-field textarea{resize:vertical;min-height:80px;line-height:1.6;}
+.field-error{font-size:11px;color:var(--red);margin-top:4px;display:none;}
+.field-error.visible{display:block;}
+.modal-submit{width:100%;background:var(--red);border:none;color:#fff;font-family:var(--font-body);font-size:14px;font-weight:500;padding:12px;border-radius:var(--radius);cursor:pointer;margin-top:6px;transition:background var(--transition);}
+.modal-submit:hover{background:var(--red2);}
+.modal-submit:disabled{background:var(--ink3);cursor:not-allowed;}
+.modal-close-btn{float:right;background:none;border:none;font-size:20px;color:var(--ink3);cursor:pointer;margin-top:-8px;}
+.org-note{background:var(--blue-bg);border:1px solid #c5d9f5;border-radius:6px;padding:10px 12px;font-size:12px;color:var(--blue);margin-bottom:14px;display:none;}
+.org-note.visible{display:block;}
+
+/* ── Flash ── */
+.flash{position:fixed;top:70px;left:50%;transform:translateX(-50%);z-index:900;padding:12px 20px;border-radius:var(--radius);font-size:13px;font-weight:500;box-shadow:var(--shadow-hover);display:none;min-width:260px;text-align:center;}
+.flash.show{display:block;animation:fadeFlash 3.5s ease forwards;}
+.flash.success{background:#1e6b3e;color:#fff;}
+.flash.error{background:var(--red);color:#fff;}
+.flash.info{background:var(--ink);color:#fff;}
+@keyframes fadeFlash{0%{opacity:0;transform:translateX(-50%) translateY(-8px);}10%{opacity:1;transform:translateX(-50%) translateY(0);}80%{opacity:1;}100%{opacity:0;}}
+.auth-error{background:var(--red-bg);border:1px solid var(--red-border);color:var(--red);font-size:13px;padding:10px 12px;border-radius:6px;margin-bottom:14px;display:none;}
+.auth-error.visible{display:block;}
+.auth-toggle{font-size:12px;color:var(--ink3);text-align:center;margin-top:14px;}
+.auth-toggle a{color:var(--red);cursor:pointer;}
+
+/* ── Paywall ── */
+.paywall-banner{background:linear-gradient(135deg,#1a1410,#3d2b20);color:#fff;border-radius:var(--radius-lg);padding:20px 24px;margin-bottom:20px;}
+.paywall-banner h4{font-family:var(--font-display);font-size:17px;margin-bottom:6px;}
+.paywall-banner p{font-size:13px;opacity:.8;margin-bottom:14px;line-height:1.6;}
+.paywall-banner .upgrade-btn{background:var(--gold);border:none;color:#fff;font-family:var(--font-body);font-size:13px;font-weight:600;padding:9px 20px;border-radius:var(--pill);cursor:pointer;}
+
+/* ── Dashboard ── */
+.dashboard-wrap{max-width:860px;margin:0 auto;padding:32px 24px;}
+.dashboard-wrap h2{font-family:var(--font-display);font-size:26px;color:var(--ink);margin-bottom:6px;}
+.dashboard-sub{font-size:14px;color:var(--ink2);margin-bottom:28px;}
+.dash-stat-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:28px;}
+.dash-stat{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;}
+.dash-stat .ds-num{font-family:var(--font-display);font-size:28px;font-weight:700;color:var(--ink);}
+.dash-stat .ds-lbl{font-size:12px;color:var(--ink3);margin-top:2px;}
+.dash-table{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;margin-bottom:20px;}
+.dash-table-hd{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border);}
+.dash-table-hd h3{font-size:14px;font-weight:600;color:var(--ink);}
+.dash-row{display:flex;align-items:center;gap:14px;padding:14px 20px;border-bottom:1px solid var(--border);flex-wrap:wrap;}
+.dash-row:last-child{border:none;}
+.dash-row-info{flex:1;min-width:160px;}
+.dash-row-title{font-size:14px;font-weight:500;color:var(--ink);}
+.dash-row-meta{font-size:12px;color:var(--ink3);margin-top:2px;}
+.status-pill{font-size:11px;font-weight:600;padding:3px 10px;border-radius:var(--pill);white-space:nowrap;}
+.status-approved{background:var(--green-bg);color:var(--green);}
+.status-pending{background:#fff8e6;color:#a07000;}
+.status-rejected{background:var(--red-bg);color:var(--red);}
+.dash-actions{display:flex;gap:6px;}
+.dash-action-btn{background:none;border:1px solid var(--border);color:var(--ink3);font-family:var(--font-body);font-size:11px;padding:5px 10px;border-radius:4px;cursor:pointer;transition:all var(--transition);}
+.dash-action-btn:hover{border-color:var(--border2);color:var(--ink);}
+.dash-action-btn.del{color:var(--red);}
+.dash-action-btn.del:hover{border-color:var(--red);background:var(--red-bg);}
+.empty-state{padding:40px 20px;text-align:center;color:var(--ink3);}
+.empty-state p{font-size:14px;margin-bottom:14px;}
+
+/* ── Admin ── */
+.admin-wrap{max-width:900px;margin:0 auto;padding:32px 24px;}
+.admin-wrap h2{font-family:var(--font-display);font-size:26px;color:var(--ink);margin-bottom:6px;}
+.admin-sub{font-size:13px;color:var(--ink2);margin-bottom:24px;padding:10px 14px;background:var(--red-bg);border:1px solid var(--red-border);border-radius:6px;}
+.admin-row{display:flex;align-items:flex-start;gap:14px;padding:16px 20px;border-bottom:1px solid var(--border);flex-wrap:wrap;}
+.admin-row:last-child{border:none;}
+.admin-row-info{flex:1;min-width:200px;}
+.admin-row-title{font-size:14px;font-weight:600;color:var(--ink);margin-bottom:3px;}
+.admin-row-meta{font-size:12px;color:var(--ink3);line-height:1.6;}
+.admin-btns{display:flex;gap:8px;flex-shrink:0;}
+.btn-approve{background:var(--green-bg);border:1px solid rgba(30,107,62,0.3);color:var(--green);font-family:var(--font-body);font-size:12px;font-weight:600;padding:6px 14px;border-radius:var(--pill);cursor:pointer;transition:all var(--transition);}
+.btn-approve:hover{background:var(--green);color:#fff;}
+.btn-reject{background:var(--red-bg);border:1px solid var(--red-border);color:var(--red);font-family:var(--font-body);font-size:12px;font-weight:600;padding:6px 14px;border-radius:var(--pill);cursor:pointer;transition:all var(--transition);}
+.btn-reject:hover{background:var(--red);color:#fff;}
+
+/* ── Post form ── */
+.post-form-wrap{max-width:660px;margin:0 auto;padding:32px 24px;}
+.post-form-wrap h2{font-family:var(--font-display);font-size:26px;color:var(--ink);margin-bottom:6px;}
+.post-form-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:28px;margin-top:20px;}
+.pf-section-title{font-size:11px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:var(--ink3);margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--border);}
+.pf-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+@media(max-width:540px){.pf-row{grid-template-columns:1fr;}}
+.form-msg{padding:12px 16px;border-radius:var(--radius);font-size:13px;margin-bottom:18px;display:none;}
+.form-msg.success{background:var(--green-bg);color:var(--green);border:1px solid rgba(30,107,62,0.2);display:block;}
+.form-msg.error{background:var(--red-bg);color:var(--red);border:1px solid var(--red-border);display:block;}
+.nav-paid-badge{font-size:11px;font-weight:600;background:var(--gold-bg);color:var(--gold);border:1px solid #e8d9a8;padding:3px 9px;border-radius:var(--pill);}
+</style>
+</head>
+<body>
+
+<div class="flash" id="flash-msg"></div>
+
+<!-- ── NAV — updated name ── -->
+<nav>
+  <div class="nav-logo" onclick="showPage('auditions',null)">Cleveland <span>Theater Alliance</span></div>
+  <div class="nav-links">
+    <button class="nav-btn active" onclick="showPage('auditions',this)">Auditions</button>
+    <button class="nav-btn" onclick="showPage('jobs',this)">Jobs</button>
+    <button class="nav-btn" onclick="showPage('community',this)">Community</button>
+    <button class="nav-btn" onclick="showPage('support',this)">Support Us</button>
+  </div>
+  <div class="nav-right" id="nav-right">
+    <button class="btn-ghost" onclick="openAuth('signin')">Sign In</button>
+    <button class="btn-cta" onclick="openAuth('signup')">Post a Listing</button>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════════════════════════════════════
+     AUDITIONS PAGE
+══════════════════════════════════════════════════════════════ -->
+<div class="page visible" id="page-auditions">
+  <div class="hero">
+    <div class="hero-eyebrow">📍 Cleveland & NE Ohio</div>
+    <!-- Hero text unchanged per request -->
+    <h1>Cleveland's <em>callboard</em><br>for working actors.</h1>
+    <p class="hero-sub">Every audition. Every opportunity. One place — built by the community, for the community.</p>
+
+    <!-- FIXED: search bar is a flex row — button sits at far right, no overlap -->
+    <div class="hero-search">
+      <input type="text" id="search-input" placeholder="Search by role, show, or theater…" oninput="filterCards()"/>
+      <button class="hero-search-btn" onclick="filterCards()">Search</button>
+    </div>
+
+    <div class="hero-tabs">
+      <button class="hero-tab active" onclick="setHeroTab(this,'all')">All Auditions</button>
+      <button class="hero-tab" onclick="setHeroTab(this,'week')">This Week</button>
+      <button class="hero-tab" onclick="setHeroTab(this,'paid')">Paid Only</button>
+      <button class="hero-tab" onclick="setHeroTab(this,'equity')">Equity</button>
+      <button class="hero-tab" onclick="setHeroTab(this,'musical')">Musicals</button>
+    </div>
+    <div class="hero-stats">
+      <div class="hstat"><div class="num" id="stat-auditions">—</div><div class="lbl">Active auditions</div></div>
+      <div class="hstat"><div class="num">62</div><div class="lbl">Theaters listed</div></div>
+      <div class="hstat"><div class="num" id="stat-week">—</div><div class="lbl">Added this week</div></div>
+      <div class="hstat"><div class="num">5.4k</div><div class="lbl">Community members</div></div>
+    </div>
+  </div>
+
+  <div class="main-layout">
+    <!-- SIDEBAR: location filter removed, salary removed, kept Employment + added Job Category -->
+    <div class="sidebar">
+      <h3>Filter Listings</h3>
+      <div class="filter-group">
+        <span class="filter-label">Compensation</span>
+        <label class="filter-check"><input type="checkbox" checked id="f-paid"><span>Paid</span></label>
+        <label class="filter-check"><input type="checkbox" id="f-volunteer"><span>Volunteer / Unpaid</span></label>
+        <label class="filter-check"><input type="checkbox" id="f-stipend"><span>Stipend</span></label>
+      </div>
+      <div class="filter-divider"></div>
+      <div class="filter-group">
+        <span class="filter-label">Union Status</span>
+        <label class="filter-check"><input type="checkbox" checked id="f-aea"><span>AEA (Equity)</span></label>
+        <label class="filter-check"><input type="checkbox" checked id="f-nonunion"><span>Non-Union</span></label>
+        <label class="filter-check"><input type="checkbox" id="f-emc"><span>EMC</span></label>
+      </div>
+      <div class="filter-divider"></div>
+      <div class="filter-group">
+        <span class="filter-label">Type</span>
+        <label class="filter-check"><input type="checkbox" checked id="f-play"><span>Play</span></label>
+        <label class="filter-check"><input type="checkbox" checked id="f-musical"><span>Musical</span></label>
+        <label class="filter-check"><input type="checkbox" id="f-improv"><span>Improv</span></label>
+        <label class="filter-check"><input type="checkbox" id="f-film"><span>Film / Short</span></label>
+        <label class="filter-check"><input type="checkbox" id="f-newwork"><span>New Work</span></label>
+      </div>
+      <button class="apply-btn" onclick="filterCards()">Apply Filters</button>
+      <button class="clear-btn" onclick="clearFilters()">Clear all</button>
+    </div>
+
+    <div class="content-area">
+      <!-- TOOLBAR: location proximity input replaces static location filter -->
+      <div class="content-toolbar">
+        <span class="result-count" id="result-count"><strong>—</strong> auditions found</span>
+        <div class="toolbar-left">
+          <div class="location-input-wrap">
+            <label for="location-sort-input">📍 Near:</label>
+            <input class="location-input" type="text" id="location-sort-input"
+              placeholder="e.g. Lakewood, OH"
+              oninput="debounceLocationSort()"/>
+          </div>
+          <select class="sort-select" id="sort-select" onchange="sortAndRender()">
+            <option value="date_asc">Deadline soonest</option>
+            <option value="date_desc">Newest first</option>
+            <option value="az">A–Z</option>
+          </select>
+        </div>
+      </div>
+      <div id="auditions-container">
+        <div style="padding:32px;text-align:center;color:var(--ink3);">Loading Cleveland auditions…</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     JOBS PAGE — updated sidebar filters + dynamic Supabase rendering
+══════════════════════════════════════════════════════════════ -->
+<div class="page" id="page-jobs">
+  <div class="section-hero">
+    <h2>Arts Jobs in Cleveland</h2>
+    <p>Administrative, marketing, education, box office, crew, and stage management — all in one place.</p>
+  </div>
+  <div class="tabs-row">
+    <button class="tab-pill active" onclick="setJobTab(this,'all')">All Jobs</button>
+    <button class="tab-pill" onclick="setJobTab(this,'admin')">Arts Admin</button>
+    <button class="tab-pill" onclick="setJobTab(this,'stage_management')">Stage Management</button>
+    <button class="tab-pill" onclick="setJobTab(this,'design_crew')">Design / Crew</button>
+    <button class="tab-pill" onclick="setJobTab(this,'education')">Education</button>
+    <button class="tab-pill" onclick="setJobTab(this,'box_office')">Box Office</button>
+  </div>
+  <div class="main-layout">
+    <!-- JOBS SIDEBAR: location removed, salary removed, employment type kept, job category added -->
+    <div class="sidebar">
+      <h3>Filter Jobs</h3>
+      <div class="filter-group">
+        <span class="filter-label">Employment Type</span>
+        <label class="filter-check"><input type="checkbox" checked id="jf-fulltime"><span>Full-time</span></label>
+        <label class="filter-check"><input type="checkbox" checked id="jf-parttime"><span>Part-time</span></label>
+        <label class="filter-check"><input type="checkbox" id="jf-contract"><span>Contract</span></label>
+        <label class="filter-check"><input type="checkbox" id="jf-seasonal"><span>Seasonal</span></label>
+      </div>
+      <div class="filter-divider"></div>
+      <div class="filter-group">
+        <span class="filter-label">Job Category</span>
+        <label class="filter-check"><input type="checkbox" checked id="jf-admin"><span>Admin</span></label>
+        <label class="filter-check"><input type="checkbox" checked id="jf-stage_mgmt"><span>Stage Management</span></label>
+        <label class="filter-check"><input type="checkbox" checked id="jf-design_crew"><span>Design / Crew</span></label>
+        <label class="filter-check"><input type="checkbox" checked id="jf-education"><span>Education</span></label>
+        <label class="filter-check"><input type="checkbox" checked id="jf-box_office"><span>Box Office</span></label>
+      </div>
+      <button class="apply-btn" onclick="filterJobs()">Apply Filters</button>
+      <button class="clear-btn" onclick="clearJobFilters()">Clear all</button>
+    </div>
+    <div class="content-area">
+      <div class="content-toolbar">
+        <span class="result-count" id="job-result-count"><strong>—</strong> jobs found</span>
+        <select class="sort-select" id="job-sort-select" onchange="sortAndRenderJobs()">
+          <option value="date_desc">Newest first</option>
+          <option value="az">A–Z</option>
+        </select>
+      </div>
+      <div id="jobs-container">
+        <div style="padding:32px;text-align:center;color:var(--ink3);">Loading arts jobs…</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     COMMUNITY PAGE
+══════════════════════════════════════════════════════════════ -->
+<div class="page" id="page-community">
+  <div class="section-hero">
+    <h2>Community</h2>
+    <p>Actor discussions, collaboration posts, advice, and announcements from the Cleveland theatre scene.</p>
+  </div>
+  <div class="tabs-row">
+    <button class="tab-pill active" onclick="setTab(this)">All Posts</button>
+    <button class="tab-pill" onclick="setTab(this)">Collaborators Wanted</button>
+    <button class="tab-pill" onclick="setTab(this)">Advice</button>
+    <button class="tab-pill" onclick="setTab(this)">Announcements</button>
+  </div>
+  <div style="max-width:680px;margin:0 auto;padding:24px;">
+    <div style="text-align:right;margin-bottom:16px;">
+      <button class="btn-cta" onclick="requireAuthThen(openNewPostModal)">+ New post</button>
+    </div>
+    <div class="post-card">
+      <div class="post-top">
+        <div class="av av1">MR</div>
+        <div><div class="av-name">Maria R.</div><div class="av-time">2 hours ago</div></div>
+        <span class="post-type-badge">Looking for actors</span>
+      </div>
+      <div class="post-body">Seeking a <strong>strong mezzo-soprano, 25–40</strong>, for a short film shooting in Tremont this June. 2-day shoot, paid union scale. Please DM with reel or headshot.</div>
+      <div class="post-actions"><button class="pa">♥ 14</button><button class="pa">💬 6 replies</button><button class="pa">Share</button></div>
+    </div>
+    <div class="post-card">
+      <div class="post-top">
+        <div class="av av2">TK</div>
+        <div><div class="av-name">TK Productions</div><div class="av-time">5 hours ago</div></div>
+        <span class="post-type-badge">Announcement</span>
+      </div>
+      <div class="post-body">We just confirmed our 2025–26 season at <strong>Ensemble Theatre CLE</strong>. 4 mainstage productions, 2 new works. Audition notices will post here first.</div>
+      <div class="post-actions"><button class="pa">♥ 31</button><button class="pa">💬 9 replies</button><button class="pa">Share</button></div>
+    </div>
+    <div class="post-card">
+      <div class="post-top">
+        <div class="av av3">JS</div>
+        <div><div class="av-name">Jordan S.</div><div class="av-time">Yesterday</div></div>
+        <span class="post-type-badge">Advice</span>
+      </div>
+      <div class="post-body">Anyone have experience with <strong>self-taping setups</strong> for Dobama or Beck auditions? What format do they prefer — Vimeo or Google Drive?</div>
+      <div class="post-actions"><button class="pa">♥ 22</button><button class="pa">💬 17 replies</button><button class="pa">Share</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     SUPPORT US PAGE
+══════════════════════════════════════════════════════════════ -->
+<div class="page" id="page-support">
+  <div class="support-wrap">
+    <h2>Keep the Callboard alive.</h2>
+    <p class="lead">Cleveland Theater Alliance is free for every actor and arts worker in NE Ohio. If this platform has helped you find a role or a job, consider supporting the community that makes it possible.</p>
+    <div style="background:var(--red-bg);border:1px solid var(--red-border);border-radius:var(--radius-lg);padding:18px 20px;margin-bottom:28px;font-size:14px;color:var(--ink2);line-height:1.7;">
+      <strong style="color:var(--ink);">100% community-funded.</strong> No ads. No paywalls for actors. No data selling.
+    </div>
+    <div class="donate-tiers">
+      <div class="tier" onclick="selectTier(this,'5')"><div class="amount">$5</div><div class="tier-label">Actor</div><div class="tier-desc">Buy us a coffee. Keep the lights on.</div></div>
+      <div class="tier selected" onclick="selectTier(this,'25')"><div class="amount">$25</div><div class="tier-label">Supporter</div><div class="tier-desc">Help us add new theaters and keep data fresh.</div></div>
+      <div class="tier" onclick="selectTier(this,'100')"><div class="amount">$100</div><div class="tier-label">Sustainer</div><div class="tier-desc">Power a full month of updates for the whole community.</div></div>
+    </div>
+    <button class="donate-btn" id="donate-btn">Donate $25 →</button>
+    <p class="support-note">Theaters: ask about our <strong style="color:var(--ink);">yearly membership plan ($79/year)</strong> for unlimited listings.<br/>Contact: hello@clevelandcallboard.com</p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     POST AN AUDITION PAGE
+══════════════════════════════════════════════════════════════ -->
+<div class="page" id="page-post-audition">
+  <div class="post-form-wrap">
+    <h2>Post an Audition</h2>
+    <p style="font-size:14px;color:var(--ink2);margin-bottom:4px;">Listings go live within 24 hours after review. Your first listing is free.</p>
+    <div class="form-msg" id="post-success"></div>
+    <div class="form-msg error" id="post-error" style="display:none;"></div>
+    <div class="paywall-banner" id="paywall-banner" style="display:none;">
+      <h4>You've used your free listing.</h4>
+      <p>Subscribe for $79/year to post unlimited auditions and jobs.</p>
+      <button class="upgrade-btn" onclick="startStripeCheckout()">Subscribe — $79/year</button>
+    </div>
+    <div class="post-form-card" id="post-form-card">
+      <form id="audition-form" onsubmit="handleAuditionSubmit(event)" novalidate>
+        <div class="pf-section-title">Organization Info</div>
+        <div class="form-field">
+          <label>Theater / Organization Name <span class="req">*</span></label>
+          <input type="text" name="theater_name" id="f-theater_name" placeholder="e.g. Beck Center for the Arts"/>
+          <div class="field-error" id="err-theater_name">Please enter your organization name.</div>
+        </div>
+        <div class="form-field">
+          <label>Contact / Submission Info <span class="req">*</span></label>
+          <input type="text" name="contact_info" id="f-contact_info" placeholder="Email or website where actors submit"/>
+          <div class="field-error" id="err-contact_info">Please enter contact information.</div>
+        </div>
+        <div class="pf-section-title" style="margin-top:20px;">Production Details</div>
+        <div class="form-field">
+          <label>Show Title <span class="req">*</span></label>
+          <input type="text" name="show_title" id="f-show_title" placeholder="e.g. Into the Woods"/>
+          <div class="field-error" id="err-show_title">Please enter the show title.</div>
+        </div>
+        <div class="pf-row">
+          <div class="form-field">
+            <label>Compensation <span class="req">*</span></label>
+            <select name="pay" id="f-pay">
+              <option value="">Select…</option>
+              <option value="Paid">Paid</option>
+              <option value="Stipend">Stipend</option>
+              <option value="Volunteer">Volunteer / Unpaid</option>
+            </select>
+            <div class="field-error" id="err-pay">Please select compensation type.</div>
+          </div>
+          <div class="form-field">
+            <label>Union Status <span class="req">*</span></label>
+            <select name="union_status" id="f-union_status">
+              <option value="">Select…</option>
+              <option value="AEA">AEA (Equity)</option>
+              <option value="Non-Union">Non-Union</option>
+              <option value="EMC">EMC</option>
+              <option value="AEA and Non-Union">AEA and Non-Union</option>
+            </select>
+            <div class="field-error" id="err-union_status">Please select union status.</div>
+          </div>
+        </div>
+        <div class="pf-row">
+          <div class="form-field">
+            <label>Location <span class="req">*</span></label>
+            <input type="text" name="location" id="f-location" placeholder="e.g. Lakewood, OH"/>
+            <div class="field-error" id="err-location">Please enter a location.</div>
+          </div>
+          <div class="form-field">
+            <label>Audition Date <span class="req">*</span></label>
+            <input type="date" name="audition_date" id="f-audition_date"/>
+            <div class="field-error" id="err-audition_date">Please select an audition date.</div>
+          </div>
+        </div>
+        <div class="pf-section-title" style="margin-top:20px;">Casting Details</div>
+        <div class="form-field">
+          <label>Roles Being Cast <span class="req">*</span></label>
+          <textarea name="roles" id="f-roles" placeholder="List roles, age ranges, voice types — or write 'Open Call'" rows="3"></textarea>
+          <div class="field-error" id="err-roles">Please describe the roles being cast.</div>
+        </div>
+        <div class="form-field">
+          <label>Full Description &amp; Submission Instructions</label>
+          <textarea name="description" id="f-description" placeholder="Audition format, what to prepare, show dates, callbacks, etc." rows="4"></textarea>
+        </div>
+        <button type="submit" class="modal-submit" id="post-submit-btn" style="margin-top:8px;">Submit Listing for Review</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     MY LISTINGS DASHBOARD
+══════════════════════════════════════════════════════════════ -->
+<div class="page" id="page-my-listings">
+  <div class="dashboard-wrap">
+    <h2>My Listings</h2>
+    <div class="dashboard-sub" id="dash-sub">Manage your audition and job postings.</div>
+    <div class="dash-stat-row">
+      <div class="dash-stat"><div class="ds-num" id="ds-total">—</div><div class="ds-lbl">Total listings</div></div>
+      <div class="dash-stat"><div class="ds-num" id="ds-live">—</div><div class="ds-lbl">Live (approved)</div></div>
+      <div class="dash-stat"><div class="ds-num" id="ds-pending">—</div><div class="ds-lbl">Pending review</div></div>
+    </div>
+    <div id="dash-paywall-notice" style="display:none;" class="paywall-banner">
+      <h4>Free listing used.</h4>
+      <p>Subscribe for $79/year to post unlimited auditions and jobs.</p>
+      <button class="upgrade-btn" onclick="startStripeCheckout()">Subscribe — $79/year</button>
+    </div>
+    <div class="dash-table">
+      <div class="dash-table-hd">
+        <h3>Your Submissions</h3>
+        <button class="btn-cta" onclick="showPage('post-audition',null)">+ New listing</button>
+      </div>
+      <div id="my-listings-container">
+        <div class="empty-state"><p>Loading your listings…</p></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     ADMIN PAGE
+══════════════════════════════════════════════════════════════ -->
+<div class="page" id="page-admin">
+  <div class="admin-wrap">
+    <h2>Admin — Listing Review</h2>
+    <div class="admin-sub">🔒 Administrators only. Approve or reject submitted listings below.</div>
+    <div class="dash-table" style="margin-top:20px;">
+      <div class="dash-table-hd">
+        <h3>Pending Listings</h3>
+        <span id="admin-pending-count" style="font-size:13px;color:var(--ink3);">Loading…</span>
+      </div>
+      <div id="admin-listings-container">
+        <div class="empty-state"><p>Loading submitted listings…</p></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Detail panel -->
+<div class="detail-overlay" id="detail-overlay" onclick="closeDetailOnBg(event)">
+  <div class="detail-panel" id="detail-panel">
+    <button class="detail-close" onclick="closeDetail()">×</button>
+    <div id="detail-content"></div>
+  </div>
+</div>
+
+<!-- Auth modal -->
+<div class="modal-overlay" id="auth-modal" onclick="closeAuthOnBg(event)">
+  <div class="modal">
+    <button class="modal-close-btn" onclick="closeAuth()">×</button>
+    <h3 id="auth-modal-title">Welcome back.</h3>
+    <p class="modal-sub" id="auth-modal-sub">Sign in to your account.</p>
+    <div class="modal-tabs">
+      <button class="modal-tab active" id="tab-signin" onclick="switchAuthMode('signin')">Sign In</button>
+      <button class="modal-tab" id="tab-signup" onclick="switchAuthMode('signup')">Create Account</button>
+    </div>
+    <div class="org-note visible" id="auth-role-note">Actors browse free. Organizations get one free listing, then $79/year unlimited.</div>
+    <div class="auth-error" id="auth-error-msg"></div>
+    <div id="signin-fields">
+      <div class="form-field"><label>Email</label><input type="email" id="signin-email" placeholder="you@example.com" autocomplete="email"/><div class="field-error" id="err-signin-email">Please enter a valid email.</div></div>
+      <div class="form-field"><label>Password</label><input type="password" id="signin-password" placeholder="••••••••" autocomplete="current-password"/><div class="field-error" id="err-signin-password">Please enter your password.</div></div>
+      <button class="modal-submit" id="signin-btn" onclick="handleSignIn()">Sign In</button>
+    </div>
+    <div id="signup-fields" style="display:none;">
+      <div class="form-field"><label>Your Role</label><select id="signup-role"><option value="actor">Actor / Artist</option><option value="organization">Theater / Organization</option></select></div>
+      <div class="form-field" id="org-name-field" style="display:none;"><label>Organization Name</label><input type="text" id="signup-org-name" placeholder="e.g. Beck Center for the Arts"/></div>
+      <div class="form-field"><label>Email</label><input type="email" id="signup-email" placeholder="you@example.com" autocomplete="email"/><div class="field-error" id="err-signup-email">Please enter a valid email.</div></div>
+      <div class="form-field"><label>Password <span style="font-size:11px;color:var(--ink3);">(min 8 characters)</span></label><input type="password" id="signup-password" placeholder="Create a password" autocomplete="new-password"/><div class="field-error" id="err-signup-password">Password must be at least 8 characters.</div></div>
+      <button class="modal-submit" id="signup-btn" onclick="handleSignUp()">Create Free Account</button>
+    </div>
+    <div class="auth-toggle" id="auth-toggle-link">No account? <a onclick="switchAuthMode('signup')">Create one free</a></div>
+  </div>
+</div>
+
+<!-- Edit modal -->
+<div class="modal-overlay" id="edit-modal" onclick="closeEditOnBg(event)">
+  <div class="modal" style="width:min(560px,94vw);">
+    <button class="modal-close-btn" onclick="closeEditModal()">×</button>
+    <h3>Edit Listing</h3>
+    <p class="modal-sub">Changes will be reviewed before going live again.</p>
+    <input type="hidden" id="edit-listing-id"/>
+    <div class="form-field"><label>Show Title</label><input type="text" id="edit-show_title"/></div>
+    <div class="form-field"><label>Theater Name</label><input type="text" id="edit-theater_name"/></div>
+    <div class="form-field"><label>Location</label><input type="text" id="edit-location"/></div>
+    <div class="form-field"><label>Audition Date</label><input type="date" id="edit-audition_date"/></div>
+    <div class="form-field"><label>Compensation</label><select id="edit-pay"><option value="Paid">Paid</option><option value="Stipend">Stipend</option><option value="Volunteer">Volunteer</option></select></div>
+    <div class="form-field"><label>Union Status</label><select id="edit-union_status"><option value="AEA">AEA</option><option value="Non-Union">Non-Union</option><option value="EMC">EMC</option><option value="AEA and Non-Union">AEA and Non-Union</option></select></div>
+    <div class="form-field"><label>Roles</label><textarea id="edit-roles" rows="3"></textarea></div>
+    <div class="form-field"><label>Description</label><textarea id="edit-description" rows="4"></textarea></div>
+    <div class="form-field"><label>Contact Info</label><input type="text" id="edit-contact_info"/></div>
+    <button class="modal-submit" onclick="saveEditedListing()">Save Changes</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     JAVASCRIPT
+══════════════════════════════════════════════════════════════ -->
+<script>
+// ── CREDENTIALS ──
+const SUPABASE_URL      = 'https://wzjdyzqspmnprsypxzea.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind6amR5enFzcG1ucHJzeXB4emVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxODI5MTYsImV4cCI6MjA5MTc1ODkxNn0.aoJJbFZfI333uBJZgz57NkIIGSGktHCRMO8pNCoK3JU';
+const STRIPE_PUBLIC_KEY = 'YOUR_STRIPE_PUBLISHABLE_KEY';
+const STRIPE_PRICE_ID   = 'YOUR_STRIPE_PRICE_ID';
+
+const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+let _stripe = null;
+try { _stripe = Stripe(STRIPE_PUBLIC_KEY); } catch(e) {}
+
+// ── STATE ──
+let currentUser    = null;
+let currentProfile = null;
+let allAuditions   = [];
+let allJobs        = [];
+let currentAuthMode = 'signin';
+let locationSortTimer = null;
+
+// ── BOOT ──
+async function initAuth() {
+  const { data: { session } } = await _supabase.auth.getSession();
+  if (session) { currentUser = session.user; await loadProfile(); }
+  updateNavForUser();
+  if (window.location.search.includes('admin=1')) { showPage('admin',null); loadAdminListings(); }
+  if (window.location.search.includes('stripe_success=1')) { await markUserPaid(); flash('Subscription activated!','success'); }
+  fetchAuditions();
+  fetchJobs();
+}
+
+async function loadProfile() {
+  if (!currentUser) return;
+  const { data } = await _supabase.from('profiles').select('*').eq('id', currentUser.id).single();
+  currentProfile = data;
+}
+
+function updateNavForUser() {
+  const navRight = document.getElementById('nav-right');
+  if (currentUser && currentProfile) {
+    const isPaid = currentProfile.is_paid;
+    navRight.innerHTML = `
+      <span class="nav-paid-badge" style="display:${isPaid?'inline':'none'};">✓ Subscribed</span>
+      <button class="btn-ghost" onclick="showPage('my-listings',null);loadMyListings()">My Listings</button>
+      <button class="btn-cta" onclick="requireAuthThen(openPostPage)">Post a Listing</button>
+      <button class="btn-ghost" onclick="handleLogout()" style="border-color:transparent;color:var(--ink3);">Log out</button>`;
+  } else {
+    navRight.innerHTML = `
+      <button class="btn-ghost" onclick="openAuth('signin')">Sign In</button>
+      <button class="btn-cta" onclick="openAuth('signup')">Post a Listing</button>`;
+  }
+}
+
+// ── AUTH ──
+function openAuth(mode) { switchAuthMode(mode||'signin'); document.getElementById('auth-modal').classList.add('open'); document.getElementById('auth-error-msg').classList.remove('visible'); }
+function closeAuth() { document.getElementById('auth-modal').classList.remove('open'); }
+function closeAuthOnBg(e) { if (e.target===document.getElementById('auth-modal')) closeAuth(); }
+
+function switchAuthMode(mode) {
+  currentAuthMode = mode;
+  document.getElementById('signin-fields').style.display  = mode==='signin'?'block':'none';
+  document.getElementById('signup-fields').style.display  = mode==='signup'?'block':'none';
+  document.getElementById('tab-signin').classList.toggle('active', mode==='signin');
+  document.getElementById('tab-signup').classList.toggle('active', mode==='signup');
+  document.getElementById('auth-modal-title').textContent = mode==='signin'?'Welcome back.':'Create your account.';
+  document.getElementById('auth-modal-sub').textContent   = mode==='signin'?'Sign in to your account.':'Free for actors. Organizations get one free listing.';
+  document.getElementById('auth-toggle-link').innerHTML   = mode==='signin'
+    ? 'No account? <a onclick="switchAuthMode(\'signup\')">Create one free</a>'
+    : 'Already have an account? <a onclick="switchAuthMode(\'signin\')">Sign in</a>';
+  document.getElementById('auth-error-msg').classList.remove('visible');
+}
+
+document.getElementById('signup-role').addEventListener('change', function() {
+  document.getElementById('org-name-field').style.display = this.value==='organization'?'block':'none';
+});
+
+async function handleSignIn() {
+  const email = document.getElementById('signin-email').value.trim();
+  const pass  = document.getElementById('signin-password').value;
+  let valid = true;
+  if (!email||!email.includes('@')) { showFieldErr('signin-email',true); valid=false; } else { showFieldErr('signin-email',false); }
+  if (!pass) { showFieldErr('signin-password',true); valid=false; } else { showFieldErr('signin-password',false); }
+  if (!valid) return;
+  const btn = document.getElementById('signin-btn');
+  btn.disabled=true; btn.textContent='Signing in…';
+  const { data, error } = await _supabase.auth.signInWithPassword({ email, password: pass });
+  btn.disabled=false; btn.textContent='Sign In';
+  if (error) { showAuthError(error.message==='Invalid login credentials'?'Incorrect email or password.':error.message); return; }
+  currentUser = data.user; await loadProfile(); updateNavForUser(); closeAuth(); flash('Welcome back!','success');
+}
+
+async function handleSignUp() {
+  const role    = document.getElementById('signup-role').value;
+  const orgName = document.getElementById('signup-org-name').value.trim();
+  const email   = document.getElementById('signup-email').value.trim();
+  const pass    = document.getElementById('signup-password').value;
+  let valid = true;
+  if (!email||!email.includes('@')) { showFieldErr('signup-email',true); valid=false; } else { showFieldErr('signup-email',false); }
+  if (!pass||pass.length<8) { showFieldErr('signup-password',true); valid=false; } else { showFieldErr('signup-password',false); }
+  if (!valid) return;
+  const btn = document.getElementById('signup-btn');
+  btn.disabled=true; btn.textContent='Creating account…';
+  const { data, error } = await _supabase.auth.signUp({ email, password: pass });
+  if (error) { btn.disabled=false; btn.textContent='Create Free Account'; showAuthError(error.message); return; }
+  await _supabase.from('profiles').insert({ id: data.user.id, role, org_name: orgName||null, is_paid: false });
+  currentUser = data.user; await loadProfile(); updateNavForUser();
+  btn.disabled=false; btn.textContent='Create Free Account';
+  closeAuth(); flash('Account created! Check your email to confirm.','success');
+}
+
+async function handleLogout() {
+  await _supabase.auth.signOut();
+  currentUser=null; currentProfile=null; updateNavForUser(); showPage('auditions',null); flash('Signed out.','info');
+}
+
+function showAuthError(msg) { const el=document.getElementById('auth-error-msg'); el.textContent=msg; el.classList.add('visible'); }
+function showFieldErr(id, show) { const el=document.getElementById('err-'+id); if(el) el.classList.toggle('visible',show); }
+function requireAuthThen(fn) { if (!currentUser) { openAuth('signin'); return; } fn(); }
+function openPostPage() { showPage('post-audition',null); checkPaywall(); }
+function openNewPostModal() { flash('Community posting coming soon!','info'); }
+
+// ── PAYWALL ──
+async function checkPaywall() {
+  if (!currentUser) return;
+  if (currentProfile && currentProfile.is_paid) {
+    document.getElementById('paywall-banner').style.display='none';
+    document.getElementById('post-form-card').style.display='block'; return;
+  }
+  const { count } = await _supabase.from('auditions').select('id',{count:'exact',head:true}).eq('user_id',currentUser.id);
+  if (count>=1) {
+    document.getElementById('paywall-banner').style.display='block';
+    document.getElementById('post-form-card').style.display='none';
+  } else {
+    document.getElementById('paywall-banner').style.display='none';
+    document.getElementById('post-form-card').style.display='block';
+  }
+}
+
+// ── STRIPE ──
+async function startStripeCheckout() {
+  if (!currentUser) { openAuth('signin'); return; }
+  if (!_stripe) { flash('Stripe not configured yet.','error'); return; }
+  flash('Redirecting to checkout…','info');
+  try {
+    const res = await fetch('YOUR_CHECKOUT_ENDPOINT', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':`Bearer ${(await _supabase.auth.getSession()).data.session.access_token}`},
+      body: JSON.stringify({ price_id: STRIPE_PRICE_ID, user_id: currentUser.id, success_url: window.location.origin+window.location.pathname+'?stripe_success=1', cancel_url: window.location.href })
+    });
+    const { url } = await res.json();
+    window.location.href = url;
+  } catch(e) { flash('Checkout unavailable — endpoint not configured.','error'); }
+}
+
+async function markUserPaid() {
+  if (!currentUser) return;
+  await _supabase.from('profiles').update({ is_paid: true }).eq('id', currentUser.id);
+  await loadProfile(); updateNavForUser();
+}
+
+// ════════════════════════════════════════════════════════════════
+// AUDITIONS — fetch + filter + render
+// FIX: tab filters now correctly check pay, union_status, description
+// ════════════════════════════════════════════════════════════════
+async function fetchAuditions() {
+  try {
+    const { data, error } = await _supabase
+      .from('auditions').select('*').eq('status','approved')
+      .order('audition_date', { ascending: true });
+    if (error) throw error;
+    allAuditions = data || [];
+    renderAuditions(allAuditions);
+    const today = new Date();
+    const weekAgo = new Date(today); weekAgo.setDate(weekAgo.getDate()-7);
+    const thisWeek = allAuditions.filter(a => new Date(a.created_at) >= weekAgo).length;
+    document.getElementById('stat-auditions').textContent = allAuditions.length;
+    document.getElementById('stat-week').textContent = thisWeek;
+  } catch(err) {
+    console.warn('Supabase auditions fetch:', err.message);
+    document.getElementById('auditions-container').innerHTML =
+      `<div style="padding:32px;text-align:center;color:var(--ink3);">Could not load listings. Check your Supabase credentials.</div>`;
+  }
+}
+
+// FIXED: hero tab filters map correctly to Supabase field values
+function setHeroTab(btn, filter) {
+  document.querySelectorAll('.hero-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  let filtered = [...allAuditions];
+  const now = new Date();
+  if (filter === 'week') {
+    const next7 = new Date(now); next7.setDate(now.getDate()+7);
+    // Show auditions whose audition_date falls within the next 7 days
+    filtered = filtered.filter(a => {
+      if (!a.audition_date) return false;
+      const d = new Date(a.audition_date);
+      return d >= now && d <= next7;
+    });
+  } else if (filter === 'paid') {
+    // Matches pay field values: 'Paid' or 'Stipend'
+    filtered = filtered.filter(a => a.pay === 'Paid' || a.pay === 'Stipend');
+  } else if (filter === 'equity') {
+    // Matches union_status containing 'AEA'
+    filtered = filtered.filter(a => a.union_status && a.union_status.includes('AEA'));
+  } else if (filter === 'musical') {
+    // Checks both description AND show_title for broader matching
+    filtered = filtered.filter(a =>
+      (a.description && a.description.toLowerCase().includes('musical')) ||
+      (a.show_title && a.show_title.toLowerCase().includes('musical')) ||
+      (a.roles && a.roles.toLowerCase().includes('musical'))
+    );
+  }
+  renderAuditions(filtered);
+}
+
+function sortAndRender() {
+  const sort = document.getElementById('sort-select').value;
+  let sorted = [...allAuditions];
+  if (sort==='date_asc')  sorted.sort((a,b)=>new Date(a.audition_date)-new Date(b.audition_date));
+  if (sort==='date_desc') sorted.sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
+  if (sort==='az')        sorted.sort((a,b)=>(a.show_title||'').localeCompare(b.show_title||''));
+  renderAuditions(sorted);
+}
+
+function filterCards() {
+  const search = (document.getElementById('search-input').value||'').toLowerCase();
+  let filtered = allAuditions.filter(a => {
+    if (search) {
+      const haystack = `${a.show_title} ${a.theater_name} ${a.roles} ${a.location}`.toLowerCase();
+      if (!haystack.includes(search)) return false;
+    }
+    return true;
+  });
+  renderAuditions(filtered);
+}
+
+function clearFilters() {
+  document.getElementById('search-input').value='';
+  document.getElementById('location-sort-input').value='';
+  document.querySelectorAll('#page-auditions .sidebar input[type=checkbox]').forEach(c=>c.checked=false);
+  renderAuditions(allAuditions);
+}
+
+// ── LOCATION PROXIMITY SORT ──
+// Ranks results by how closely their location text matches the user's input.
+// Since we can't do real geo without an API key, we use a simple string-similarity
+// score: exact city match = highest, partial match = medium, no match = lowest.
+function debounceLocationSort() {
+  clearTimeout(locationSortTimer);
+  locationSortTimer = setTimeout(applyLocationSort, 400);
+}
+
+function applyLocationSort() {
+  const query = (document.getElementById('location-sort-input').value||'').toLowerCase().trim();
+  if (!query) { sortAndRender(); return; }
+
+  const scored = allAuditions.map(a => {
+    const loc = (a.location||'').toLowerCase();
+    let score = 0;
+    if (loc === query) score = 3;                          // exact match
+    else if (loc.startsWith(query)) score = 2;            // starts with
+    else if (loc.includes(query) || query.includes(loc.split(',')[0])) score = 1; // partial
+    return { ...a, _locScore: score };
+  });
+
+  // Sort: highest score first, then by audition_date within same score
+  scored.sort((a,b) => {
+    if (b._locScore !== a._locScore) return b._locScore - a._locScore;
+    return new Date(a.audition_date||0) - new Date(b.audition_date||0);
+  });
+
+  renderAuditions(scored);
+}
+
+function renderAuditions(list) {
+  const container = document.getElementById('auditions-container');
+  const countEl   = document.getElementById('result-count');
+  if (countEl) countEl.innerHTML = `<strong>${list.length}</strong> auditions found`;
+  if (!list.length) {
+    container.innerHTML = `<div style="padding:40px;text-align:center;color:var(--ink3);">
+      <div style="font-size:28px;margin-bottom:10px;">🎭</div>
+      <div style="font-size:14px;font-weight:500;color:var(--ink2);margin-bottom:8px;">No auditions found.</div>
+      <div style="font-size:13px;">Try adjusting your search, or <span style="color:var(--red);cursor:pointer;" onclick="requireAuthThen(openPostPage)">post a listing</span>.</div>
+    </div>`; return;
+  }
+  container.innerHTML = list.map(a => buildCard(a)).join('');
+}
+
+function buildCard(a) {
+  const slug = a.slug || slugify(`${a.show_title}-${a.theater_name}`);
+  const payBadge   = a.pay==='Paid'?'<span class="badge b-paid">Paid</span>'
+                   : a.pay==='Stipend'?'<span class="badge b-paid">Stipend</span>'
+                   : '<span class="badge b-free">Volunteer</span>';
+  const unionBadge = a.union_status&&a.union_status.includes('AEA')
+                   ? `<span class="badge b-union">${esc(a.union_status)}</span>`:'';
+  const dateStr    = a.audition_date?`📅 ${fmtDate(a.audition_date)}`:'';
+  const desc       = a.description?esc(a.description).substring(0,160)+(a.description.length>160?'…':''):'';
+  return `
+    <article class="listing-card" id="listing-${slug}" itemscope itemtype="https://schema.org/Event" onclick="openDynamicDetail('${a.id}')">
+      <div class="card-header">
+        <div class="card-org" itemprop="organizer">${esc(a.theater_name||'')}</div>
+        <div class="card-badges">${payBadge}${unionBadge}</div>
+      </div>
+      <div class="card-title" itemprop="name">${esc(a.show_title||'')}</div>
+      <div class="card-meta">
+        ${a.location?`<span class="cmeta" itemprop="location">📍 ${esc(a.location)}</span>`:''}
+        ${dateStr?`<span class="cmeta">${dateStr}</span>`:''}
+      </div>
+      ${desc?`<div class="card-desc" itemprop="description">${desc}</div>`:''}
+      <div class="card-footer">
+        <span class="deadline-text">${a.audition_date?'⏰ Audition: '+fmtDate(a.audition_date):''}</span>
+        <button class="detail-btn" onclick="event.stopPropagation();openDynamicDetail('${a.id}')">View full listing →</button>
+      </div>
+    </article>`;
+}
+
+function openDynamicDetail(id) {
+  const a = allAuditions.find(x => x.id == id);
+  if (!a) return;
+  const slug = a.slug || slugify(`${a.show_title}-${a.theater_name}`);
+  history.replaceState(null,'',`?listing=${slug}`);
+  const payBadge   = a.pay==='Paid'?'<span class="badge b-paid">Paid</span>'
+                   : a.pay==='Stipend'?'<span class="badge b-paid">Stipend</span>'
+                   : '<span class="badge b-free">Volunteer</span>';
+  const unionBadge = a.union_status&&a.union_status.includes('AEA')
+                   ? `<span class="badge b-union">${esc(a.union_status)}</span>`:'';
+  document.getElementById('detail-content').innerHTML = `
+    <div class="detail-org">${esc(a.theater_name||'')}</div>
+    <div class="detail-title">${esc(a.show_title||'')}</div>
+    <div class="detail-badges">${payBadge}${unionBadge}</div>
+    <div class="detail-section"><h4>Key Details</h4><div class="detail-grid">
+      ${a.audition_date?`<div class="detail-field"><div class="df-label">Audition Date</div><div class="df-val">${fmtDate(a.audition_date)}</div></div>`:''}
+      ${a.location?`<div class="detail-field"><div class="df-label">Location</div><div class="df-val">${esc(a.location)}</div></div>`:''}
+      ${a.pay?`<div class="detail-field"><div class="df-label">Compensation</div><div class="df-val">${esc(a.pay)}</div></div>`:''}
+      ${a.union_status?`<div class="detail-field"><div class="df-label">Union Status</div><div class="df-val">${esc(a.union_status)}</div></div>`:''}
+    </div></div>
+    ${a.roles?`<div class="detail-section"><h4>Roles Being Cast</h4><div class="detail-body"><p>${esc(a.roles)}</p></div></div>`:''}
+    ${a.description?`<div class="detail-section"><h4>Description &amp; Submission Instructions</h4><div class="detail-body"><p>${esc(a.description)}</p></div></div>`:''}
+    <div class="detail-actions">
+      ${a.contact_info?`<button class="btn-apply" onclick="window.open('${a.contact_info.startsWith('http')?a.contact_info:'mailto:'+a.contact_info}','_blank')">Get Submission Info</button>`:''}
+      <p class="source-note">Listing posted by ${esc(a.theater_name||'this organization')}. Always verify details directly with them.</p>
+    </div>`;
+  document.getElementById('detail-overlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+
+function closeDetail() {
+  document.getElementById('detail-overlay').classList.remove('open');
+  document.body.style.overflow='';
+  history.replaceState(null,'',window.location.pathname);
+}
+function closeDetailOnBg(e) { if(e.target===document.getElementById('detail-overlay')) closeDetail(); }
+
+// ════════════════════════════════════════════════════════════════
+// JOBS — Supabase fetch + render
+// Table: arts_jobs
+// Columns: id, created_at, user_id, org_name, job_title, employment_type,
+//          category, location, salary, description, contact_info,
+//          slug, status (default 'pending')
+// ════════════════════════════════════════════════════════════════
+async function fetchJobs() {
+  try {
+    const { data, error } = await _supabase
+      .from('arts_jobs').select('*').eq('status','approved')
+      .order('created_at', { ascending: false });
+    if (error) throw error;
+    allJobs = data || [];
+    renderJobs(allJobs);
+  } catch(err) {
+    console.warn('Supabase jobs fetch:', err.message);
+    document.getElementById('jobs-container').innerHTML =
+      `<div style="padding:32px;text-align:center;color:var(--ink3);">Could not load jobs. Ensure the arts_jobs table exists in Supabase.</div>`;
+  }
+}
+
+let currentJobTabFilter = 'all';
+
+function setJobTab(btn, filter) {
+  document.querySelectorAll('.tabs-row .tab-pill').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  currentJobTabFilter = filter;
+  filterJobs();
+}
+
+function filterJobs() {
+  let filtered = [...allJobs];
+
+  // Tab filter by category
+  if (currentJobTabFilter !== 'all') {
+    filtered = filtered.filter(j => j.category && j.category === currentJobTabFilter);
+  }
+
+  // Sidebar: employment type
+  const types = [];
+  if (document.getElementById('jf-fulltime').checked)   types.push('full-time');
+  if (document.getElementById('jf-parttime').checked)   types.push('part-time');
+  if (document.getElementById('jf-contract').checked)   types.push('contract');
+  if (document.getElementById('jf-seasonal').checked)   types.push('seasonal');
+  if (types.length) {
+    filtered = filtered.filter(j => j.employment_type && types.includes(j.employment_type.toLowerCase()));
+  }
+
+  // Sidebar: category checkboxes
+  const cats = [];
+  if (document.getElementById('jf-admin').checked)       cats.push('admin');
+  if (document.getElementById('jf-stage_mgmt').checked)  cats.push('stage_management');
+  if (document.getElementById('jf-design_crew').checked) cats.push('design_crew');
+  if (document.getElementById('jf-education').checked)   cats.push('education');
+  if (document.getElementById('jf-box_office').checked)  cats.push('box_office');
+  if (cats.length) {
+    filtered = filtered.filter(j => j.category && cats.includes(j.category));
+  }
+
+  renderJobs(filtered);
+}
+
+function sortAndRenderJobs() {
+  const sort = document.getElementById('job-sort-select').value;
+  let sorted = [...allJobs];
+  if (sort==='date_desc') sorted.sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
+  if (sort==='az')        sorted.sort((a,b)=>(a.job_title||'').localeCompare(b.job_title||''));
+  renderJobs(sorted);
+}
+
+function clearJobFilters() {
+  document.querySelectorAll('#page-jobs .sidebar input[type=checkbox]').forEach(c=>c.checked=true);
+  currentJobTabFilter='all';
+  document.querySelectorAll('.tabs-row .tab-pill').forEach((b,i)=>{ b.classList.toggle('active',i===0); });
+  renderJobs(allJobs);
+}
+
+function renderJobs(list) {
+  const container = document.getElementById('jobs-container');
+  const countEl   = document.getElementById('job-result-count');
+  if (countEl) countEl.innerHTML = `<strong>${list.length}</strong> jobs found`;
+  if (!list.length) {
+    container.innerHTML = `<div style="padding:40px;text-align:center;color:var(--ink3);">
+      <div style="font-size:28px;margin-bottom:10px;">💼</div>
+      <div style="font-size:14px;font-weight:500;color:var(--ink2);margin-bottom:8px;">No jobs found.</div>
+      <div style="font-size:13px;">Try adjusting your filters or check back soon.</div>
+    </div>`; return;
+  }
+  container.innerHTML = list.map(j => buildJobCard(j)).join('');
+}
+
+function buildJobCard(j) {
+  const catLabel = {
+    admin:'Admin', stage_management:'Stage Mgmt', design_crew:'Design / Crew',
+    education:'Education', box_office:'Box Office'
+  }[j.category] || j.category || '';
+  const empBadge = j.employment_type
+    ? `<span class="badge b-paid">${esc(j.employment_type)}</span>` : '';
+  const catBadge = catLabel
+    ? `<span class="badge b-admin">${esc(catLabel)}</span>` : '';
+  const desc = j.description ? esc(j.description).substring(0,160)+(j.description.length>160?'…':'') : '';
+  return `
+    <article class="listing-card" onclick="openJobDetail('${j.id}')">
+      <div class="card-header">
+        <div class="card-org">${esc(j.org_name||'')}</div>
+        <div class="card-badges">${empBadge}${catBadge}</div>
+      </div>
+      <div class="card-title">${esc(j.job_title||'')}</div>
+      <div class="card-meta">
+        ${j.location?`<span class="cmeta">📍 ${esc(j.location)}</span>`:''}
+        ${j.salary?`<span class="cmeta">💰 ${esc(j.salary)}</span>`:''}
+      </div>
+      ${desc?`<div class="card-desc">${desc}</div>`:''}
+      <div class="card-footer">
+        <span class="deadline-text"></span>
+        <button class="detail-btn" onclick="event.stopPropagation();openJobDetail('${j.id}')">View full listing →</button>
+      </div>
+    </article>`;
+}
+
+function openJobDetail(id) {
+  const j = allJobs.find(x => x.id == id);
+  if (!j) return;
+  const catLabel = {
+    admin:'Admin', stage_management:'Stage Mgmt', design_crew:'Design / Crew',
+    education:'Education', box_office:'Box Office'
+  }[j.category] || j.category || '';
+  document.getElementById('detail-content').innerHTML = `
+    <div class="detail-org">${esc(j.org_name||'')}</div>
+    <div class="detail-title">${esc(j.job_title||'')}</div>
+    <div class="detail-badges">
+      ${j.employment_type?`<span class="badge b-paid">${esc(j.employment_type)}</span>`:''}
+      ${catLabel?`<span class="badge b-admin">${esc(catLabel)}</span>`:''}
+    </div>
+    <div class="detail-section"><h4>Key Details</h4><div class="detail-grid">
+      ${j.location?`<div class="detail-field"><div class="df-label">Location</div><div class="df-val">${esc(j.location)}</div></div>`:''}
+      ${j.salary?`<div class="detail-field"><div class="df-label">Salary / Pay</div><div class="df-val">${esc(j.salary)}</div></div>`:''}
+      ${j.employment_type?`<div class="detail-field"><div class="df-label">Employment Type</div><div class="df-val">${esc(j.employment_type)}</div></div>`:''}
+      ${catLabel?`<div class="detail-field"><div class="df-label">Category</div><div class="df-val">${esc(catLabel)}</div></div>`:''}
+    </div></div>
+    ${j.description?`<div class="detail-section"><h4>Full Description</h4><div class="detail-body"><p>${esc(j.description)}</p></div></div>`:''}
+    <div class="detail-actions">
+      ${j.contact_info?`<button class="btn-apply" onclick="window.open('${j.contact_info.startsWith('http')?j.contact_info:'mailto:'+j.contact_info}','_blank')">Apply / Contact</button>`:''}
+      <p class="source-note">Posted by ${esc(j.org_name||'this organization')}. Verify details before applying.</p>
+    </div>`;
+  document.getElementById('detail-overlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+
+// ── SUBMIT AUDITION ──
+async function handleAuditionSubmit(e) {
+  e.preventDefault();
+  if (!currentUser) { openAuth('signin'); return; }
+  const required = ['theater_name','show_title','pay','union_status','location','audition_date','roles'];
+  let valid = true;
+  required.forEach(field => {
+    const el=document.getElementById('f-'+field), err=document.getElementById('err-'+field);
+    if (!el||!el.value.trim()) { if(el) el.classList.add('error'); if(err) err.classList.add('visible'); valid=false; }
+    else { if(el) el.classList.remove('error'); if(err) err.classList.remove('visible'); }
+  });
+  const ciEl=document.getElementById('f-contact_info'), ciErr=document.getElementById('err-contact_info');
+  if (!ciEl.value.trim()) { ciEl.classList.add('error'); ciErr.classList.add('visible'); valid=false; }
+  else { ciEl.classList.remove('error'); ciErr.classList.remove('visible'); }
+  if (!valid) return;
+
+  const btn=document.getElementById('post-submit-btn');
+  btn.disabled=true; btn.textContent='Submitting…';
+  const showTitle=document.getElementById('f-show_title').value.trim();
+  const theaterName=document.getElementById('f-theater_name').value.trim();
+  const payload={
+    user_id:currentUser.id, theater_name:theaterName, show_title:showTitle,
+    roles:document.getElementById('f-roles').value.trim(),
+    pay:document.getElementById('f-pay').value,
+    union_status:document.getElementById('f-union_status').value,
+    location:document.getElementById('f-location').value.trim(),
+    audition_date:document.getElementById('f-audition_date').value||null,
+    description:document.getElementById('f-description').value.trim(),
+    contact_info:ciEl.value.trim(),
+    slug:slugify(`${showTitle}-${theaterName}-${Date.now()}`),
+    status:'pending'
+  };
+  try {
+    const { error } = await _supabase.from('auditions').insert([payload]);
+    if (error) throw error;
+    document.getElementById('post-success').textContent='✓ Listing submitted! It will appear within 24 hours after review.';
+    document.getElementById('post-success').className='form-msg success';
+    document.getElementById('audition-form').reset();
+    flash('Listing submitted for review!','success');
+  } catch(err) {
+    document.getElementById('post-error').textContent='✗ Error: '+(err.message||'Something went wrong.');
+    document.getElementById('post-error').style.display='block';
+  } finally { btn.disabled=false; btn.textContent='Submit Listing for Review'; }
+}
+
+// ── MY LISTINGS ──
+async function loadMyListings() {
+  if (!currentUser) { openAuth('signin'); return; }
+  const { data } = await _supabase.from('auditions').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false});
+  const listings=data||[];
+  document.getElementById('ds-total').textContent=listings.length;
+  document.getElementById('ds-live').textContent=listings.filter(l=>l.status==='approved').length;
+  document.getElementById('ds-pending').textContent=listings.filter(l=>l.status==='pending').length;
+  const isPaid=currentProfile&&currentProfile.is_paid;
+  document.getElementById('dash-paywall-notice').style.display=(!isPaid&&listings.length>=1)?'block':'none';
+  const container=document.getElementById('my-listings-container');
+  if (!listings.length) {
+    container.innerHTML=`<div class="empty-state"><p>You haven't posted any listings yet.</p><button class="btn-cta" onclick="showPage('post-audition',null);checkPaywall()">Post your first listing free</button></div>`;
+    return;
+  }
+  container.innerHTML=listings.map(l=>`
+    <div class="dash-row">
+      <div class="dash-row-info">
+        <div class="dash-row-title">${esc(l.show_title||'')} — ${esc(l.theater_name||'')}</div>
+        <div class="dash-row-meta">${l.audition_date?'Audition: '+fmtDate(l.audition_date)+' · ':''}Posted ${fmtDate(l.created_at)}</div>
+      </div>
+      <span class="status-pill status-${l.status}">${l.status.charAt(0).toUpperCase()+l.status.slice(1)}</span>
+      <div class="dash-actions">
+        <button class="dash-action-btn" onclick="openEditModal(${JSON.stringify(l).replace(/"/g,'&quot;')})">Edit</button>
+        <button class="dash-action-btn del" onclick="deleteListing('${l.id}')">Delete</button>
+      </div>
+    </div>`).join('');
+}
+
+async function deleteListing(id) {
+  if (!confirm('Delete this listing permanently?')) return;
+  const { error } = await _supabase.from('auditions').delete().eq('id',id).eq('user_id',currentUser.id);
+  if (error) { flash('Could not delete listing.','error'); return; }
+  flash('Listing deleted.','info'); loadMyListings(); fetchAuditions();
+}
+
+// ── EDIT MODAL ──
+function openEditModal(listing) {
+  document.getElementById('edit-listing-id').value=listing.id;
+  document.getElementById('edit-show_title').value=listing.show_title||'';
+  document.getElementById('edit-theater_name').value=listing.theater_name||'';
+  document.getElementById('edit-location').value=listing.location||'';
+  document.getElementById('edit-audition_date').value=listing.audition_date||'';
+  document.getElementById('edit-pay').value=listing.pay||'Paid';
+  document.getElementById('edit-union_status').value=listing.union_status||'Non-Union';
+  document.getElementById('edit-roles').value=listing.roles||'';
+  document.getElementById('edit-description').value=listing.description||'';
+  document.getElementById('edit-contact_info').value=listing.contact_info||'';
+  document.getElementById('edit-modal').classList.add('open');
+}
+function closeEditModal() { document.getElementById('edit-modal').classList.remove('open'); }
+function closeEditOnBg(e) { if(e.target===document.getElementById('edit-modal')) closeEditModal(); }
+
+async function saveEditedListing() {
+  const id=document.getElementById('edit-listing-id').value;
+  if (!id||!currentUser) return;
+  const payload={
+    show_title:document.getElementById('edit-show_title').value.trim(),
+    theater_name:document.getElementById('edit-theater_name').value.trim(),
+    location:document.getElementById('edit-location').value.trim(),
+    audition_date:document.getElementById('edit-audition_date').value||null,
+    pay:document.getElementById('edit-pay').value,
+    union_status:document.getElementById('edit-union_status').value,
+    roles:document.getElementById('edit-roles').value.trim(),
+    description:document.getElementById('edit-description').value.trim(),
+    contact_info:document.getElementById('edit-contact_info').value.trim(),
+    status:'pending'
+  };
+  const { error } = await _supabase.from('auditions').update(payload).eq('id',id).eq('user_id',currentUser.id);
+  if (error) { flash('Could not save changes.','error'); return; }
+  closeEditModal(); flash('Listing updated — pending re-review.','success');
+  loadMyListings(); fetchAuditions();
+}
+
+// ── ADMIN ──
+async function loadAdminListings() {
+  const { data } = await _supabase.from('auditions').select('*').order('created_at',{ascending:false});
+  const listings=data||[];
+  const pending=listings.filter(l=>l.status==='pending');
+  document.getElementById('admin-pending-count').textContent=`${pending.length} pending`;
+  const container=document.getElementById('admin-listings-container');
+  if (!listings.length) { container.innerHTML=`<div class="empty-state"><p>No listings yet.</p></div>`; return; }
+  container.innerHTML=listings.map(l=>`
+    <div class="admin-row">
+      <div class="admin-row-info">
+        <div class="admin-row-title">${esc(l.show_title||'')} — ${esc(l.theater_name||'')}</div>
+        <div class="admin-row-meta">
+          ${l.location?'📍 '+esc(l.location)+' · ':''}
+          ${l.audition_date?'📅 '+fmtDate(l.audition_date)+' · ':''}
+          ${l.pay?esc(l.pay)+' · ':''}${l.union_status?esc(l.union_status)+'<br>':''}
+          ${l.roles?'<em>Roles: '+esc(l.roles).substring(0,100)+'</em><br>':''}
+          Submitted: ${fmtDate(l.created_at)} · Status: <strong>${l.status}</strong>
+          ${l.contact_info?' · Contact: '+esc(l.contact_info):''}
+        </div>
+      </div>
+      <div class="admin-btns">
+        ${l.status!=='approved'?`<button class="btn-approve" onclick="adminUpdateStatus('${l.id}','approved')">✓ Approve</button>`:''}
+        ${l.status!=='rejected'?`<button class="btn-reject" onclick="adminUpdateStatus('${l.id}','rejected')">✗ Reject</button>`:''}
+        ${l.status!=='pending'?`<button class="btn-ghost" onclick="adminUpdateStatus('${l.id}','pending')" style="font-size:11px;padding:5px 10px;">Reset</button>`:''}
+      </div>
+    </div>`).join('');
+}
+
+async function adminUpdateStatus(id, status) {
+  const { error } = await _supabase.from('auditions').update({ status }).eq('id',id);
+  if (error) { flash('Update failed: '+error.message,'error'); return; }
+  flash(`Listing ${status}.`, status==='approved'?'success':'info');
+  loadAdminListings(); fetchAuditions();
+}
+
+// ── UI HELPERS ──
+function showPage(id, btn) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('visible'));
+  const pg=document.getElementById('page-'+id);
+  if (pg) pg.classList.add('visible');
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  window.scrollTo(0,0);
+  history.replaceState(null,'',window.location.pathname);
+  // Reload jobs when navigating to jobs page
+  if (id==='jobs') fetchJobs();
+}
+
+function setTab(btn) {
+  const row=btn.parentElement;
+  row.querySelectorAll('.tab-pill').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function selectTier(el, amount) {
+  document.querySelectorAll('.tier').forEach(t=>t.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('donate-btn').textContent=`Donate $${amount} →`;
+}
+
+function flash(msg, type) {
+  const el=document.getElementById('flash-msg');
+  el.textContent=msg; el.className=`flash ${type} show`;
+  setTimeout(()=>el.classList.remove('show'),4000);
+}
+
+function esc(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function fmtDate(d) {
+  if (!d) return '';
+  try {
+    const [y,m,dd]=String(d).split('T')[0].split('-').map(Number);
+    return new Date(y,m-1,dd).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+  } catch { return d; }
+}
+function slugify(str) {
+  return String(str).toLowerCase().trim().replace(/[^a-z0-9\s-]/g,'').replace(/\s+/g,'-').replace(/-+/g,'-').substring(0,80);
+}
+
+initAuth();
+</script>
+
+<!--
+════════════════════════════════════════════════════════════
+  SUPABASE TABLE: arts_jobs
+  Run this SQL in your Supabase SQL Editor to create the jobs table:
+
+  CREATE TABLE arts_jobs (
+    id              bigserial PRIMARY KEY,
+    created_at      timestamptz DEFAULT now(),
+    user_id         uuid REFERENCES auth.users(id),
+    org_name        text NOT NULL,
+    job_title       text NOT NULL,
+    employment_type text,           -- 'full-time','part-time','contract','seasonal'
+    category        text,           -- 'admin','stage_management','design_crew','education','box_office'
+    location        text,
+    salary          text,
+    description     text,
+    contact_info    text,
+    slug            text,
+    status          text DEFAULT 'pending'
+  );
+
+  RLS policies (same pattern as auditions):
+  - SELECT approved: status = 'approved'
+  - INSERT: auth.uid() = user_id
+  - UPDATE: auth.uid() = user_id
+  - DELETE: auth.uid() = user_id
+════════════════════════════════════════════════════════════
+-->
+</body>
+</html>
