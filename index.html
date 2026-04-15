@@ -447,45 +447,14 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
     <h2>Community</h2>
     <p>Actor discussions, collaboration posts, advice, and announcements from the Cleveland theatre scene.</p>
   </div>
-  <div class="tabs-row">
-    <button class="tab-pill active" onclick="setTab(this)">All Posts</button>
-    <button class="tab-pill" onclick="setTab(this)">Collaborators Wanted</button>
-    <button class="tab-pill" onclick="setTab(this)">Advice</button>
-    <button class="tab-pill" onclick="setTab(this)">Announcements</button>
-  </div>
-  <div style="max-width:680px;margin:0 auto;padding:24px;">
+ <div style="max-width:680px;margin:0 auto;padding:24px;">
     <div style="text-align:right;margin-bottom:16px;">
       <button class="btn-cta" onclick="requireAuthThen(openNewPostModal)">+ New post</button>
     </div>
-    <div class="post-card">
-      <div class="post-top">
-        <div class="av av1">MR</div>
-        <div><div class="av-name">Maria R.</div><div class="av-time">2 hours ago</div></div>
-        <span class="post-type-badge">Looking for actors</span>
-      </div>
-      <div class="post-body">Seeking a <strong>strong mezzo-soprano, 25–40</strong>, for a short film shooting in Tremont this June. 2-day shoot, paid union scale. Please DM with reel or headshot.</div>
-      <div class="post-actions"><button class="pa">♥ 14</button><button class="pa">💬 6 replies</button><button class="pa">Share</button></div>
-    </div>
-    <div class="post-card">
-      <div class="post-top">
-        <div class="av av2">TK</div>
-        <div><div class="av-name">TK Productions</div><div class="av-time">5 hours ago</div></div>
-        <span class="post-type-badge">Announcement</span>
-      </div>
-      <div class="post-body">We just confirmed our 2025–26 season at <strong>Ensemble Theatre CLE</strong>. 4 mainstage productions, 2 new works. Audition notices will post here first.</div>
-      <div class="post-actions"><button class="pa">♥ 31</button><button class="pa">💬 9 replies</button><button class="pa">Share</button></div>
-    </div>
-    <div class="post-card">
-      <div class="post-top">
-        <div class="av av3">JS</div>
-        <div><div class="av-name">Jordan S.</div><div class="av-time">Yesterday</div></div>
-        <span class="post-type-badge">Advice</span>
-      </div>
-      <div class="post-body">Anyone have experience with <strong>self-taping setups</strong> for Dobama or Beck auditions? What format do they prefer — Vimeo or Google Drive?</div>
-      <div class="post-actions"><button class="pa">♥ 22</button><button class="pa">💬 17 replies</button><button class="pa">Share</button></div>
+    <div id="community-container">
+      <div style="padding:32px;text-align:center;color:var(--ink3);">Loading community posts…</div>
     </div>
   </div>
-</div>
 
 <!-- ══════════════════════════════════════════════════════════════
      SUPPORT US PAGE
@@ -750,7 +719,42 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
     </div>
   </div>
 </div>
-
+<!-- ══════════════════════════════════════════════════════════════
+     NEW POST MODAL
+══════════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="post-modal" onclick="closePostModalOnBg(event)">
+  <div class="modal">
+    <button class="modal-close-btn" onclick="closePostModal()">×</button>
+    <h3>New Community Post</h3>
+    <p class="modal-sub">Share with the Cleveland theatre community.</p>
+    <div class="auth-error" id="post-modal-error"></div>
+    <div class="form-field">
+      <label>Your Name <span class="req">*</span></label>
+      <input type="text" id="cp-author_name" placeholder="e.g. Maria R. or Beck Center"/>
+      <div class="field-error" id="err-cp-author_name">Please enter your name.</div>
+    </div>
+    <div class="form-field">
+      <label>Category <span class="req">*</span></label>
+      <select id="cp-category">
+        <option value="">Select…</option>
+        <option value="Looking for actors">Looking for actors</option>
+        <option value="Advice">Advice</option>
+        <option value="Announcement">Announcement</option>
+        <option value="Collaborators Wanted">Collaborators Wanted</option>
+        <option value="General">General</option>
+      </select>
+      <div class="field-error" id="err-cp-category">Please select a category.</div>
+    </div>
+    <div class="form-field">
+      <label>Post <span class="req">*</span></label>
+      <textarea id="cp-body" rows="4" placeholder="What's on your mind?"></textarea>
+      <div class="field-error" id="err-cp-body">Please write something.</div>
+    </div>
+    <button class="modal-submit" id="cp-submit-btn" onclick="handlePostSubmit()">Submit Post</button>
+    <p style="font-size:11px;color:var(--ink3);margin-top:10px;text-align:center;">Posts are reviewed before going live. Please keep it respectful.</p>
+  </div>
+</div>
+  
 <!-- Detail panel -->
 <div class="detail-overlay" id="detail-overlay" onclick="closeDetailOnBg(event)">
   <div class="detail-panel" id="detail-panel">
@@ -932,7 +936,130 @@ function showAuthError(msg) { const el=document.getElementById('auth-error-msg')
 function showFieldErr(id, show) { const el=document.getElementById('err-'+id); if(el) el.classList.toggle('visible',show); }
 function requireAuthThen(fn) { if (!currentUser) { openAuth('signin'); return; } fn(); }
 async function openPostPage() { showPage('post-choice',null); }
-function openNewPostModal() { flash('Community posting coming soon!','info'); }async function checkJobPaywall() {
+function openNewPostModal() {
+  document.getElementById('post-modal').classList.add('open');
+  document.getElementById('post-modal-error').style.display = 'none';
+  document.getElementById('post-modal-error').textContent = '';
+}
+function closePostModal() { document.getElementById('post-modal').classList.remove('open'); }
+function closePostModalOnBg(e) { if(e.target===document.getElementById('post-modal')) closePostModal(); }
+
+// Keyword filter — Option B moderation
+const BANNED_WORDS = [
+  'fuck','shit','ass','bitch','cunt','dick','pussy','bastard',
+  'nigger','faggot','retard','slut','whore','hate','kill','nazi'
+];
+
+function containsBannedWords(text) {
+  const lower = text.toLowerCase();
+  return BANNED_WORDS.some(word => lower.includes(word));
+}
+
+async function handlePostSubmit() {
+  const authorName = document.getElementById('cp-author_name').value.trim();
+  const category   = document.getElementById('cp-category').value;
+  const body       = document.getElementById('cp-body').value.trim();
+  let valid = true;
+
+  if (!authorName) { document.getElementById('err-cp-author_name').classList.add('visible'); valid=false; }
+  else { document.getElementById('err-cp-author_name').classList.remove('visible'); }
+  if (!category) { document.getElementById('err-cp-category').classList.add('visible'); valid=false; }
+  else { document.getElementById('err-cp-category').classList.remove('visible'); }
+  if (!body) { document.getElementById('err-cp-body').classList.add('visible'); valid=false; }
+  else { document.getElementById('err-cp-body').classList.remove('visible'); }
+  if (!valid) return;
+
+  // Option B — keyword filter
+  if (containsBannedWords(body) || containsBannedWords(authorName)) {
+    const errEl = document.getElementById('post-modal-error');
+    errEl.textContent = 'Your post contains language that is not allowed. Please revise and try again.';
+    errEl.style.display = 'block';
+    errEl.classList.add('visible');
+    return;
+  }
+
+  const btn = document.getElementById('cp-submit-btn');
+  btn.disabled = true; btn.textContent = 'Submitting…';
+
+  try {
+    const { error } = await _supabase.from('community_posts').insert([{
+      user_id:     currentUser.id,
+      author_name: authorName,
+      category,
+      body,
+      status:      'pending'
+    }]);
+    if (error) throw error;
+    closePostModal();
+    document.getElementById('cp-author_name').value = '';
+    document.getElementById('cp-category').value = '';
+    document.getElementById('cp-body').value = '';
+    flash('Post submitted! It will appear after review.', 'success');
+  } catch(err) {
+    const errEl = document.getElementById('post-modal-error');
+    errEl.textContent = 'Error: ' + (err.message || 'Something went wrong.');
+    errEl.style.display = 'block';
+  } finally {
+    btn.disabled = false; btn.textContent = 'Submit Post';
+  }
+}
+
+async function fetchCommunityPosts() {
+  try {
+    const { data, error } = await _supabase
+      .from('community_posts').select('*').eq('status','approved')
+      .order('created_at', { ascending: false });
+    if (error) throw error;
+    renderCommunityPosts(data || []);
+  } catch(err) {
+    document.getElementById('community-container').innerHTML =
+      `<div style="padding:32px;text-align:center;color:var(--ink3);">Could not load posts.</div>`;
+  }
+}
+
+function renderCommunityPosts(posts) {
+  const container = document.getElementById('community-container');
+  if (!posts.length) {
+    container.innerHTML = `<div style="padding:40px;text-align:center;color:var(--ink3);">
+      <div style="font-size:28px;margin-bottom:10px;">💬</div>
+      <div style="font-size:14px;color:var(--ink2);margin-bottom:8px;">No posts yet.</div>
+      <div style="font-size:13px;">Be the first to post something!</div>
+    </div>`; return;
+  }
+  const colors = ['av1','av2','av3','av4'];
+  container.innerHTML = posts.map((p, i) => {
+    const initials = p.author_name.split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase();
+    const avClass  = colors[i % colors.length];
+    const timeAgo  = getTimeAgo(p.created_at);
+    return `
+      <div class="post-card">
+        <div class="post-top">
+          <div class="av ${avClass}">${esc(initials)}</div>
+          <div><div class="av-name">${esc(p.author_name)}</div><div class="av-time">${timeAgo}</div></div>
+          <span class="post-type-badge">${esc(p.category)}</span>
+        </div>
+        <div class="post-body">${esc(p.body)}</div>
+      </div>`;
+  }).join('');
+}
+
+function getTimeAgo(dateStr) {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const mins  = Math.floor(diff / 60000);
+  const hours = Math.floor(diff / 3600000);
+  const days  = Math.floor(diff / 86400000);
+  if (mins < 1)   return 'Just now';
+  if (mins < 60)  return `${mins} minute${mins===1?'':'s'} ago`;
+  if (hours < 24) return `${hours} hour${hours===1?'':'s'} ago`;
+  if (days < 7)   return `${days} day${days===1?'':'s'} ago`;
+  return fmtDate(dateStr);
+}
+  
+  
+  
+  
+  
+  async function checkJobPaywall() {
   if (!currentUser) return;
   if (currentProfile && currentProfile.is_paid) {
     document.getElementById('job-paywall-banner').style.display='none';
@@ -1575,7 +1702,60 @@ async function saveEditedListing() {
 
 // ── ADMIN ──
 async function loadAdminListings() {
-  const { data } = await _supabase.from('auditions').select('*').order('created_at',{ascending:false});
+  const { data: auditions } = await _supabase.from('auditions').select('*').order('created_at',{ascending:false});
+  const { data: posts } = await _supabase.from('community_posts').select('*').order('created_at',{ascending:false});
+
+  const listings = auditions || [];
+  const pending  = listings.filter(l => l.status === 'pending');
+  const pendingPosts = (posts || []).filter(p => p.status === 'pending');
+  document.getElementById('admin-pending-count').textContent =
+    `${pending.length} listings · ${pendingPosts.length} posts pending`;
+
+  const container = document.getElementById('admin-listings-container');
+  const allItems = [
+    ...listings.map(l => ({ ...l, _type: 'audition' })),
+    ...(posts || []).map(p => ({ ...p, _type: 'post' }))
+  ].sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+
+  if (!allItems.length) {
+    container.innerHTML = `<div class="empty-state"><p>No submissions yet.</p></div>`; return;
+  }
+
+  container.innerHTML = allItems.map(item => {
+    if (item._type === 'audition') {
+      return `
+        <div class="admin-row">
+          <div class="admin-row-info">
+            <div class="admin-row-title">🎭 ${esc(item.show_title||'')} — ${esc(item.theater_name||'')}</div>
+            <div class="admin-row-meta">
+              ${item.location?'📍 '+esc(item.location)+' · ':''}
+              ${item.pay?esc(item.pay)+' · ':''}${item.union_status?esc(item.union_status)+'<br>':''}
+              Submitted: ${fmtDate(item.created_at)} · Status: <strong>${item.status}</strong>
+            </div>
+          </div>
+          <div class="admin-btns">
+            ${item.status!=='approved'?`<button class="btn-approve" onclick="adminUpdateStatus('${item.id}','approved','auditions')">✓ Approve</button>`:''}
+            ${item.status!=='rejected'?`<button class="btn-reject" onclick="adminUpdateStatus('${item.id}','rejected','auditions')">✗ Reject</button>`:''}
+          </div>
+        </div>`;
+    } else {
+      return `
+        <div class="admin-row">
+          <div class="admin-row-info">
+            <div class="admin-row-title">💬 ${esc(item.author_name||'')} — ${esc(item.category||'')}</div>
+            <div class="admin-row-meta">
+              ${esc(item.body||'').substring(0,120)}…<br>
+              Submitted: ${fmtDate(item.created_at)} · Status: <strong>${item.status}</strong>
+            </div>
+          </div>
+          <div class="admin-btns">
+            ${item.status!=='approved'?`<button class="btn-approve" onclick="adminUpdateStatus('${item.id}','approved','community_posts')">✓ Approve</button>`:''}
+            ${item.status!=='rejected'?`<button class="btn-reject" onclick="adminUpdateStatus('${item.id}','rejected','community_posts')">✗ Reject</button>`:''}
+          </div>
+        </div>`;
+    }
+  }).join('');
+}
   const listings=data||[];
   const pending=listings.filter(l=>l.status==='pending');
   document.getElementById('admin-pending-count').textContent=`${pending.length} pending`;
@@ -1602,11 +1782,13 @@ async function loadAdminListings() {
     </div>`).join('');
 }
 
-async function adminUpdateStatus(id, status) {
-  const { error } = await _supabase.from('auditions').update({ status }).eq('id',id);
+async function adminUpdateStatus(id, status, table='auditions') {
+  const { error } = await _supabase.from(table).update({ status }).eq('id',id);
   if (error) { flash('Update failed: '+error.message,'error'); return; }
-  flash(`Listing ${status}.`, status==='approved'?'success':'info');
-  loadAdminListings(); fetchAuditions();
+  flash(`${table==='community_posts'?'Post':'Listing'} ${status}.`, status==='approved'?'success':'info');
+  loadAdminListings();
+  if (table==='auditions') fetchAuditions();
+  if (table==='community_posts') fetchCommunityPosts();
 }
 
 // ── UI HELPERS ──
@@ -1620,6 +1802,7 @@ function showPage(id, btn) {
   history.replaceState(null,'',window.location.pathname);
   // Reload jobs when navigating to jobs page
   if (id==='jobs') fetchJobs();
+  if (id==='community') fetchCommunityPosts();
 }
 
 function setTab(btn) {
