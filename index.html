@@ -455,6 +455,7 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
       <div style="padding:32px;text-align:center;color:var(--ink3);">Loading community posts…</div>
     </div>
   </div>
+</div>
 
 <!-- ══════════════════════════════════════════════════════════════
      SUPPORT US PAGE
@@ -1755,31 +1756,6 @@ async function loadAdminListings() {
         </div>`;
     }
   }).join('');
-}
-  const listings=data||[];
-  const pending=listings.filter(l=>l.status==='pending');
-  document.getElementById('admin-pending-count').textContent=`${pending.length} pending`;
-  const container=document.getElementById('admin-listings-container');
-  if (!listings.length) { container.innerHTML=`<div class="empty-state"><p>No listings yet.</p></div>`; return; }
-  container.innerHTML=listings.map(l=>`
-    <div class="admin-row">
-      <div class="admin-row-info">
-        <div class="admin-row-title">${esc(l.show_title||'')} — ${esc(l.theater_name||'')}</div>
-        <div class="admin-row-meta">
-          ${l.location?'📍 '+esc(l.location)+' · ':''}
-          ${l.audition_date?'📅 '+fmtDate(l.audition_date)+' · ':''}
-          ${l.pay?esc(l.pay)+' · ':''}${l.union_status?esc(l.union_status)+'<br>':''}
-          ${l.roles?'<em>Roles: '+esc(l.roles).substring(0,100)+'</em><br>':''}
-          Submitted: ${fmtDate(l.created_at)} · Status: <strong>${l.status}</strong>
-          ${l.contact_info?' · Contact: '+esc(l.contact_info):''}
-        </div>
-      </div>
-      <div class="admin-btns">
-        ${l.status!=='approved'?`<button class="btn-approve" onclick="adminUpdateStatus('${l.id}','approved')">✓ Approve</button>`:''}
-        ${l.status!=='rejected'?`<button class="btn-reject" onclick="adminUpdateStatus('${l.id}','rejected')">✗ Reject</button>`:''}
-        ${l.status!=='pending'?`<button class="btn-ghost" onclick="adminUpdateStatus('${l.id}','pending')" style="font-size:11px;padding:5px 10px;">Reset</button>`:''}
-      </div>
-    </div>`).join('');
 }
 
 async function adminUpdateStatus(id, status, table='auditions') {
