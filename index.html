@@ -523,7 +523,29 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
     <p class="support-note">Theaters: ask about our <strong style="color:var(--ink);">yearly membership plan ($79/year)</strong> for unlimited listings.<br/>Contact: hello@clevelandcallboard.com</p>
   </div>
 </div>
-
+<!-- ══════════════════════════════════════════════════════════════
+     POST LISTING CHOICE PAGE
+══════════════════════════════════════════════════════════════ -->
+<div class="page" id="page-post-choice">
+  <div class="post-form-wrap">
+    <h2>Post a Listing</h2>
+    <p style="font-size:14px;color:var(--ink2);margin-bottom:28px;">What would you like to post?</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:500px;">
+      <div onclick="showPage('post-audition',null);checkPaywall()" style="background:var(--white);border:2px solid var(--border);border-radius:var(--radius-lg);padding:28px 20px;text-align:center;cursor:pointer;transition:all var(--transition);"
+        onmouseover="this.style.borderColor='var(--red)'" onmouseout="this.style.borderColor='var(--border)'">
+        <div style="font-size:36px;margin-bottom:12px;">🎭</div>
+        <div style="font-family:var(--font-display);font-size:17px;font-weight:700;color:var(--ink);margin-bottom:6px;">Audition</div>
+        <div style="font-size:13px;color:var(--ink2);">Post a casting call for your production</div>
+      </div>
+      <div onclick="showPage('post-job',null);checkJobPaywall()" style="background:var(--white);border:2px solid var(--border);border-radius:var(--radius-lg);padding:28px 20px;text-align:center;cursor:pointer;transition:all var(--transition);"
+        onmouseover="this.style.borderColor='var(--red)'" onmouseout="this.style.borderColor='var(--border)'">
+        <div style="font-size:36px;margin-bottom:12px;">💼</div>
+        <div style="font-family:var(--font-display);font-size:17px;font-weight:700;color:var(--ink);margin-bottom:6px;">Job</div>
+        <div style="font-size:13px;color:var(--ink2);">Post an arts job or staff position</div>
+      </div>
+    </div>
+  </div>
+</div>
 <!-- ══════════════════════════════════════════════════════════════
      POST AN AUDITION PAGE
 ══════════════════════════════════════════════════════════════ -->
@@ -612,7 +634,86 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
     </div>
   </div>
 </div>
-
+<!-- ══════════════════════════════════════════════════════════════
+     POST A JOB PAGE
+══════════════════════════════════════════════════════════════ -->
+<div class="page" id="page-post-job">
+  <div class="post-form-wrap">
+    <h2>Post a Job</h2>
+    <p style="font-size:14px;color:var(--ink2);margin-bottom:4px;">Listings go live within 24 hours after review.</p>
+    <div class="form-msg" id="post-job-success"></div>
+    <div class="form-msg error" id="post-job-error" style="display:none;"></div>
+    <div class="paywall-banner" id="job-paywall-banner" style="display:none;">
+      <h4>You've used your free listing.</h4>
+      <p>Subscribe for $79/year to post unlimited auditions and jobs.</p>
+      <button class="upgrade-btn" onclick="startStripeCheckout()">Subscribe — $79/year</button>
+    </div>
+    <div class="post-form-card" id="post-job-form-card">
+      <form id="job-form" onsubmit="handleJobSubmit(event)" novalidate>
+        <div class="pf-section-title">Organization Info</div>
+        <div class="form-field">
+          <label>Organization Name <span class="req">*</span></label>
+          <input type="text" id="fj-org_name" placeholder="e.g. Playhouse Square"/>
+          <div class="field-error" id="err-fj-org_name">Please enter your organization name.</div>
+        </div>
+        <div class="form-field">
+          <label>Contact / Apply Info <span class="req">*</span></label>
+          <input type="text" id="fj-contact_info" placeholder="Email or website to apply"/>
+          <div class="field-error" id="err-fj-contact_info">Please enter contact information.</div>
+        </div>
+        <div class="pf-section-title" style="margin-top:20px;">Job Details</div>
+        <div class="form-field">
+          <label>Job Title <span class="req">*</span></label>
+          <input type="text" id="fj-job_title" placeholder="e.g. Box Office Associate"/>
+          <div class="field-error" id="err-fj-job_title">Please enter the job title.</div>
+        </div>
+        <div class="pf-row">
+          <div class="form-field">
+            <label>Employment Type <span class="req">*</span></label>
+            <select id="fj-employment_type">
+              <option value="">Select…</option>
+              <option value="full-time">Full-time</option>
+              <option value="part-time">Part-time</option>
+              <option value="contract">Contract</option>
+              <option value="seasonal">Seasonal</option>
+            </select>
+            <div class="field-error" id="err-fj-employment_type">Please select employment type.</div>
+          </div>
+          <div class="form-field">
+            <label>Job Category <span class="req">*</span></label>
+            <select id="fj-category">
+              <option value="">Select…</option>
+              <option value="admin">Admin</option>
+              <option value="stage_management">Stage Management</option>
+              <option value="design_crew">Design / Crew</option>
+              <option value="education">Education</option>
+              <option value="box_office">Box Office</option>
+            </select>
+            <div class="field-error" id="err-fj-category">Please select a category.</div>
+          </div>
+        </div>
+        <div class="pf-row">
+          <div class="form-field">
+            <label>Location <span class="req">*</span></label>
+            <input type="text" id="fj-location" placeholder="e.g. Cleveland, OH"/>
+            <div class="field-error" id="err-fj-location">Please enter a location.</div>
+          </div>
+          <div class="form-field">
+            <label>Salary / Pay</label>
+            <input type="text" id="fj-salary" placeholder="e.g. $45,000/year or $18/hr"/>
+          </div>
+        </div>
+        <div class="pf-section-title" style="margin-top:20px;">Description</div>
+        <div class="form-field">
+          <label>Full Job Description <span class="req">*</span></label>
+          <textarea id="fj-description" placeholder="Responsibilities, qualifications, how to apply, deadline, etc." rows="5"></textarea>
+          <div class="field-error" id="err-fj-description">Please enter a job description.</div>
+        </div>
+        <button type="submit" class="modal-submit" id="post-job-btn" style="margin-top:8px;">Submit Job for Review</button>
+      </form>
+    </div>
+  </div>
+</div>
 <!-- ══════════════════════════════════════════════════════════════
      MY LISTINGS DASHBOARD
 ══════════════════════════════════════════════════════════════ -->
@@ -637,7 +738,7 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
     <div class="dash-table">
       <div class="dash-table-hd">
         <h3>Your Submissions</h3>
-        <button class="btn-cta" onclick="showPage('post-audition',null)">+ New listing</button>
+        <button class="btn-cta" onclick="openPostPage()">+ New listing</button>
       </div>
       <div id="my-listings-container">
         <div class="empty-state"><p>Loading your listings…</p></div>
@@ -841,8 +942,62 @@ async function handleLogout() {
 function showAuthError(msg) { const el=document.getElementById('auth-error-msg'); el.textContent=msg; el.classList.add('visible'); }
 function showFieldErr(id, show) { const el=document.getElementById('err-'+id); if(el) el.classList.toggle('visible',show); }
 function requireAuthThen(fn) { if (!currentUser) { openAuth('signin'); return; } fn(); }
-async function openPostPage() {    showPage('post-audition',null);    if (!currentProfile) await loadProfile();   checkPaywall();  }
-function openNewPostModal() { flash('Community posting coming soon!','info'); }function togglePayAmount(val) {
+async function openPostPage() { showPage('post-choice',null); }
+function openNewPostModal() { flash('Community posting coming soon!','info'); }async function checkJobPaywall() {
+  if (!currentUser) return;
+  if (currentProfile && currentProfile.is_paid) {
+    document.getElementById('job-paywall-banner').style.display='none';
+    document.getElementById('post-job-form-card').style.display='block'; return;
+  }
+  const { count } = await _supabase.from('auditions').select('id',{count:'exact',head:true}).eq('user_id',currentUser.id);
+  const { count: jobCount } = await _supabase.from('arts_jobs').select('id',{count:'exact',head:true}).eq('user_id',currentUser.id);
+  if ((count + jobCount) >= 1) {
+    document.getElementById('job-paywall-banner').style.display='block';
+    document.getElementById('post-job-form-card').style.display='none';
+  } else {
+    document.getElementById('job-paywall-banner').style.display='none';
+    document.getElementById('post-job-form-card').style.display='block';
+  }
+}
+
+async function handleJobSubmit(e) {
+  e.preventDefault();
+  if (!currentUser) { openAuth('signin'); return; }
+  const required = ['org_name','job_title','employment_type','category','location','description','contact_info'];
+  let valid = true;
+  required.forEach(field => {
+    const el=document.getElementById('fj-'+field), err=document.getElementById('err-fj-'+field);
+    if (!el||!el.value.trim()) { if(el) el.classList.add('error'); if(err) err.classList.add('visible'); valid=false; }
+    else { if(el) el.classList.remove('error'); if(err) err.classList.remove('visible'); }
+  });
+  if (!valid) return;
+  const btn=document.getElementById('post-job-btn');
+  btn.disabled=true; btn.textContent='Submitting…';
+  const payload={
+    user_id:currentUser.id,
+    org_name:document.getElementById('fj-org_name').value.trim(),
+    job_title:document.getElementById('fj-job_title').value.trim(),
+    employment_type:document.getElementById('fj-employment_type').value,
+    category:document.getElementById('fj-category').value,
+    location:document.getElementById('fj-location').value.trim(),
+    salary:document.getElementById('fj-salary').value.trim()||null,
+    description:document.getElementById('fj-description').value.trim(),
+    contact_info:document.getElementById('fj-contact_info').value.trim(),
+    slug:slugify(`${document.getElementById('fj-job_title').value.trim()}-${document.getElementById('fj-org_name').value.trim()}-${Date.now()}`),
+    status:'pending'
+  };
+  try {
+    const { error } = await _supabase.from('arts_jobs').insert([payload]);
+    if (error) throw error;
+    document.getElementById('post-job-success').textContent='✓ Job submitted! It will appear within 24 hours after review.';
+    document.getElementById('post-job-success').className='form-msg success';
+    document.getElementById('job-form').reset();
+    flash('Job listing submitted for review!','success');
+  } catch(err) {
+    document.getElementById('post-job-error').textContent='✗ Error: '+(err.message||'Something went wrong.');
+    document.getElementById('post-job-error').style.display='block';
+  } finally { btn.disabled=false; btn.textContent='Submit Job for Review'; }
+}function togglePayAmount(val) {
   const field = document.getElementById('pay-amount-field');
   field.style.display = (val === 'Paid' || val === 'Stipend') ? 'block' : 'none';
   if (val === 'Volunteer') document.getElementById('f-pay_amount').value = '';
