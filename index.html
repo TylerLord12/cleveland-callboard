@@ -620,6 +620,10 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
   <div class="dashboard-wrap">
     <h2>My Listings</h2>
     <div class="dashboard-sub" id="dash-sub">Manage your audition and job postings.</div>
+<div id="pro-banner" style="display:none;background:linear-gradient(135deg,#9a7c3a,#c4a052);color:#fff;border-radius:12px;padding:16px 20px;margin-bottom:20px;">
+  <strong style="font-size:15px;">⭐ You're a Pro Member!</strong>
+  <p style="font-size:13px;opacity:.9;margin-top:4px;">You have unlimited listings. Thank you for supporting Cleveland Theater Alliance!</p>
+</div>
     <div class="dash-stat-row">
       <div class="dash-stat"><div class="ds-num" id="ds-total">—</div><div class="ds-lbl">Total listings</div></div>
       <div class="dash-stat"><div class="ds-num" id="ds-live">—</div><div class="ds-lbl">Live (approved)</div></div>
@@ -761,7 +765,7 @@ function updateNavForUser() {
   if (currentUser && currentProfile) {
     const isPaid = currentProfile.is_paid;
     navRight.innerHTML = `
-      <span class="nav-paid-badge" style="display:${isPaid?'inline':'none'};">✓ Subscribed</span>
+      <span class="nav-paid-badge" style="display:${isPaid?'inline':'none'};">⭐ Pro Member</span>
       <button class="btn-ghost" onclick="showPage('my-listings',null);loadMyListings()">My Listings</button>
       <button class="btn-cta" onclick="requireAuthThen(openPostPage)">Post a Listing</button>
       <button class="btn-ghost" onclick="handleLogout()" style="border-color:transparent;color:var(--ink3);">Log out</button>`;
@@ -1290,6 +1294,7 @@ async function loadMyListings() {
   document.getElementById('ds-live').textContent=listings.filter(l=>l.status==='approved').length;
   document.getElementById('ds-pending').textContent=listings.filter(l=>l.status==='pending').length;
   const isPaid=currentProfile&&currentProfile.is_paid;
+  document.getElementById('pro-banner').style.display = isPaid ? 'block' : 'none';
   document.getElementById('dash-paywall-notice').style.display=(!isPaid&&listings.length>=1)?'block':'none';
   const container=document.getElementById('my-listings-container');
   if (!listings.length) {
