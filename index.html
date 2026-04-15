@@ -288,7 +288,8 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
 .post-form-wrap h2{font-family:var(--font-display);font-size:26px;color:var(--ink);margin-bottom:6px;}
 .post-form-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:28px;margin-top:20px;}
 .pf-section-title{font-size:11px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:var(--ink3);margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--border);}
-.pf-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.pf-row{display:flex;flex-wrap:wrap;gap:14px;}
+.pf-row .form-field{flex:1;min-width:200px;}
 @media(max-width:540px){.pf-row{grid-template-columns:1fr;}}
 .form-msg{padding:12px 16px;border-radius:var(--radius);font-size:13px;margin-bottom:18px;display:none;}
 .form-msg.success{background:var(--green-bg);color:var(--green);border:1px solid rgba(30,107,62,0.2);display:block;}
