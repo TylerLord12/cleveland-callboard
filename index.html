@@ -1153,10 +1153,9 @@ function sortAndRender() {
   if (sort==='az')        sorted.sort((a,b)=>(a.show_title||'').localeCompare(b.show_title||''));
   renderAuditions(sorted);
 }
-  function filterCards() {
+function filterCards() {
   const search = (document.getElementById('search-input').value||'').toLowerCase();
 
-  // Read checkbox states
   const wantPaid      = document.getElementById('f-paid').checked;
   const wantVolunteer = document.getElementById('f-volunteer').checked;
   const wantStipend   = document.getElementById('f-stipend').checked;
@@ -1169,41 +1168,46 @@ function sortAndRender() {
   const wantFilm      = document.getElementById('f-film').checked;
   const wantNewWork   = document.getElementById('f-newwork').checked;
 
+  const anyPayChecked    = wantPaid || wantVolunteer || wantStipend;
+  const anyUnionChecked  = wantAEA || wantNonUnion || wantEMC;
+  const anyTypeChecked   = wantPlay || wantMusical || wantImprov || wantFilm || wantNewWork;
+
   let filtered = allAuditions.filter(a => {
-    // Search text
+    // Search
     if (search) {
       const haystack = `${a.show_title} ${a.theater_name} ${a.roles} ${a.location}`.toLowerCase();
       if (!haystack.includes(search)) return false;
     }
 
-    // Compensation filter
-    const payChecks = [];
-    if (wantPaid)      payChecks.push('Paid');
-    if (wantStipend)   payChecks.push('Stipend');
-    if (wantVolunteer) payChecks.push('Volunteer');
-    if (payChecks.length && !payChecks.includes(a.pay)) return false;
-
-    // Union status filter
-    const unionChecks = [];
-    if (wantAEA)      unionChecks.push('AEA');
-    if (wantNonUnion) unionChecks.push('Non-Union');
-    if (wantEMC)      unionChecks.push('EMC');
-    if (unionChecks.length) {
-      const matchesUnion = unionChecks.some(u => a.union_status && a.union_status.includes(u));
-      if (!matchesUnion) return false;
+    // Compensation — only filter if at least one is checked
+    if (anyPayChecked) {
+      const pay = (a.pay || '').toLowerCase();
+      if (wantPaid      && pay === 'paid')      {} // pass
+      else if (wantStipend   && pay === 'stipend')   {} // pass
+      else if (wantVolunteer && pay === 'volunteer')  {} // pass
+      else return false;
     }
 
-    // Type filter — checks description and show title
-    const typeChecks = [];
-    if (wantPlay)     typeChecks.push('play');
-    if (wantMusical)  typeChecks.push('musical');
-    if (wantImprov)   typeChecks.push('improv');
-    if (wantFilm)     typeChecks.push('film');
-    if (wantNewWork)  typeChecks.push('new work');
-    if (typeChecks.length) {
+    // Union — only filter if at least one is checked
+    if (anyUnionChecked) {
+      const union = (a.union_status || '').toLowerCase();
+      const pass =
+        (wantAEA      && union.includes('aea')) ||
+        (wantNonUnion && union.includes('non-union')) ||
+        (wantEMC      && union.includes('emc'));
+      if (!pass) return false;
+    }
+
+    // Type — only filter if at least one is checked
+    if (anyTypeChecked) {
       const text = `${a.show_title} ${a.description} ${a.roles}`.toLowerCase();
-      const matchesType = typeChecks.some(t => text.includes(t));
-      if (!matchesType) return false;
+      const pass =
+        (wantPlay     && (text.includes('play') || (!text.includes('musical') && !text.includes('improv') && !text.includes('film')))) ||
+        (wantMusical  && text.includes('musical')) ||
+        (wantImprov   && text.includes('improv')) ||
+        (wantFilm     && (text.includes('film') || text.includes('short'))) ||
+        (wantNewWork  && (text.includes('new work') || text.includes('new play')));
+      if (!pass) return false;
     }
 
     return true;
