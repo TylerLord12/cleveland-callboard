@@ -841,7 +841,7 @@ async function handleLogout() {
 function showAuthError(msg) { const el=document.getElementById('auth-error-msg'); el.textContent=msg; el.classList.add('visible'); }
 function showFieldErr(id, show) { const el=document.getElementById('err-'+id); if(el) el.classList.toggle('visible',show); }
 function requireAuthThen(fn) { if (!currentUser) { openAuth('signin'); return; } fn(); }
-function openPostPage() { showPage('post-audition',null); checkPaywall(); }
+async function openPostPage() {    showPage('post-audition',null);    if (!currentProfile) await loadProfile();   checkPaywall();  }
 function openNewPostModal() { flash('Community posting coming soon!','info'); }function togglePayAmount(val) {
   const field = document.getElementById('pay-amount-field');
   field.style.display = (val === 'Paid' || val === 'Stipend') ? 'block' : 'none';
