@@ -718,8 +718,8 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
 // ── CREDENTIALS ──
 const SUPABASE_URL      = 'https://wzjdyzqspmnprsypxzea.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind6amR5enFzcG1ucHJzeXB4emVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxODI5MTYsImV4cCI6MjA5MTc1ODkxNn0.aoJJbFZfI333uBJZgz57NkIIGSGktHCRMO8pNCoK3JU';
-const STRIPE_PUBLIC_KEY = 'YOUR_STRIPE_PUBLISHABLE_KEY';
-const STRIPE_PRICE_ID   = 'YOUR_STRIPE_PRICE_ID';
+const STRIPE_PUBLIC_KEY = 'pk_test_51TMGsCFEPDEKz3VG2nMI8HDT8rgTG0eKfaDKbl2RE8TTqTKyu0jneWujJOm0l1QUD8JR5EaY2BkEv79zlOqyHW0D00yDBtigFK';
+const STRIPE_PRICE_ID   = 'price_1TMGvZFEPDEKz3VGWK0UFVDv';
 
 const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let _stripe = null;
@@ -857,7 +857,7 @@ async function startStripeCheckout() {
   if (!_stripe) { flash('Stripe not configured yet.','error'); return; }
   flash('Redirecting to checkout…','info');
   try {
-    const res = await fetch('YOUR_CHECKOUT_ENDPOINT', {
+    const res = await fetch('https://wzjdyzqspmnprsypxzea.supabase.co/functions/v1/rapid-endpoint'', {
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':`Bearer ${(await _supabase.auth.getSession()).data.session.access_token}`},
       body: JSON.stringify({ price_id: STRIPE_PRICE_ID, user_id: currentUser.id, success_url: window.location.origin+window.location.pathname+'?stripe_success=1', cancel_url: window.location.href })
