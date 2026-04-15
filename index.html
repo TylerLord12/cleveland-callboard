@@ -1358,21 +1358,24 @@ function setJobTab(btn, filter) {
 function filterJobs() {
   let filtered = [...allJobs];
 
-  // Tab filter by category
+  // Tab filter by category — only filter if not 'all'
   if (currentJobTabFilter !== 'all') {
     filtered = filtered.filter(j => j.category && j.category === currentJobTabFilter);
   }
 
-  // Sidebar: employment type
+  // Sidebar: employment type — only filter if NOT all checked or all unchecked
   const wantFulltime = document.getElementById('jf-fulltime').checked;
   const wantParttime = document.getElementById('jf-parttime').checked;
   const wantContract = document.getElementById('jf-contract').checked;
   const wantSeasonal = document.getElementById('jf-seasonal').checked;
   const anyTypeChecked = wantFulltime || wantParttime || wantContract || wantSeasonal;
+  const allTypeChecked = wantFulltime && wantParttime && wantContract && wantSeasonal;
 
-  if (anyTypeChecked) {
+  // Only apply employment filter if some but not all are checked
+  if (anyTypeChecked && !allTypeChecked) {
     filtered = filtered.filter(j => {
-      const type = (j.employment_type || '').toLowerCase();
+      if (!j.employment_type) return true; // show if no type set
+      const type = j.employment_type.toLowerCase();
       return (
         (wantFulltime && type === 'full-time') ||
         (wantParttime && type === 'part-time') ||
