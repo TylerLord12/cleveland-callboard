@@ -1358,12 +1358,12 @@ function setJobTab(btn, filter) {
 function filterJobs() {
   let filtered = [...allJobs];
 
-  // Tab filter by category — only filter if not 'all'
+  // Tab filter by category
   if (currentJobTabFilter !== 'all') {
     filtered = filtered.filter(j => j.category && j.category === currentJobTabFilter);
   }
 
-  // Sidebar: employment type — only filter if NOT all checked or all unchecked
+  // Sidebar: employment type
   const wantFulltime = document.getElementById('jf-fulltime').checked;
   const wantParttime = document.getElementById('jf-parttime').checked;
   const wantContract = document.getElementById('jf-contract').checked;
@@ -1371,16 +1371,16 @@ function filterJobs() {
   const anyTypeChecked = wantFulltime || wantParttime || wantContract || wantSeasonal;
   const allTypeChecked = wantFulltime && wantParttime && wantContract && wantSeasonal;
 
-  // Only apply employment filter if some but not all are checked
   if (anyTypeChecked && !allTypeChecked) {
     filtered = filtered.filter(j => {
-      if (!j.employment_type) return true; // show if no type set
-      const type = j.employment_type.toLowerCase();
+      if (!j.employment_type) return true;
+      // Normalize: lowercase and remove hyphens and spaces for loose matching
+      const type = j.employment_type.toLowerCase().replace(/[-\s]/g, '');
       return (
-        (wantFulltime && type === 'full-time') ||
-        (wantParttime && type === 'part-time') ||
-        (wantContract && type === 'contract') ||
-        (wantSeasonal && type === 'seasonal')
+        (wantFulltime && type.includes('full')) ||
+        (wantParttime && type.includes('part')) ||
+        (wantContract && type.includes('contract')) ||
+        (wantSeasonal && type.includes('seasonal'))
       );
     });
   }
