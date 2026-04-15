@@ -896,7 +896,11 @@ async function startStripeCheckout() {
     flash('Checkout unavailable — ' + e.message, 'error');
   }
 }
-
+async function markUserPaid() {
+  if (!currentUser) return;
+  await _supabase.from('profiles').update({ is_paid: true }).eq('id', currentUser.id);
+  await loadProfile(); updateNavForUser();
+}
 // ════════════════════════════════════════════════════════════════
 // AUDITIONS — fetch + filter + render
 // FIX: tab filters now correctly check pay, union_status, description
