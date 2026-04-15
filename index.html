@@ -410,14 +410,6 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
     <h2>Arts Jobs in Cleveland</h2>
     <p>Administrative, marketing, education, box office, crew, and stage management — all in one place.</p>
   </div>
-  <div class="tabs-row">
-    <button class="tab-pill active" onclick="setJobTab(this,'all')">All Jobs</button>
-    <button class="tab-pill" onclick="setJobTab(this,'admin')">Arts Admin</button>
-    <button class="tab-pill" onclick="setJobTab(this,'stage_management')">Stage Management</button>
-    <button class="tab-pill" onclick="setJobTab(this,'design_crew')">Design / Crew</button>
-    <button class="tab-pill" onclick="setJobTab(this,'education')">Education</button>
-    <button class="tab-pill" onclick="setJobTab(this,'box_office')">Box Office</button>
-  </div>
   <div class="main-layout">
     <!-- JOBS SIDEBAR: location removed, salary removed, employment type kept, job category added -->
     <div class="sidebar">
@@ -1346,22 +1338,8 @@ async function fetchJobs() {
   }
 }
 
-let currentJobTabFilter = 'all';
-
-function setJobTab(btn, filter) {
-  document.querySelectorAll('.tabs-row .tab-pill').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  currentJobTabFilter = filter;
-  filterJobs();
-}
-
 function filterJobs() {
   let filtered = [...allJobs];
-
-  // Tab filter by category
-  if (currentJobTabFilter !== 'all') {
-    filtered = filtered.filter(j => j.category && j.category === currentJobTabFilter);
-  }
 
   // Sidebar: employment type
   const wantFulltime = document.getElementById('jf-fulltime').checked;
