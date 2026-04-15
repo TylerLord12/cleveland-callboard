@@ -1364,24 +1364,22 @@ function filterJobs() {
   }
 
   // Sidebar: employment type
-  const types = [];
-  if (document.getElementById('jf-fulltime').checked)   types.push('full-time');
-  if (document.getElementById('jf-parttime').checked)   types.push('part-time');
-  if (document.getElementById('jf-contract').checked)   types.push('contract');
-  if (document.getElementById('jf-seasonal').checked)   types.push('seasonal');
-  if (types.length) {
-    filtered = filtered.filter(j => j.employment_type && types.includes(j.employment_type.toLowerCase()));
-  }
+  const wantFulltime = document.getElementById('jf-fulltime').checked;
+  const wantParttime = document.getElementById('jf-parttime').checked;
+  const wantContract = document.getElementById('jf-contract').checked;
+  const wantSeasonal = document.getElementById('jf-seasonal').checked;
+  const anyTypeChecked = wantFulltime || wantParttime || wantContract || wantSeasonal;
 
-  // Sidebar: category checkboxes
-  const cats = [];
-  if (document.getElementById('jf-admin').checked)       cats.push('admin');
-  if (document.getElementById('jf-stage_mgmt').checked)  cats.push('stage_management');
-  if (document.getElementById('jf-design_crew').checked) cats.push('design_crew');
-  if (document.getElementById('jf-education').checked)   cats.push('education');
-  if (document.getElementById('jf-box_office').checked)  cats.push('box_office');
-  if (cats.length) {
-    filtered = filtered.filter(j => j.category && cats.includes(j.category));
+  if (anyTypeChecked) {
+    filtered = filtered.filter(j => {
+      const type = (j.employment_type || '').toLowerCase();
+      return (
+        (wantFulltime && type === 'full-time') ||
+        (wantParttime && type === 'part-time') ||
+        (wantContract && type === 'contract') ||
+        (wantSeasonal && type === 'seasonal')
+      );
+    });
   }
 
   renderJobs(filtered);
