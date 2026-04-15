@@ -559,7 +559,7 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
         <div class="pf-row">
           <div class="form-field">
             <label>Compensation <span class="req">*</span></label>
-            <select name="pay" id="f-pay">
+            <select name="pay" id="f-pay" onchange="togglePayAmount(this.value)">
               <option value="">Select…</option>
               <option value="Paid">Paid</option>
               <option value="Stipend">Stipend</option>
@@ -567,8 +567,13 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
             </select>
             <div class="field-error" id="err-pay">Please select compensation type.</div>
           </div>
+          <div class="form-field" id="pay-amount-field" style="display:none;">
+            <label>Pay Amount <span class="req">*</span></label>
+            <input type="text" name="pay_amount" id="f-pay_amount" placeholder="e.g. $500/week, $15/hr, AEA scale"/>
+            <div class="field-error" id="err-pay_amount">Please enter the pay amount.</div>
+          </div>
           <div class="form-field">
-            <label>Union Status <span class="req">*</span></label>
+            <label>Union Status<span class="req">*</span></label>
             <select name="union_status" id="f-union_status">
               <option value="">Select…</option>
               <option value="AEA">AEA (Equity)</option>
@@ -832,7 +837,11 @@ function showAuthError(msg) { const el=document.getElementById('auth-error-msg')
 function showFieldErr(id, show) { const el=document.getElementById('err-'+id); if(el) el.classList.toggle('visible',show); }
 function requireAuthThen(fn) { if (!currentUser) { openAuth('signin'); return; } fn(); }
 function openPostPage() { showPage('post-audition',null); checkPaywall(); }
-function openNewPostModal() { flash('Community posting coming soon!','info'); }
+function openNewPostModal() { flash('Community posting coming soon!','info'); }function togglePayAmount(val) {
+  const field = document.getElementById('pay-amount-field');
+  field.style.display = (val === 'Paid' || val === 'Stipend') ? 'block' : 'none';
+  if (val === 'Volunteer') document.getElementById('f-pay_amount').value = '';
+}
 
 // ── PAYWALL ──
 async function checkPaywall() {
@@ -1245,7 +1254,7 @@ async function handleAuditionSubmit(e) {
     audition_date:document.getElementById('f-audition_date').value||null,
     description:document.getElementById('f-description').value.trim(),
     contact_info:ciEl.value.trim(),
-    slug:slugify(`${showTitle}-${theaterName}-${Date.now()}`),
+    slug:slugify(`${showTitle}-${theaterName}-${Date.now()}`),pay_amount:document.getElementById('f-pay_amount').value.trim()||null,
     status:'pending'
   };
   try {
