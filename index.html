@@ -867,20 +867,30 @@ async function startStripeCheckout() {
   if (!_stripe) { flash('Stripe not configured yet.','error'); return; }
   flash('Redirecting to checkout…','info');
   try {
+    const payload = {
+      price_id: STRIPE_PRICE_ID,
+      success_url: window.location.origin + '?stripe_success=1',
+      cancel_url: window.location.origin
+    };
+    const session = await _supabase.auth.getSession();
+    const token = session.data.session.access_token;
     const res = await fetch('https://wzjdyzqspmnprsypxzea.supabase.co/functions/v1/rapid-endpoint', {
-      method:'POST',
-      headers:{'Content-Type':'application/json','Authorization':`Bearer ${(await _supabase.auth.getSession()).data.session.access_token}`},
-      body: JSON.stringify({ price_id: STRIPE_PRICE_ID, user_id: currentUser.id, success_url: window.location.origin+window.location.pathname+'?stripe_success=1', cancel_url: window.location.href })
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify(payload)
     });
-    const { url } = await res.json();
-    window.location.href = url;
-  } catch(e) { flash('Checkout unavailable — endpoint not configured.','error'); }
-}
-
-async function markUserPaid() {
-  if (!currentUser) return;
-  await _supabase.from('profiles').update({ is_paid: true }).eq('id', currentUser.id);
-  await loadProfile(); updateNavForUser();
+    const data = await res.json();
+    if (data.url) {
+      window.location.href = data.url;
+    } else {
+      flash('Checkout error: ' + (data.error || 'Unknown error'), 'error');
+    }
+  } catch(e) {
+    flash('Checkout unavailable — ' + e.message, 'error');
+  }
 }
 
 // ════════════════════════════════════════════════════════════════
