@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en"> 
 <head> 
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
@@ -1153,16 +1153,62 @@ function sortAndRender() {
   if (sort==='az')        sorted.sort((a,b)=>(a.show_title||'').localeCompare(b.show_title||''));
   renderAuditions(sorted);
 }
-
-function filterCards() {
+  function filterCards() {
   const search = (document.getElementById('search-input').value||'').toLowerCase();
+
+  // Read checkbox states
+  const wantPaid      = document.getElementById('f-paid').checked;
+  const wantVolunteer = document.getElementById('f-volunteer').checked;
+  const wantStipend   = document.getElementById('f-stipend').checked;
+  const wantAEA       = document.getElementById('f-aea').checked;
+  const wantNonUnion  = document.getElementById('f-nonunion').checked;
+  const wantEMC       = document.getElementById('f-emc').checked;
+  const wantPlay      = document.getElementById('f-play').checked;
+  const wantMusical   = document.getElementById('f-musical').checked;
+  const wantImprov    = document.getElementById('f-improv').checked;
+  const wantFilm      = document.getElementById('f-film').checked;
+  const wantNewWork   = document.getElementById('f-newwork').checked;
+
   let filtered = allAuditions.filter(a => {
+    // Search text
     if (search) {
       const haystack = `${a.show_title} ${a.theater_name} ${a.roles} ${a.location}`.toLowerCase();
       if (!haystack.includes(search)) return false;
     }
+
+    // Compensation filter
+    const payChecks = [];
+    if (wantPaid)      payChecks.push('Paid');
+    if (wantStipend)   payChecks.push('Stipend');
+    if (wantVolunteer) payChecks.push('Volunteer');
+    if (payChecks.length && !payChecks.includes(a.pay)) return false;
+
+    // Union status filter
+    const unionChecks = [];
+    if (wantAEA)      unionChecks.push('AEA');
+    if (wantNonUnion) unionChecks.push('Non-Union');
+    if (wantEMC)      unionChecks.push('EMC');
+    if (unionChecks.length) {
+      const matchesUnion = unionChecks.some(u => a.union_status && a.union_status.includes(u));
+      if (!matchesUnion) return false;
+    }
+
+    // Type filter — checks description and show title
+    const typeChecks = [];
+    if (wantPlay)     typeChecks.push('play');
+    if (wantMusical)  typeChecks.push('musical');
+    if (wantImprov)   typeChecks.push('improv');
+    if (wantFilm)     typeChecks.push('film');
+    if (wantNewWork)  typeChecks.push('new work');
+    if (typeChecks.length) {
+      const text = `${a.show_title} ${a.description} ${a.roles}`.toLowerCase();
+      const matchesType = typeChecks.some(t => text.includes(t));
+      if (!matchesType) return false;
+    }
+
     return true;
   });
+
   renderAuditions(filtered);
 }
 
