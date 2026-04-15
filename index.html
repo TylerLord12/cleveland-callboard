@@ -519,7 +519,7 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
       <div class="tier selected" onclick="selectTier(this,'25')"><div class="amount">$25</div><div class="tier-label">Supporter</div><div class="tier-desc">Help us add new theaters and keep data fresh.</div></div>
       <div class="tier" onclick="selectTier(this,'100')"><div class="amount">$100</div><div class="tier-label">Sustainer</div><div class="tier-desc">Power a full month of updates for the whole community.</div></div>
     </div>
-    <button class="donate-btn" id="donate-btn">Donate $25 →</button>
+    <button class="donate-btn" id="donate-btn" onclick="startDonation()">Donate $25 →</button>
     <p class="support-note">Theaters: ask about our <strong style="color:var(--ink);">yearly membership plan ($79/year)</strong> for unlimited listings.<br/>Contact: hello@clevelandcallboard.com</p>
   </div>
 </div>
@@ -833,6 +833,9 @@ const SUPABASE_URL      = 'https://wzjdyzqspmnprsypxzea.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind6amR5enFzcG1ucHJzeXB4emVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxODI5MTYsImV4cCI6MjA5MTc1ODkxNn0.aoJJbFZfI333uBJZgz57NkIIGSGktHCRMO8pNCoK3JU';
 const STRIPE_PUBLIC_KEY = 'pk_test_51TMGsCFEPDEKz3VG2nMI8HDT8rgTG0eKfaDKbl2RE8TTqTKyu0jneWujJOm0l1QUD8JR5EaY2BkEv79zlOqyHW0D00yDBtigFK';
 const STRIPE_PRICE_ID   = 'price_1TMGvZFEPDEKz3VGWK0UFVDv';
+const DONATE_PRICE_5    = 'price_1TMbsGFEPDEKz3VGRPQ8ci0J';
+const DONATE_PRICE_25   = 'price_1TMbsfFEPDEKz3VGZDVsKaIr';
+const DONATE_PRICE_100  = 'price_1TMbswFEPDEKz3VGWJUW1E1w';
 
 const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let _stripe = null;
@@ -853,6 +856,7 @@ async function initAuth() {
   updateNavForUser();
   if (window.location.search.includes('admin=1')) { showPage('admin',null); loadAdminListings(); }
   if (window.location.search.includes('stripe_success=1')) { await markUserPaid(); flash('Subscription activated!','success'); }
+  if (window.location.search.includes('donated=1')) { flash('Thank you for your donation! 🎭','success'); }
   fetchAuditions();
   fetchJobs();
 }
@@ -1051,6 +1055,34 @@ async function startStripeCheckout() {
     }
   } catch(e) {
     flash('Checkout unavailable — ' + e.message, 'error');
+  }
+}
+  async function startDonation() {
+  const selected = document.querySelector('.tier.selected');
+  const amount = selected ? selected.querySelector('.amount').textContent.replace('$','') : '25';
+  const priceMap = { '5': DONATE_PRICE_5, '25': DONATE_PRICE_25, '100': DONATE_PRICE_100 };
+  const priceId = priceMap[amount];
+  if (!priceId) { flash('Please select a donation amount.', 'error'); return; }
+  flash('Redirecting to checkout…', 'info');
+  try {
+    const res = await fetch('https://wzjdyzqspmnprsypxzea.supabase.co/functions/v1/rapid-endpoint', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        price_id: priceId,
+        mode: 'payment',
+        success_url: window.location.origin + '?donated=1',
+        cancel_url: window.location.origin
+      })
+    });
+    const data = await res.json();
+    if (data.url) {
+      window.location.href = data.url;
+    } else {
+      flash('Checkout error: ' + (data.error || 'Unknown error'), 'error');
+    }
+  } catch(e) {
+    flash('Donation unavailable — ' + e.message, 'error');
   }
 }
 async function markUserPaid() {
