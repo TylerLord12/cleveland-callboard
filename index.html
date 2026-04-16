@@ -360,15 +360,15 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
       <div class="filter-divider"></div>
       <div class="filter-group">
         <span class="filter-label">Union Status</span>
-        <label class="filter-check"><input type="checkbox" checked id="f-aea"><span>AEA (Equity)</span></label>
-        <label class="filter-check"><input type="checkbox" checked id="f-nonunion"><span>Non-Union</span></label>
+        <label class="filter-check"><input type="checkbox" id="f-aea"><span>AEA (Equity)</span></label>
+        <label class="filter-check"><input type="checkbox" id="f-nonunion"><span>Non-Union</span></label>
         <label class="filter-check"><input type="checkbox" id="f-emc"><span>EMC</span></label>
       </div>
       <div class="filter-divider"></div>
       <div class="filter-group">
         <span class="filter-label">Type</span>
-        <label class="filter-check"><input type="checkbox" checked id="f-play"><span>Play</span></label>
-        <label class="filter-check"><input type="checkbox" checked id="f-musical"><span>Musical</span></label>
+        <label class="filter-check"><input type="checkbox" id="f-play"><span>Play</span></label>
+        <label class="filter-check"><input type="checkbox" id="f-musical"><span>Musical</span></label>
         <label class="filter-check"><input type="checkbox" id="f-improv"><span>Improv</span></label>
         <label class="filter-check"><input type="checkbox" id="f-film"><span>Film / Short</span></label>
         <label class="filter-check"><input type="checkbox" id="f-newwork"><span>New Work</span></label>
@@ -1422,7 +1422,7 @@ function filterCards() {
   let filtered = allAuditions.filter(a => {
     // Search
     if (search) {
-      const haystack = `${a.show_title} ${a.theater_name} ${a.roles} ${a.location}`.toLowerCase();
+      const haystack = `${a.show_title} ${a.theater_name} ${a.roles} ${a.location} ${a.description} ${a.contact_info} ${a.union_status} ${a.pay}`.toLowerCase();
       if (!haystack.includes(search)) return false;
     }
 
