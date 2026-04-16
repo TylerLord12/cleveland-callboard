@@ -1117,7 +1117,7 @@ function buildReplyCard(reply, postId, opUserId, opName, allReplies, depth=0) {
         <div class="av av${(reply.id % 4) + 1}" style="width:28px;height:28px;font-size:11px;">${esc(initials)}</div>
         <div>
           <span style="font-size:13px;font-weight:500;color:var(--ink);">${esc(reply.author_name)}</span>
-          ${isOP ? `<span style="font-size:10px;font-weight:600;background:var(--red-bg);color:var(--red);padding:2px 6px;border-radius:var(--pill);margin-left:6px;">OP</span>` : ''}
+          ${isOP ? '<span style="font-size:10px;font-weight:600;background:var(--red-bg);color:var(--red);padding:2px 6px;border-radius:var(--pill);margin-left:6px;">Author</span>' : ''}
           <span style="font-size:11px;color:var(--ink3);margin-left:6px;">${timeAgo}</span>
         </div>
       </div>
