@@ -1053,10 +1053,7 @@ function renderCommunityPosts(posts) {
   // Load replies for each post
   posts.forEach(p => loadReplies(p.id, p.user_id, p.author_name));
 }
-
 function buildReplyForm(postId, parentId, opUserId, opName) {
-  const safeOpUserId = (opUserId||'').replace(/'/g, "\\'");
-  const safeOpName = (opName||'').replace(/'/g, "\\'");
   return `
     <div style="display:flex;gap:10px;align-items:flex-start;">
       <div style="flex:1;">
@@ -1067,7 +1064,12 @@ function buildReplyForm(postId, parentId, opUserId, opName) {
           placeholder="Write a reply..."
           style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:6px;font-family:var(--font-body);font-size:13px;color:var(--ink);padding:8px 10px;outline:none;resize:vertical;"></textarea>
         <div style="display:flex;gap:8px;margin-top:6px;">
-          <button onclick="submitReply(${postId}, ${parentId}, '${safeOpUserId}', '${safeOpName}', this)"
+          <button
+            data-post-id="${postId}"
+            data-parent-id="${parentId}"
+            data-op-user-id="${opUserId||''}"
+            data-op-name="${(opName||'').replace(/"/g,'&quot;')}"
+            onclick="submitReply(this)"
             style="background:var(--red);border:none;color:#fff;font-family:var(--font-body);font-size:12px;font-weight:500;padding:6px 14px;border-radius:var(--pill);cursor:pointer;">
             Post Reply
           </button>
@@ -1079,7 +1081,6 @@ function buildReplyForm(postId, parentId, opUserId, opName) {
       </div>
     </div>`;
 }
-
 async function loadReplies(postId, opUserId, opName) {
   const { data, error } = await _supabase
     .from('community_replies')
@@ -1136,8 +1137,13 @@ function toggleReplyForm(postId, parentId) {
   if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
 }
 
-async function submitReply(postId, parentId, opUserId, opName, btn) {
+async function submitReply(btn) {
   if (!currentUser) { openAuth('signin'); return; }
+
+  const postId   = btn.dataset.postId;
+  const parentId = btn.dataset.parentId || null;
+  const opUserId = btn.dataset.opUserId || '';
+  const opName   = btn.dataset.opName || '';
 
   const nameEl = document.getElementById(`reply-name-${postId}-${parentId}`);
   const bodyEl = document.getElementById(`reply-body-${postId}-${parentId}`);
@@ -1151,13 +1157,13 @@ async function submitReply(postId, parentId, opUserId, opName, btn) {
     flash('Your reply contains language that is not allowed.', 'error'); return;
   }
 
-  btn.disabled = true; btn.textContent = 'Posting…';
+  btn.disabled = true; btn.textContent = 'Posting...';
 
   try {
     const { error } = await _supabase.from('community_replies').insert([{
       user_id:     currentUser.id,
       post_id:     postId,
-      parent_id:   parentId || null,
+      parent_id:   parentId && parentId !== 'null' ? parentId : null,
       author_name: name,
       body,
       status:      'pending'
