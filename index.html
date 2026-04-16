@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en"> 
-<head> 
+<head>  
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Cleveland Theater Alliance — Theatre Auditions, Casting Calls & Arts Jobs in Cleveland, Ohio</title>
@@ -1033,15 +1033,144 @@ function renderCommunityPosts(posts) {
     const avClass  = colors[i % colors.length];
     const timeAgo  = getTimeAgo(p.created_at);
     return `
-      <div class="post-card">
+      <div class="post-card" id="post-${p.id}">
         <div class="post-top">
           <div class="av ${avClass}">${esc(initials)}</div>
           <div><div class="av-name">${esc(p.author_name)}</div><div class="av-time">${timeAgo}</div></div>
           <span class="post-type-badge">${esc(p.category)}</span>
         </div>
         <div class="post-body">${esc(p.body)}</div>
+        <div class="post-actions">
+          <button class="pa" onclick="toggleReplyForm(${p.id}, null)">💬 Reply</button>
+        </div>
+        <div id="reply-form-${p.id}-null" style="display:none;margin-top:12px;">
+          ${buildReplyForm(p.id, null, p.user_id, p.author_name)}
+        </div>
+        <div id="replies-${p.id}" style="margin-top:12px;"></div>
       </div>`;
   }).join('');
+
+  // Load replies for each post
+  posts.forEach(p => loadReplies(p.id, p.user_id, p.author_name));
+}
+
+function buildReplyForm(postId, parentId, opUserId, opName) {
+  const parentAttr = parentId ? `data-parent="${parentId}"` : '';
+  return `
+    <div style="display:flex;gap:10px;align-items:flex-start;">
+      <div style="flex:1;">
+        <input type="text" id="reply-name-${postId}-${parentId}"
+          placeholder="Your name"
+          style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:6px;font-family:var(--font-body);font-size:13px;color:var(--ink);padding:8px 10px;outline:none;margin-bottom:6px;"/>
+        <textarea id="reply-body-${postId}-${parentId}" rows="2"
+          placeholder="Write a reply…"
+          style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:6px;font-family:var(--font-body);font-size:13px;color:var(--ink);padding:8px 10px;outline:none;resize:vertical;"></textarea>
+        <div style="display:flex;gap:8px;margin-top:6px;">
+          <button onclick="submitReply(${postId}, ${parentId}, '${esc(opUserId||'')}', '${esc(opName||'')}', this)"
+            style="background:var(--red);border:none;color:#fff;font-family:var(--font-body);font-size:12px;font-weight:500;padding:6px 14px;border-radius:var(--pill);cursor:pointer;">
+            Post Reply
+          </button>
+          <button onclick="toggleReplyForm(${postId}, ${parentId})"
+            style="background:none;border:1px solid var(--border);color:var(--ink3);font-family:var(--font-body);font-size:12px;padding:6px 12px;border-radius:var(--pill);cursor:pointer;">
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>`;
+}
+
+async function loadReplies(postId, opUserId, opName) {
+  const { data, error } = await _supabase
+    .from('community_replies')
+    .select('*')
+    .eq('post_id', postId)
+    .eq('status', 'approved')
+    .order('created_at', { ascending: true });
+
+  if (error || !data) return;
+  const container = document.getElementById(`replies-${postId}`);
+  if (!container) return;
+
+  // Separate top-level and nested
+  const topLevel = data.filter(r => !r.parent_id);
+  const nested   = data.filter(r => r.parent_id);
+
+  if (!topLevel.length) { container.innerHTML = ''; return; }
+
+  container.innerHTML = topLevel.map(r =>
+    buildReplyCard(r, postId, opUserId, opName, nested)
+  ).join('');
+}
+
+function buildReplyCard(reply, postId, opUserId, opName, allReplies, depth=0) {
+  const initials = reply.author_name.split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase();
+  const isOP = reply.user_id === opUserId;
+  const timeAgo = getTimeAgo(reply.created_at);
+  const childReplies = allReplies.filter(r => r.parent_id === reply.id);
+  const indent = depth > 0 ? `margin-left:${Math.min(depth * 20, 60)}px;` : '';
+
+  return `
+    <div style="${indent}border-left:2px solid var(--border);padding-left:12px;margin-bottom:10px;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+        <div class="av av${(reply.id % 4) + 1}" style="width:28px;height:28px;font-size:11px;">${esc(initials)}</div>
+        <div>
+          <span style="font-size:13px;font-weight:500;color:var(--ink);">${esc(reply.author_name)}</span>
+          ${isOP ? `<span style="font-size:10px;font-weight:600;background:var(--red-bg);color:var(--red);padding:2px 6px;border-radius:var(--pill);margin-left:6px;">OP</span>` : ''}
+          <span style="font-size:11px;color:var(--ink3);margin-left:6px;">${timeAgo}</span>
+        </div>
+      </div>
+      <div style="font-size:13px;color:var(--ink2);line-height:1.6;margin-bottom:6px;">${esc(reply.body)}</div>
+      ${currentUser ? `<button class="pa" onclick="toggleReplyForm(${postId}, ${reply.id})" style="font-size:11px;">💬 Reply</button>` : ''}
+      <div id="reply-form-${postId}-${reply.id}" style="display:none;margin-top:8px;">
+        ${buildReplyForm(postId, reply.id, opUserId, opName)}
+      </div>
+      ${childReplies.map(child => buildReplyCard(child, postId, opUserId, opName, allReplies, depth + 1)).join('')}
+    </div>`;
+}
+
+function toggleReplyForm(postId, parentId) {
+  if (!currentUser) { openAuth('signin'); return; }
+  const formId = `reply-form-${postId}-${parentId}`;
+  const el = document.getElementById(formId);
+  if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
+async function submitReply(postId, parentId, opUserId, opName, btn) {
+  if (!currentUser) { openAuth('signin'); return; }
+
+  const nameEl = document.getElementById(`reply-name-${postId}-${parentId}`);
+  const bodyEl = document.getElementById(`reply-body-${postId}-${parentId}`);
+  const name = nameEl ? nameEl.value.trim() : '';
+  const body = bodyEl ? bodyEl.value.trim() : '';
+
+  if (!name) { flash('Please enter your name.', 'error'); return; }
+  if (!body) { flash('Please write a reply.', 'error'); return; }
+
+  if (containsBannedWords(body) || containsBannedWords(name)) {
+    flash('Your reply contains language that is not allowed.', 'error'); return;
+  }
+
+  btn.disabled = true; btn.textContent = 'Posting…';
+
+  try {
+    const { error } = await _supabase.from('community_replies').insert([{
+      user_id:     currentUser.id,
+      post_id:     postId,
+      parent_id:   parentId || null,
+      author_name: name,
+      body,
+      status:      'pending'
+    }]);
+    if (error) throw error;
+    if (nameEl) nameEl.value = '';
+    if (bodyEl) bodyEl.value = '';
+    toggleReplyForm(postId, parentId);
+    flash('Reply submitted! It will appear after review.', 'success');
+  } catch(err) {
+    flash('Error: ' + (err.message || 'Something went wrong.'), 'error');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Post Reply';
+  }
 }
 
 function getTimeAgo(dateStr) {
@@ -1705,17 +1834,20 @@ async function saveEditedListing() {
 async function loadAdminListings() {
   const { data: auditions } = await _supabase.from('auditions').select('*').order('created_at',{ascending:false});
   const { data: posts } = await _supabase.from('community_posts').select('*').order('created_at',{ascending:false});
+  const { data: replies } = await _supabase.from('community_replies').select('*').order('created_at',{ascending:false});
 
   const listings = auditions || [];
   const pending  = listings.filter(l => l.status === 'pending');
-  const pendingPosts = (posts || []).filter(p => p.status === 'pending');
-  document.getElementById('admin-pending-count').textContent =
-    `${pending.length} listings · ${pendingPosts.length} posts pending`;
+const pendingPosts = (posts || []).filter(p => p.status === 'pending');
+const pendingReplies = (replies || []).filter(r => r.status === 'pending');
+document.getElementById('admin-pending-count').textContent =
+    `${pending.length} listings · ${pendingPosts.length} posts · ${pendingReplies.length} replies pending`;
 
   const container = document.getElementById('admin-listings-container');
-  const allItems = [
+const allItems = [
     ...listings.map(l => ({ ...l, _type: 'audition' })),
-    ...(posts || []).map(p => ({ ...p, _type: 'post' }))
+    ...(posts || []).map(p => ({ ...p, _type: 'post' })),
+    ...(replies || []).map(r => ({ ...r, _type: 'reply' }))
   ].sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
 
   if (!allItems.length) {
@@ -1741,6 +1873,8 @@ async function loadAdminListings() {
         </div>`;
     } else {
       return `
+} else if (item._type === 'post') {
+      return `
         <div class="admin-row">
           <div class="admin-row-info">
             <div class="admin-row-title">💬 ${esc(item.author_name||'')} — ${esc(item.category||'')}</div>
@@ -1754,6 +1888,21 @@ async function loadAdminListings() {
             ${item.status!=='rejected'?`<button class="btn-reject" onclick="adminUpdateStatus('${item.id}','rejected','community_posts')">✗ Reject</button>`:''}
           </div>
         </div>`;
+    } else {
+      return `
+        <div class="admin-row">
+          <div class="admin-row-info">
+            <div class="admin-row-title">↩️ Reply by ${esc(item.author_name||'')} on post #${item.post_id}</div>
+            <div class="admin-row-meta">
+              ${esc(item.body||'').substring(0,120)}…<br>
+              Submitted: ${fmtDate(item.created_at)} · Status: <strong>${item.status}</strong>
+            </div>
+          </div>
+          <div class="admin-btns">
+            ${item.status!=='approved'?`<button class="btn-approve" onclick="adminUpdateStatus('${item.id}','approved','community_replies')">✓ Approve</button>`:''}
+            ${item.status!=='rejected'?`<button class="btn-reject" onclick="adminUpdateStatus('${item.id}','rejected','community_replies')">✗ Reject</button>`:''}
+          </div>
+        </div>`;
     }
   }).join('');
 }
@@ -1765,6 +1914,7 @@ async function adminUpdateStatus(id, status, table='auditions') {
   loadAdminListings();
   if (table==='auditions') fetchAuditions();
   if (table==='community_posts') fetchCommunityPosts();
+  if (table==='community_replies') fetchCommunityPosts();
 }
 
 // ── UI HELPERS ──
