@@ -1055,7 +1055,8 @@ function renderCommunityPosts(posts) {
 }
 
 function buildReplyForm(postId, parentId, opUserId, opName) {
-  const parentAttr = parentId ? `data-parent="${parentId}"` : '';
+  const safeOpUserId = (opUserId||'').replace(/'/g, "\\'");
+  const safeOpName = (opName||'').replace(/'/g, "\\'");
   return `
     <div style="display:flex;gap:10px;align-items:flex-start;">
       <div style="flex:1;">
@@ -1063,10 +1064,10 @@ function buildReplyForm(postId, parentId, opUserId, opName) {
           placeholder="Your name"
           style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:6px;font-family:var(--font-body);font-size:13px;color:var(--ink);padding:8px 10px;outline:none;margin-bottom:6px;"/>
         <textarea id="reply-body-${postId}-${parentId}" rows="2"
-          placeholder="Write a reply…"
+          placeholder="Write a reply..."
           style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:6px;font-family:var(--font-body);font-size:13px;color:var(--ink);padding:8px 10px;outline:none;resize:vertical;"></textarea>
         <div style="display:flex;gap:8px;margin-top:6px;">
-          <button onclick="submitReply(${postId}, ${parentId}, '${esc(opUserId||'')}', '${esc(opName||'')}', this)"
+          <button onclick="submitReply(${postId}, ${parentId}, '${safeOpUserId}', '${safeOpName}', this)"
             style="background:var(--red);border:none;color:#fff;font-family:var(--font-body);font-size:12px;font-weight:500;padding:6px 14px;border-radius:var(--pill);cursor:pointer;">
             Post Reply
           </button>
