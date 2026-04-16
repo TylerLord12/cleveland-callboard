@@ -1871,9 +1871,7 @@ const allItems = [
             ${item.status!=='rejected'?`<button class="btn-reject" onclick="adminUpdateStatus('${item.id}','rejected','auditions')">✗ Reject</button>`:''}
           </div>
         </div>`;
-    } else {
-      return `
-} else if (item._type === 'post') {
+  } else if (item._type === 'post') {
       return `
         <div class="admin-row">
           <div class="admin-row-info">
@@ -1889,6 +1887,21 @@ const allItems = [
           </div>
         </div>`;
     } else {
+      return `
+        <div class="admin-row">
+          <div class="admin-row-info">
+            <div class="admin-row-title">↩️ Reply by ${esc(item.author_name||'')} on post #${item.post_id}</div>
+            <div class="admin-row-meta">
+              ${esc(item.body||'').substring(0,120)}…<br>
+              Submitted: ${fmtDate(item.created_at)} · Status: <strong>${item.status}</strong>
+            </div>
+          </div>
+          <div class="admin-btns">
+            ${item.status!=='approved'?`<button class="btn-approve" onclick="adminUpdateStatus('${item.id}','approved','community_replies')">✓ Approve</button>`:''}
+            ${item.status!=='rejected'?`<button class="btn-reject" onclick="adminUpdateStatus('${item.id}','rejected','community_replies')">✗ Reject</button>`:''}
+          </div>
+        </div>`;
+    }
       return `
         <div class="admin-row">
           <div class="admin-row-info">
