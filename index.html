@@ -573,6 +573,18 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
             <div class="field-error" id="err-audition_date">Please select an audition date.</div>
           </div>
         </div>
+        <div class="pf-section-title" style="margin-top:20px;">Production Type</div>
+<div class="form-field">
+  <label>Type of Production <span class="req">*</span> <span style="font-size:11px;color:var(--ink3);">(select all that apply)</span></label>
+  <div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:6px;">
+    <label class="filter-check"><input type="checkbox" id="pt-play" value="play"><span>Play</span></label>
+    <label class="filter-check"><input type="checkbox" id="pt-musical" value="musical"><span>Musical</span></label>
+    <label class="filter-check"><input type="checkbox" id="pt-improv" value="improv"><span>Improv</span></label>
+    <label class="filter-check"><input type="checkbox" id="pt-film" value="film"><span>Film / Short</span></label>
+    <label class="filter-check"><input type="checkbox" id="pt-newwork" value="newwork"><span>New Work</span></label>
+  </div>
+  <div class="field-error" id="err-production_type">Please select at least one production type.</div>
+</div>
         <div class="pf-section-title" style="margin-top:20px;">Casting Details</div>
         <div class="form-field">
           <label>Roles Being Cast <span class="req">*</span></label>
@@ -1373,7 +1385,7 @@ function setHeroTab(btn, filter) {
     filtered = filtered.filter(a => {
       if (!a.audition_date) return false;
       const d = new Date(a.audition_date);
-      return d >= now && d <= next7;
+      return d >= now && d <= next7; 
     });
   } else if (filter === 'paid') {
     // Matches pay field values: 'Paid' or 'Stipend'
@@ -1381,12 +1393,9 @@ function setHeroTab(btn, filter) {
   } else if (filter === 'equity') {
     // Matches union_status containing 'AEA'
     filtered = filtered.filter(a => a.union_status && a.union_status.includes('AEA'));
-  } else if (filter === 'musical') {
-    // Checks both description AND show_title for broader matching
+} else if (filter === 'musical') {
     filtered = filtered.filter(a =>
-      (a.description && a.description.toLowerCase().includes('musical')) ||
-      (a.show_title && a.show_title.toLowerCase().includes('musical')) ||
-      (a.roles && a.roles.toLowerCase().includes('musical'))
+      a.production_type && a.production_type.includes('musical')
     );
   }
   renderAuditions(filtered);
@@ -1427,12 +1436,13 @@ function filterCards() {
     }
 
     // Compensation — only filter if at least one is checked
-    if (anyPayChecked) {
+if (anyPayChecked) {
       const pay = (a.pay || '').toLowerCase();
-      if (wantPaid      && pay === 'paid')      {} // pass
-      else if (wantStipend   && pay === 'stipend')   {} // pass
-      else if (wantVolunteer && pay === 'volunteer')  {} // pass
-      else return false;
+      const pass =
+        (wantPaid      && pay === 'paid') ||
+        (wantStipend   && pay === 'stipend') ||
+        (wantVolunteer && (pay === 'volunteer' || pay === 'volunteer / unpaid'));
+      if (!pass) return false;
     }
 
     // Union — only filter if at least one is checked
@@ -1445,15 +1455,15 @@ function filterCards() {
       if (!pass) return false;
     }
 
-    // Type — only filter if at least one is checked
+// Type — only filter if at least one is checked
     if (anyTypeChecked) {
-      const text = `${a.show_title} ${a.description} ${a.roles}`.toLowerCase();
+      const types = a.production_type || [];
       const pass =
-        (wantPlay     && (text.includes('play') || (!text.includes('musical') && !text.includes('improv') && !text.includes('film')))) ||
-        (wantMusical  && text.includes('musical')) ||
-        (wantImprov   && text.includes('improv')) ||
-        (wantFilm     && (text.includes('film') || text.includes('short'))) ||
-        (wantNewWork  && (text.includes('new work') || text.includes('new play')));
+        (wantPlay    && types.includes('play')) ||
+        (wantMusical && types.includes('musical')) ||
+        (wantImprov  && types.includes('improv')) ||
+        (wantFilm    && types.includes('film')) ||
+        (wantNewWork && types.includes('newwork'));
       if (!pass) return false;
     }
 
@@ -1722,6 +1732,15 @@ async function handleAuditionSubmit(e) {
   e.preventDefault();
   if (!currentUser) { openAuth('signin'); return; }
   const required = ['theater_name','show_title','pay','union_status','location','audition_date','roles'];
+const prodTypes = ['pt-play','pt-musical','pt-improv','pt-film','pt-newwork']
+  .filter(id => document.getElementById(id).checked)
+  .map(id => document.getElementById(id).value);
+if (!prodTypes.length) {
+  document.getElementById('err-production_type').classList.add('visible');
+  return;
+} else {
+  document.getElementById('err-production_type').classList.remove('visible');
+}
   let valid = true;
   required.forEach(field => {
     const el=document.getElementById('f-'+field), err=document.getElementById('err-'+field);
@@ -1746,7 +1765,9 @@ async function handleAuditionSubmit(e) {
     audition_date:document.getElementById('f-audition_date').value||null,
     description:document.getElementById('f-description').value.trim(),
     contact_info:ciEl.value.trim(),
-    slug:slugify(`${showTitle}-${theaterName}-${Date.now()}`),pay_amount:document.getElementById('f-pay_amount').value.trim()||null,
+    slug:slugify(`${showTitle}-${theaterName}-${Date.now()}`),
+pay_amount:document.getElementById('f-pay_amount').value.trim()||null,
+production_type:prodTypes,
     status:'pending'
   };
   try {
