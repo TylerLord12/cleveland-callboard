@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>  
 <html lang="en">   
 <head>    
 <meta charset="UTF-8"/>  
@@ -694,13 +694,30 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
         <div class="pf-section-title" style="margin-top:20px;">Production Type</div>
 <div class="form-field">
   <label>Type of Production <span class="req">*</span> <span style="font-size:11px;color:var(--ink3);">(select all that apply)</span></label>
-<div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:6px;justify-content:center;">
-    <label class="filter-check"><input type="checkbox" id="pt-play" value="play"><span>Play</span></label>
-    <label class="filter-check"><input type="checkbox" id="pt-musical" value="musical"><span>Musical</span></label>
-    <label class="filter-check"><input type="checkbox" id="pt-improv" value="improv"><span>Improv</span></label>
-    <label class="filter-check"><input type="checkbox" id="pt-film" value="film"><span>Film / Short</span></label>
-    <label class="filter-check"><input type="checkbox" id="pt-newwork" value="newwork"><span>New Work</span></label>
+  <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;">
+    <label style="cursor:pointer;">
+      <input type="checkbox" id="pt-play" value="play" style="display:none;" onchange="toggleProdType(this)"/>
+      <span style="display:inline-block;padding:7px 16px;border-radius:var(--pill);border:1.5px solid var(--border);font-size:13px;font-weight:500;color:var(--ink2);background:var(--bg);transition:all var(--transition);" id="pt-play-label">Play</span>
+    </label>
+    <label style="cursor:pointer;">
+      <input type="checkbox" id="pt-musical" value="musical" style="display:none;" onchange="toggleProdType(this)"/>
+      <span style="display:inline-block;padding:7px 16px;border-radius:var(--pill);border:1.5px solid var(--border);font-size:13px;font-weight:500;color:var(--ink2);background:var(--bg);transition:all var(--transition);" id="pt-musical-label">Musical</span>
+    </label>
+    <label style="cursor:pointer;">
+      <input type="checkbox" id="pt-improv" value="improv" style="display:none;" onchange="toggleProdType(this)"/>
+      <span style="display:inline-block;padding:7px 16px;border-radius:var(--pill);border:1.5px solid var(--border);font-size:13px;font-weight:500;color:var(--ink2);background:var(--bg);transition:all var(--transition);" id="pt-improv-label">Improv</span>
+    </label>
+    <label style="cursor:pointer;">
+      <input type="checkbox" id="pt-film" value="film" style="display:none;" onchange="toggleProdType(this)"/>
+      <span style="display:inline-block;padding:7px 16px;border-radius:var(--pill);border:1.5px solid var(--border);font-size:13px;font-weight:500;color:var(--ink2);background:var(--bg);transition:all var(--transition);" id="pt-film-label">Film / Short</span>
+    </label>
+    <label style="cursor:pointer;">
+      <input type="checkbox" id="pt-newwork" value="newwork" style="display:none;" onchange="toggleProdType(this)"/>
+      <span style="display:inline-block;padding:7px 16px;border-radius:var(--pill);border:1.5px solid var(--border);font-size:13px;font-weight:500;color:var(--ink2);background:var(--bg);transition:all var(--transition);" id="pt-newwork-label">New Work</span>
+    </label>
   </div>
+  <div class="field-error" id="err-production_type">Please select at least one production type.</div>
+</div>
   <div class="field-error" id="err-production_type">Please select at least one production type.</div>
 </div>
         <div class="pf-section-title" style="margin-top:20px;">Casting Details</div>
@@ -1391,10 +1408,18 @@ async function handleJobSubmit(e) {
     document.getElementById('post-job-error').textContent='✗ Error: '+(err.message||'Something went wrong.');
     document.getElementById('post-job-error').style.display='block';
   } finally { btn.disabled=false; btn.textContent='Submit Job for Review'; }
-}function togglePayAmount(val) {
-  const field = document.getElementById('pay-amount-field');
-  field.style.display = (val === 'Paid' || val === 'Stipend') ? 'block' : 'none';
-  if (val === 'Volunteer') document.getElementById('f-pay_amount').value = '';
+}
+  function toggleProdType(checkbox) {
+  const label = document.getElementById(checkbox.id + '-label');
+  if (checkbox.checked) {
+    label.style.background = 'var(--red)';
+    label.style.borderColor = 'var(--red)';
+    label.style.color = '#fff';
+  } else {
+    label.style.background = 'var(--bg)';
+    label.style.borderColor = 'var(--border)';
+    label.style.color = 'var(--ink2)';
+  }
 }
 
 // ── PAYWALL ──
