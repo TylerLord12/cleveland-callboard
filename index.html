@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="en">   
 <head>    
 <meta charset="UTF-8"/> 
@@ -669,7 +669,7 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
             <div class="field-error" id="err-union_status">Please select union status.</div>
           </div>
         </div>
-        <div class="pf-row">
+<div class="pf-row">
           <div class="form-field">
             <label>Location <span class="req">*</span></label>
             <input type="text" name="location" id="f-location" placeholder="e.g. Lakewood, OH"/>
@@ -679,6 +679,16 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
             <label>Audition Date <span class="req">*</span></label>
             <input type="date" name="audition_date" id="f-audition_date"/>
             <div class="field-error" id="err-audition_date">Please select an audition date.</div>
+          </div>
+        </div>
+        <div class="pf-row">
+          <div class="form-field">
+            <label>Audition Time</label>
+            <input type="time" name="audition_time" id="f-audition_time"/>
+          </div>
+          <div class="form-field">
+            <label>Audition Location / Venue</label>
+            <input type="text" name="audition_location" id="f-audition_location" placeholder="e.g. Beck Center, 17801 Detroit Ave"/>
           </div>
         </div>
         <div class="pf-section-title" style="margin-top:20px;">Production Type</div>
@@ -1688,8 +1698,10 @@ function openDynamicDetail(id) {
       <div class="detail-title" style="font-size:32px;">${esc(a.show_title||'')}</div>
       <div class="detail-badges" style="margin-bottom:24px;">${payBadge}${unionBadge}</div>
       <div class="detail-section"><h4>Key Details</h4><div class="detail-grid">
-        ${a.audition_date?`<div class="detail-field"><div class="df-label">Audition Date</div><div class="df-val">${fmtDate(a.audition_date)}</div></div>`:''}
-        ${a.location?`<div class="detail-field"><div class="df-label">Location</div><div class="df-val">${esc(a.location)}</div></div>`:''}
+${a.audition_date?`<div class="detail-field"><div class="df-label">Audition Date</div><div class="df-val">${fmtDate(a.audition_date)}</div></div>`:''}
+${a.audition_time?`<div class="detail-field"><div class="df-label">Audition Time</div><div class="df-val">${fmtTime(a.audition_time)}</div></div>`:''}
+${a.location?`<div class="detail-field"><div class="df-label">City</div><div class="df-val">${esc(a.location)}</div></div>`:''}
+${a.audition_location?`<div class="detail-field"><div class="df-label">Audition Venue</div><div class="df-val">${esc(a.audition_location)}</div></div>`:''}
         ${a.pay?`<div class="detail-field"><div class="df-label">Compensation</div><div class="df-val">${esc(a.pay)}</div></div>`:''}
         ${a.union_status?`<div class="detail-field"><div class="df-label">Union Status</div><div class="df-val">${esc(a.union_status)}</div></div>`:''}
       </div></div>
@@ -1883,6 +1895,8 @@ if (!prodTypes.length) {
     union_status:document.getElementById('f-union_status').value,
     location:document.getElementById('f-location').value.trim(),
     audition_date:document.getElementById('f-audition_date').value||null,
+    audition_time:document.getElementById('f-audition_time').value||null,
+    audition_location:document.getElementById('f-audition_location').value.trim()||null,
     description:document.getElementById('f-description').value.trim(),
     contact_info:ciEl.value.trim(),
     slug:slugify(`${showTitle}-${theaterName}-${Date.now()}`),
@@ -2104,6 +2118,15 @@ function fmtDate(d) {
     const [y,m,dd]=String(d).split('T')[0].split('-').map(Number);
     return new Date(y,m-1,dd).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
   } catch { return d; }
+}
+  function fmtTime(t) {
+  if (!t) return '';
+  try {
+    const [h, m] = t.split(':').map(Number);
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    const hour = h % 12 || 12;
+    return `${hour}:${m.toString().padStart(2,'0')} ${ampm}`;
+  } catch { return t; }
 }
 function slugify(str) {
   return String(str).toLowerCase().trim().replace(/[^a-z0-9\s-]/g,'').replace(/\s+/g,'-').replace(/-+/g,'-').substring(0,80);
