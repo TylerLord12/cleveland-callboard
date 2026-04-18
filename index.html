@@ -339,12 +339,6 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
       <button class="hero-tab" onclick="setHeroTab(this,'equity')">Equity</button>
       <button class="hero-tab" onclick="setHeroTab(this,'musical')">Musicals</button>
     </div>
-    <div class="hero-stats">
-      <div class="hstat"><div class="num" id="stat-auditions">—</div><div class="lbl">Active auditions</div></div>
-      <div class="hstat"><div class="num">62</div><div class="lbl">Theaters listed</div></div>
-      <div class="hstat"><div class="num" id="stat-week">—</div><div class="lbl">Added this week</div></div>
-      <div class="hstat"><div class="num">5.4k</div><div class="lbl">Community members</div></div>
-    </div>
   </div>
 
   <div class="main-layout">
@@ -1518,8 +1512,6 @@ async function fetchAuditions() {
     const today = new Date();
     const weekAgo = new Date(today); weekAgo.setDate(weekAgo.getDate()-7);
     const thisWeek = allAuditions.filter(a => new Date(a.created_at) >= weekAgo).length;
-    document.getElementById('stat-auditions').textContent = allAuditions.length;
-    document.getElementById('stat-week').textContent = thisWeek;
   } catch(err) {
     console.warn('Supabase auditions fetch:', err.message);
     document.getElementById('auditions-container').innerHTML =
