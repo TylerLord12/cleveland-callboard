@@ -845,8 +845,6 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
   </div>
   <div class="field-error" id="err-production_type">Please select at least one production type.</div>
 </div>
-  <div class="field-error" id="err-production_type">Please select at least one production type.</div>
-</div>
         <div class="pf-section-title" style="margin-top:20px;">Casting Details</div>
         <div class="form-field">
           <label>Roles Being Cast <span class="req">*</span></label>
@@ -1111,10 +1109,6 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
   <div style="font-size:11px;color:var(--ink3);margin-top:16px;">© 2026 Cleveland Theater Alliance. All rights reserved.</div>
 </footer>
 
-<!-- ══════════════════════════════════════════════════════════════
-     JAVASCRIPT
-══════════════════════════════════════════════════════════════ -->
-<script>
 <!-- ══════════════════════════════════════════════════════════════
      JAVASCRIPT
 ══════════════════════════════════════════════════════════════ -->
@@ -1662,7 +1656,8 @@ async function fetchAuditions() {
     renderAuditions(allAuditions);
     const today = new Date();
     const weekAgo = new Date(today); weekAgo.setDate(weekAgo.getDate()-7);
-    const thisWeek = allAuditions.filter(a => new Date(a.created_at) >= weekAgo).length;
+const thisWeek = allAuditions.filter(a => new Date(a.created_at) >= weekAgo).length;
+    renderAuditions(allAuditions);
   } catch(err) {
     console.warn('Supabase auditions fetch:', err.message);
     document.getElementById('auditions-container').innerHTML =
