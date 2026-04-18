@@ -308,6 +308,7 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
     <button class="nav-btn active" onclick="showPage('auditions',this)">Auditions</button>
     <button class="nav-btn" onclick="showPage('jobs',this)">Jobs</button>
     <button class="nav-btn" onclick="showPage('community',this)">Community</button>
+    <button class="nav-btn" onclick="showPage('now-playing',this)">Now Playing</button>
     <button class="nav-btn" onclick="showPage('about',this)">About</button>
     <button class="nav-btn" onclick="showPage('support',this)">Support Us</button>
   </div>
@@ -448,6 +449,60 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
     <div id="community-container">
       <div style="padding:32px;text-align:center;color:var(--ink3);">Loading community posts…</div>
     </div>
+  </div>
+</div>
+  <!-- ══════════════════════════════════════════════════════════════
+     NOW PLAYING PAGE
+══════════════════════════════════════════════════════════════ -->
+<div class="page" id="page-now-playing">
+  <div class="section-hero">
+    <h2>Now Playing</h2>
+    <p>Current productions on Cleveland stages. Updated by the theaters themselves.</p>
+  </div>
+  <div style="max-width:900px;margin:0 auto;padding:28px 24px;">
+    <div style="text-align:right;margin-bottom:20px;">
+      <button class="btn-cta" onclick="requireAuthThen(openNowPlayingModal)">+ Add Production</button>
+    </div>
+    <div id="now-playing-container">
+      <div style="padding:32px;text-align:center;color:var(--ink3);">Loading current productions…</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     NOW PLAYING MODAL
+══════════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="now-playing-modal" onclick="closeNowPlayingModalOnBg(event)">
+  <div class="modal">
+    <button class="modal-close-btn" onclick="closeNowPlayingModal()">×</button>
+    <h3>Add a Production</h3>
+    <p class="modal-sub">Share what's currently on your stage.</p>
+    <div class="auth-error" id="np-modal-error"></div>
+    <div class="form-field">
+      <label>Theater / Organization Name <span class="req">*</span></label>
+      <input type="text" id="np-theater_name" placeholder="e.g. Beck Center for the Arts"/>
+      <div class="field-error" id="err-np-theater_name">Please enter your theater name.</div>
+    </div>
+    <div class="form-field">
+      <label>Show Title <span class="req">*</span></label>
+      <input type="text" id="np-show_title" placeholder="e.g. Into the Woods"/>
+      <div class="field-error" id="err-np-show_title">Please enter the show title.</div>
+    </div>
+    <div class="form-field">
+      <label>Opening Date <span class="req">*</span></label>
+      <input type="date" id="np-opening_date"/>
+      <div class="field-error" id="err-np-opening_date">Please select an opening date.</div>
+    </div>
+    <div class="form-field">
+      <label>Closing Date <span class="req">*</span></label>
+      <input type="date" id="np-closing_date"/>
+      <div class="field-error" id="err-np-closing_date">Please select a closing date.</div>
+    </div>
+    <div class="form-field">
+      <label>Tickets / Info Link</label>
+      <input type="text" id="np-tickets_url" placeholder="e.g. https://yourtheater.org/tickets"/>
+    </div>
+    <button class="modal-submit" id="np-submit-btn" onclick="handleNowPlayingSubmit()">Add Production</button>
   </div>
 </div>
   <!-- ══════════════════════════════════════════════════════════════
@@ -1234,6 +1289,101 @@ function showAuthError(msg) { const el=document.getElementById('auth-error-msg')
 function showFieldErr(id, show) { const el=document.getElementById('err-'+id); if(el) el.classList.toggle('visible',show); }
 function requireAuthThen(fn) { if (!currentUser) { openAuth('signin'); return; } fn(); }
 async function openPostPage() { showPage('post-choice',null); }
+  let allNowPlaying = [];
+
+async function fetchNowPlaying() {
+  try {
+    const today = new Date().toISOString().split('T')[0];
+    const { data, error } = await _supabase
+      .from('now_playing')
+      .select('*')
+      .eq('status', 'approved')
+      .gte('closing_date', today)
+      .order('opening_date', { ascending: true });
+    if (error) throw error;
+    allNowPlaying = data || [];
+    renderNowPlaying(allNowPlaying);
+  } catch(err) {
+    document.getElementById('now-playing-container').innerHTML =
+      `<div style="padding:32px;text-align:center;color:var(--ink3);">Could not load productions.</div>`;
+  }
+}
+
+function renderNowPlaying(list) {
+  const container = document.getElementById('now-playing-container');
+  if (!list.length) {
+    container.innerHTML = `<div style="padding:40px;text-align:center;color:var(--ink3);">
+      <div style="font-size:28px;margin-bottom:10px;">🎭</div>
+      <div style="font-size:14px;color:var(--ink2);margin-bottom:8px;">No productions listed yet.</div>
+      <div style="font-size:13px;">Are you a theater? Add your current production above.</div>
+    </div>`; return;
+  }
+  container.innerHTML = `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;">` +
+    list.map(p => `
+      <div style="background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;transition:all var(--transition);">
+        <div style="font-size:11px;font-weight:600;letter-spacing:0.6px;text-transform:uppercase;color:var(--ink3);margin-bottom:6px;">${esc(p.theater_name)}</div>
+        <div style="font-family:var(--font-display);font-size:18px;color:var(--ink);margin-bottom:10px;line-height:1.3;">${esc(p.show_title)}</div>
+        <div style="font-size:12px;color:var(--ink3);margin-bottom:14px;">📅 ${fmtDate(p.opening_date)} — ${fmtDate(p.closing_date)}</div>
+        ${p.tickets_url ? `<a href="${esc(p.tickets_url)}" target="_blank" style="display:inline-block;background:var(--red);color:#fff;font-family:var(--font-body);font-size:12px;font-weight:500;padding:7px 16px;border-radius:var(--pill);text-decoration:none;">Get Tickets →</a>` : ''}
+      </div>`
+    ).join('') + `</div>`;
+}
+
+function openNowPlayingModal() {
+  document.getElementById('now-playing-modal').classList.add('open');
+  document.getElementById('np-modal-error').style.display = 'none';
+}
+function closeNowPlayingModal() { document.getElementById('now-playing-modal').classList.remove('open'); }
+function closeNowPlayingModalOnBg(e) { if(e.target===document.getElementById('now-playing-modal')) closeNowPlayingModal(); }
+
+async function handleNowPlayingSubmit() {
+  const theaterName = document.getElementById('np-theater_name').value.trim();
+  const showTitle   = document.getElementById('np-show_title').value.trim();
+  const openingDate = document.getElementById('np-opening_date').value;
+  const closingDate = document.getElementById('np-closing_date').value;
+  const ticketsUrl  = document.getElementById('np-tickets_url').value.trim();
+
+  let valid = true;
+  if (!theaterName) { document.getElementById('err-np-theater_name').classList.add('visible'); valid=false; }
+  else { document.getElementById('err-np-theater_name').classList.remove('visible'); }
+  if (!showTitle) { document.getElementById('err-np-show_title').classList.add('visible'); valid=false; }
+  else { document.getElementById('err-np-show_title').classList.remove('visible'); }
+  if (!openingDate) { document.getElementById('err-np-opening_date').classList.add('visible'); valid=false; }
+  else { document.getElementById('err-np-opening_date').classList.remove('visible'); }
+  if (!closingDate) { document.getElementById('err-np-closing_date').classList.add('visible'); valid=false; }
+  else { document.getElementById('err-np-closing_date').classList.remove('visible'); }
+  if (!valid) return;
+
+  const btn = document.getElementById('np-submit-btn');
+  btn.disabled = true; btn.textContent = 'Adding…';
+
+  try {
+    const { error } = await _supabase.from('now_playing').insert([{
+      user_id:      currentUser.id,
+      theater_name: theaterName,
+      show_title:   showTitle,
+      opening_date: openingDate,
+      closing_date: closingDate,
+      tickets_url:  ticketsUrl || null,
+      status:       'approved'
+    }]);
+    if (error) throw error;
+    closeNowPlayingModal();
+    document.getElementById('np-theater_name').value = '';
+    document.getElementById('np-show_title').value = '';
+    document.getElementById('np-opening_date').value = '';
+    document.getElementById('np-closing_date').value = '';
+    document.getElementById('np-tickets_url').value = '';
+    flash('Production added!', 'success');
+    fetchNowPlaying();
+  } catch(err) {
+    const errEl = document.getElementById('np-modal-error');
+    errEl.textContent = 'Error: ' + (err.message || 'Something went wrong.');
+    errEl.style.display = 'block';
+  } finally {
+    btn.disabled = false; btn.textContent = 'Add Production';
+  }
+}
 function openNewPostModal() {
   document.getElementById('post-modal').classList.add('open');
   document.getElementById('post-modal-error').style.display = 'none';
@@ -2252,6 +2402,7 @@ function showPage(id, btn) {
   // Reload jobs when navigating to jobs page
   if (id==='jobs') fetchJobs();
   if (id==='community') fetchCommunityPosts();
+  if (id==='now-playing') fetchNowPlaying();
 }
 
 function setTab(btn) {
