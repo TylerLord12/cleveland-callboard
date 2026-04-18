@@ -768,10 +768,21 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
 </div>
   
 <!-- Detail panel -->
+<!-- Detail panel -->
 <div class="detail-overlay" id="detail-overlay" onclick="closeDetailOnBg(event)">
   <div class="detail-panel" id="detail-panel">
     <button class="detail-close" onclick="closeDetail()">×</button>
     <div id="detail-content"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     LISTING DETAIL PAGE
+══════════════════════════════════════════════════════════════ -->
+<div class="page" id="page-listing-detail">
+  <div style="max-width:720px;margin:0 auto;padding:32px 24px;">
+    <button onclick="showPage('auditions',null)" style="background:none;border:none;color:var(--ink3);font-family:var(--font-body);font-size:13px;cursor:pointer;padding:0;margin-bottom:24px;display:flex;align-items:center;gap:6px;">← Back to Auditions</button>
+    <div id="detail-content-full"></div>
   </div>
 </div>
 
@@ -1562,24 +1573,25 @@ function openDynamicDetail(id) {
                    : '<span class="badge b-free">Volunteer</span>';
   const unionBadge = a.union_status&&a.union_status.includes('AEA')
                    ? `<span class="badge b-union">${esc(a.union_status)}</span>`:'';
-  document.getElementById('detail-content').innerHTML = `
-    <div class="detail-org">${esc(a.theater_name||'')}</div>
-    <div class="detail-title">${esc(a.show_title||'')}</div>
-    <div class="detail-badges">${payBadge}${unionBadge}</div>
-    <div class="detail-section"><h4>Key Details</h4><div class="detail-grid">
-      ${a.audition_date?`<div class="detail-field"><div class="df-label">Audition Date</div><div class="df-val">${fmtDate(a.audition_date)}</div></div>`:''}
-      ${a.location?`<div class="detail-field"><div class="df-label">Location</div><div class="df-val">${esc(a.location)}</div></div>`:''}
-      ${a.pay?`<div class="detail-field"><div class="df-label">Compensation</div><div class="df-val">${esc(a.pay)}</div></div>`:''}
-      ${a.union_status?`<div class="detail-field"><div class="df-label">Union Status</div><div class="df-val">${esc(a.union_status)}</div></div>`:''}
-    </div></div>
-    ${a.roles?`<div class="detail-section"><h4>Roles Being Cast</h4><div class="detail-body"><p>${esc(a.roles)}</p></div></div>`:''}
-    ${a.description?`<div class="detail-section"><h4>Description &amp; Submission Instructions</h4><div class="detail-body"><p>${esc(a.description)}</p></div></div>`:''}
-    <div class="detail-actions">
-      ${a.contact_info?`<button class="btn-apply" onclick="window.open('${a.contact_info.startsWith('http')?a.contact_info:'mailto:'+a.contact_info}','_blank')">Get Submission Info</button>`:''}
-      <p class="source-note">Listing posted by ${esc(a.theater_name||'this organization')}. Always verify details directly with them.</p>
+  document.getElementById('detail-content-full').innerHTML = `
+    <div style="background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:32px;">
+      <div class="detail-org">${esc(a.theater_name||'')}</div>
+      <div class="detail-title" style="font-size:32px;">${esc(a.show_title||'')}</div>
+      <div class="detail-badges" style="margin-bottom:24px;">${payBadge}${unionBadge}</div>
+      <div class="detail-section"><h4>Key Details</h4><div class="detail-grid">
+        ${a.audition_date?`<div class="detail-field"><div class="df-label">Audition Date</div><div class="df-val">${fmtDate(a.audition_date)}</div></div>`:''}
+        ${a.location?`<div class="detail-field"><div class="df-label">Location</div><div class="df-val">${esc(a.location)}</div></div>`:''}
+        ${a.pay?`<div class="detail-field"><div class="df-label">Compensation</div><div class="df-val">${esc(a.pay)}</div></div>`:''}
+        ${a.union_status?`<div class="detail-field"><div class="df-label">Union Status</div><div class="df-val">${esc(a.union_status)}</div></div>`:''}
+      </div></div>
+      ${a.roles?`<div class="detail-section"><h4>Roles Being Cast</h4><div class="detail-body"><p>${esc(a.roles)}</p></div></div>`:''}
+      ${a.description?`<div class="detail-section"><h4>Description &amp; Submission Instructions</h4><div class="detail-body"><p>${esc(a.description)}</p></div></div>`:''}
+      <div class="detail-actions">
+        ${a.contact_info?`<button class="btn-apply" onclick="window.open('${a.contact_info.startsWith('http')?a.contact_info:'mailto:'+a.contact_info}','_blank')">Get Submission Info</button>`:''}
+        <p class="source-note">Listing posted by ${esc(a.theater_name||'this organization')}. Always verify details directly with them.</p>
+      </div>
     </div>`;
-  document.getElementById('detail-overlay').classList.add('open');
-  document.body.style.overflow='hidden';
+  showPage('listing-detail', null);
 }
 
 function closeDetail() {
