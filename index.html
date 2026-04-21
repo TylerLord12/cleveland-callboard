@@ -2324,38 +2324,60 @@ production_type:prodTypes,
 // ── MY LISTINGS ──
 async function loadMyListings() {
   if (!currentUser) { openAuth('signin'); return; }
-  const { data } = await _supabase.from('auditions').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false});
-  const listings=data||[];
-  document.getElementById('ds-total').textContent=listings.length;
-  document.getElementById('ds-live').textContent=listings.filter(l=>l.status==='approved').length;
-  document.getElementById('ds-pending').textContent=listings.filter(l=>l.status==='pending').length;
+  const { data: auditions } = await _supabase.from('auditions').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false});
+  const { data: jobs } = await _supabase.from('arts_jobs').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false});
+  const allListings = [
+    ...(auditions||[]).map(l => ({...l, _type:'audition'})),
+    ...(jobs||[]).map(l => ({...l, _type:'job'}))
+  ].sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+
+  document.getElementById('ds-total').textContent=allListings.length;
+  document.getElementById('ds-live').textContent=allListings.filter(l=>l.status==='approved').length;
+  document.getElementById('ds-pending').textContent=allListings.filter(l=>l.status==='pending').length;
+
   const isPaid=currentProfile&&currentProfile.is_paid;
   document.getElementById('pro-banner').style.display = isPaid ? 'block' : 'none';
-  document.getElementById('dash-paywall-notice').style.display=(!isPaid&&listings.length>=1)?'block':'none';
+  document.getElementById('dash-paywall-notice').style.display=(!isPaid&&allListings.length>=1)?'block':'none';
+
   const container=document.getElementById('my-listings-container');
-  if (!listings.length) {
-    container.innerHTML=`<div class="empty-state"><p>You haven't posted any listings yet.</p><button class="btn-cta" onclick="showPage('post-audition',null);checkPaywall()">Post your first listing free</button></div>`;
+  if (!allListings.length) {
+    container.innerHTML=`<div class="empty-state"><p>You haven't posted any listings yet.</p><button class="btn-cta" onclick="showPage('post-choice',null)">Post your first listing free</button></div>`;
     return;
   }
-  container.innerHTML=listings.map(l=>`
+
+  container.innerHTML=allListings.map(l=> l._type === 'audition' ? `
     <div class="dash-row">
       <div class="dash-row-info">
-        <div class="dash-row-title">${esc(l.show_title||'')} — ${esc(l.theater_name||'')}</div>
+        <div class="dash-row-title">🎭 ${esc(l.show_title||'')} — ${esc(l.theater_name||'')}</div>
         <div class="dash-row-meta">${l.audition_date?'Audition: '+fmtDate(l.audition_date)+' · ':''}Posted ${fmtDate(l.created_at)}</div>
       </div>
       <span class="status-pill status-${l.status}">${l.status.charAt(0).toUpperCase()+l.status.slice(1)}</span>
       <div class="dash-actions">
         <button class="dash-action-btn" onclick="openEditModal(${JSON.stringify(l).replace(/"/g,'&quot;')})">Edit</button>
-        <button class="dash-action-btn del" onclick="deleteListing('${l.id}')">Delete</button>
+        <button class="dash-action-btn del" onclick="deleteListing('${l.id}','auditions')">Delete</button>
       </div>
-    </div>`).join('');
+    </div>` : `
+    <div class="dash-row">
+      <div class="dash-row-info">
+        <div class="dash-row-title">💼 ${esc(l.job_title||'')} — ${esc(l.org_name||'')}</div>
+        <div class="dash-row-meta">Posted ${fmtDate(l.created_at)}</div>
+      </div>
+      <span class="status-pill status-${l.status}">${l.status.charAt(0).toUpperCase()+l.status.slice(1)}</span>
+      <div class="dash-actions">
+        <button class="dash-action-btn del" onclick="deleteListing('${l.id}','arts_jobs')">Delete</button>
+      </div>
+    </div>`
+  ).join('');
 }
 
-async function deleteListing(id) {
+async function deleteListing(id, table='auditions') {
   if (!confirm('Delete this listing permanently?')) return;
-  const { error } = await _supabase.from('auditions').delete().eq('id',id).eq('user_id',currentUser.id);
+  const { error } = await _supabase.from(table).delete().eq('id',id).eq('user_id',currentUser.id);
   if (error) { flash('Could not delete listing.','error'); return; }
-  flash('Listing deleted.','info'); loadMyListings(); fetchAuditions();
+  flash('Listing deleted.','info');
+  loadMyListings();
+  if (table==='auditions') fetchAuditions();
+  if (table==='arts_jobs') fetchJobs();
 }
 
 // ── EDIT MODAL ──
