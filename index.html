@@ -1250,12 +1250,16 @@ async function loadProfile() {
   currentProfile = data;
 }
 
+const ADMIN_USER_ID = 'd0797cd6-0de3-4657-9ac3-a4585185b21c';
+
 function updateNavForUser() {
   const navRight = document.getElementById('nav-right');
   if (currentUser && currentProfile) {
     const isPaid = currentProfile.is_paid;
+    const isAdmin = currentUser.id === ADMIN_USER_ID;
     navRight.innerHTML = `
       <span class="nav-paid-badge" style="display:${isPaid?'inline':'none'};">⭐ Pro Member</span>
+      ${isAdmin ? `<button class="btn-ghost" onclick="showPage('admin',null);loadAdminListings()" style="color:var(--red);border-color:var(--red-border);">Admin</button>` : ''}
       <button class="btn-ghost" onclick="showPage('my-listings',null);loadMyListings()">My Listings</button>
       <button class="btn-cta" onclick="requireAuthThen(openPostPage)">Post a Listing</button>
       <button class="btn-ghost" onclick="handleLogout()" style="border-color:transparent;color:var(--ink3);">Log out</button>`;
