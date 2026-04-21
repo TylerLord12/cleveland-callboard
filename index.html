@@ -295,6 +295,18 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
 .form-msg.success{background:var(--green-bg);color:var(--green);border:1px solid rgba(30,107,62,0.2);display:block;}
 .form-msg.error{background:var(--red-bg);color:var(--red);border:1px solid var(--red-border);display:block;}
 .nav-paid-badge{font-size:11px;font-weight:600;background:var(--gold-bg);color:var(--gold);border:1px solid #e8d9a8;padding:3px 9px;border-radius:var(--pill);}
+  .hamburger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:6px;margin-left:auto;}
+.hamburger span{display:block;width:22px;height:2px;background:var(--ink);border-radius:2px;transition:all 0.2s ease;}
+.mobile-menu{display:none;position:fixed;inset:0;top:58px;background:var(--white);z-index:199;padding:16px;border-top:1px solid var(--border);}
+.mobile-menu.open{display:block;}
+.mobile-menu-btn{display:block;width:100%;background:none;border:none;font-family:var(--font-body);font-size:16px;font-weight:400;color:var(--ink2);padding:14px 8px;text-align:left;cursor:pointer;border-bottom:1px solid var(--border);transition:color var(--transition);}
+.mobile-menu-btn:hover{color:var(--ink);}
+.mobile-menu-btn:last-child{border-bottom:none;}
+@media(max-width:720px){
+  .nav-links{display:none;}
+  .hamburger{display:flex;}
+  .nav-right{display:none;}
+}
 </style>
 </head>
 <body>
@@ -312,12 +324,26 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
     <button class="nav-btn" onclick="showPage('about',this)">About</button>
     <button class="nav-btn" onclick="showPage('support',this)">Support Us</button>
   </div>
+  <button class="hamburger" id="hamburger-btn" onclick="toggleMobileMenu()">
+    <span></span><span></span><span></span>
+  </button>
   <div class="nav-right" id="nav-right">
     <button class="btn-ghost" onclick="openAuth('signin')">Sign In</button>
     <button class="btn-cta" onclick="openAuth('signup')">Post a Listing</button>
   </div>
 </nav>
-
+<div class="mobile-menu" id="mobile-menu">
+  <button class="mobile-menu-btn" onclick="mobileNav('auditions')">Auditions</button>
+  <button class="mobile-menu-btn" onclick="mobileNav('jobs')">Jobs</button>
+  <button class="mobile-menu-btn" onclick="mobileNav('community')">Community</button>
+  <button class="mobile-menu-btn" onclick="mobileNav('now-playing')">Now Playing</button>
+  <button class="mobile-menu-btn" onclick="mobileNav('about')">About</button>
+  <button class="mobile-menu-btn" onclick="mobileNav('support')">Support Us</button>
+  <div style="border-top:1px solid var(--border);margin-top:8px;padding-top:8px;">
+    <button class="mobile-menu-btn" onclick="openAuth('signin');closeMobileMenu()">Sign In</button>
+    <button class="mobile-menu-btn" style="color:var(--red);font-weight:500;" onclick="openAuth('signup');closeMobileMenu()">Post a Listing</button>
+  </div>
+</div>
 <!-- ══════════════════════════════════════════════════════════════
      AUDITIONS PAGE
 ══════════════════════════════════════════════════════════════ -->
@@ -2483,7 +2509,16 @@ function fmtDate(d) {
 function slugify(str) {
   return String(str).toLowerCase().trim().replace(/[^a-z0-9\s-]/g,'').replace(/\s+/g,'-').replace(/-+/g,'-').substring(0,80);
 }
-
+function toggleMobileMenu() {
+  document.getElementById('mobile-menu').classList.toggle('open');
+}
+function closeMobileMenu() {
+  document.getElementById('mobile-menu').classList.remove('open');
+}
+function mobileNav(page) {
+  closeMobileMenu();
+  showPage(page, null);
+}
 initAuth();
 </script>
 
