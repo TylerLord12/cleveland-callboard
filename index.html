@@ -299,8 +299,8 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
 .hamburger span{display:block;width:22px;height:2px;background:var(--ink);border-radius:2px;transition:all 0.2s ease;}
 .mobile-menu{display:none;position:fixed;inset:0;top:58px;background:var(--white);z-index:199;padding:16px;border-top:1px solid var(--border);}
 .mobile-menu.open{display:block;}
-.mobile-menu-btn{display:block;width:100%;background:none;border:none;font-family:var(--font-body);font-size:16px;font-weight:400;color:var(--ink2);padding:14px 8px;text-align:left;cursor:pointer;border-bottom:1px solid var(--border);transition:color var(--transition);}
-.mobile-menu-btn:hover{color:var(--ink);}
+.mobile-menu-btn{display:flex;align-items:center;width:100%;background:none;border:none;font-family:var(--font-body);font-size:15px;font-weight:500;color:var(--ink2);padding:16px 16px;text-align:left;cursor:pointer;border-bottom:1px solid var(--border);transition:all var(--transition);}
+.mobile-menu-btn:hover{color:var(--ink);background:var(--bg2);}
 .mobile-menu-btn:last-child{border-bottom:none;}
 @media(max-width:720px){
   .nav-links{display:none;}
@@ -333,15 +333,29 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
   </div>
 </nav>
 <div class="mobile-menu" id="mobile-menu">
-  <button class="mobile-menu-btn" onclick="mobileNav('auditions')">Auditions</button>
-  <button class="mobile-menu-btn" onclick="mobileNav('jobs')">Jobs</button>
-  <button class="mobile-menu-btn" onclick="mobileNav('community')">Community</button>
-  <button class="mobile-menu-btn" onclick="mobileNav('now-playing')">Now Playing</button>
-  <button class="mobile-menu-btn" onclick="mobileNav('about')">About</button>
-  <button class="mobile-menu-btn" onclick="mobileNav('support')">Support Us</button>
-  <div style="border-top:1px solid var(--border);margin-top:8px;padding-top:8px;">
-    <button class="mobile-menu-btn" onclick="openAuth('signin');closeMobileMenu()">Sign In</button>
-    <button class="mobile-menu-btn" style="color:var(--red);font-weight:500;" onclick="openAuth('signup');closeMobileMenu()">Post a Listing</button>
+  <div style="padding:8px 0;">
+    <button class="mobile-menu-btn" onclick="mobileNav('auditions')">
+      <span style="font-size:16px;margin-right:12px;">🎭</span>Auditions
+    </button>
+    <button class="mobile-menu-btn" onclick="mobileNav('jobs')">
+      <span style="font-size:16px;margin-right:12px;">💼</span>Jobs
+    </button>
+    <button class="mobile-menu-btn" onclick="mobileNav('community')">
+      <span style="font-size:16px;margin-right:12px;">💬</span>Community
+    </button>
+    <button class="mobile-menu-btn" onclick="mobileNav('now-playing')">
+      <span style="font-size:16px;margin-right:12px;">🎟️</span>Now Playing
+    </button>
+    <button class="mobile-menu-btn" onclick="mobileNav('about')">
+      <span style="font-size:16px;margin-right:12px;">ℹ️</span>About
+    </button>
+    <button class="mobile-menu-btn" onclick="mobileNav('support')">
+      <span style="font-size:16px;margin-right:12px;">❤️</span>Support Us
+    </button>
+  </div>
+  <div style="padding:12px 16px;display:flex;flex-direction:column;gap:10px;border-top:1px solid var(--border);margin-top:4px;">
+    <button onclick="openAuth('signin');closeMobileMenu()" style="width:100%;background:none;border:1.5px solid var(--border2);color:var(--ink);font-family:var(--font-body);font-size:14px;font-weight:500;padding:12px;border-radius:var(--radius);cursor:pointer;">Sign In</button>
+    <button onclick="openAuth('signup');closeMobileMenu()" style="width:100%;background:var(--red);border:none;color:#fff;font-family:var(--font-body);font-size:14px;font-weight:500;padding:12px;border-radius:var(--radius);cursor:pointer;">Post a Listing</button>
   </div>
 </div>
 <!-- ══════════════════════════════════════════════════════════════
