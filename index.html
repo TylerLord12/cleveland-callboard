@@ -2388,19 +2388,22 @@ async function loadAdminListings() {
   const { data: auditions } = await _supabase.from('auditions').select('*').order('created_at',{ascending:false});
   const { data: posts } = await _supabase.from('community_posts').select('*').order('created_at',{ascending:false});
   const { data: replies } = await _supabase.from('community_replies').select('*').order('created_at',{ascending:false});
+  const { data: nowPlaying } = await _supabase.from('now_playing').select('*').order('created_at',{ascending:false});
 
   const listings = auditions || [];
   const pending  = listings.filter(l => l.status === 'pending');
 const pendingPosts = (posts || []).filter(p => p.status === 'pending');
 const pendingReplies = (replies || []).filter(r => r.status === 'pending');
+const pendingNowPlaying = (nowPlaying || []).filter(n => n.status === 'pending');
 document.getElementById('admin-pending-count').textContent =
-    `${pending.length} listings · ${pendingPosts.length} posts · ${pendingReplies.length} replies pending`;
+    `${pending.length} listings · ${pendingPosts.length} posts · ${pendingReplies.length} replies · ${pendingNowPlaying.length} productions pending`;
 
   const container = document.getElementById('admin-listings-container');
 const allItems = [
     ...listings.map(l => ({ ...l, _type: 'audition' })),
     ...(posts || []).map(p => ({ ...p, _type: 'post' })),
-    ...(replies || []).map(r => ({ ...r, _type: 'reply' }))
+    ...(replies || []).map(r => ({ ...r, _type: 'reply' })),
+    ...(nowPlaying || []).map(n => ({ ...n, _type: 'nowplaying' }))
   ].sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
 
   if (!allItems.length) {
@@ -2439,7 +2442,7 @@ const allItems = [
             ${item.status!=='rejected'?`<button class="btn-reject" onclick="adminUpdateStatus('${item.id}','rejected','community_posts')">✗ Reject</button>`:''}
           </div>
         </div>`;
-    } else {
+} else if (item._type === 'reply') {
       return `
         <div class="admin-row">
           <div class="admin-row-info">
@@ -2454,6 +2457,23 @@ const allItems = [
             ${item.status!=='rejected'?`<button class="btn-reject" onclick="adminUpdateStatus('${item.id}','rejected','community_replies')">✗ Reject</button>`:''}
           </div>
         </div>`;
+    } else if (item._type === 'nowplaying') {
+      return `
+        <div class="admin-row">
+          <div class="admin-row-info">
+            <div class="admin-row-title">🎭 ${esc(item.show_title||'')} — ${esc(item.theater_name||'')}</div>
+            <div class="admin-row-meta">
+              ${item.location?'📍 '+esc(item.location)+' · ':''}
+              ${item.opening_date?'Opens: '+fmtDate(item.opening_date)+' · ':''}
+              ${item.closing_date?'Closes: '+fmtDate(item.closing_date)+'<br>':''}
+              Submitted: ${fmtDate(item.created_at)} · Status: <strong>${item.status}</strong>
+            </div>
+          </div>
+          <div class="admin-btns">
+            ${item.status!=='approved'?`<button class="btn-approve" onclick="adminUpdateStatus('${item.id}','approved','now_playing')">✓ Approve</button>`:''}
+            ${item.status!=='rejected'?`<button class="btn-reject" onclick="adminUpdateStatus('${item.id}','rejected','now_playing')">✗ Reject</button>`:''}
+          </div>
+        </div>`;
     }
   }).join('');
 }
@@ -2463,9 +2483,10 @@ async function adminUpdateStatus(id, status, table='auditions') {
   if (error) { flash('Update failed: '+error.message,'error'); return; }
   flash(`${table==='community_posts'?'Post':'Listing'} ${status}.`, status==='approved'?'success':'info');
   loadAdminListings();
-  if (table==='auditions') fetchAuditions();
+if (table==='auditions') fetchAuditions();
   if (table==='community_posts') fetchCommunityPosts();
   if (table==='community_replies') fetchCommunityPosts();
+  if (table==='now_playing') fetchNowPlaying();
 }
 
 // ── UI HELPERS ──
