@@ -493,10 +493,9 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
       <input type="date" id="np-opening_date"/>
       <div class="field-error" id="err-np-opening_date">Please select an opening date.</div>
     </div>
-    <div class="form-field">
-      <label>Closing Date <span class="req">*</span></label>
+<div class="form-field">
+      <label>Closing Date <span style="font-size:11px;color:var(--ink3);">(optional — defaults to 3 weeks)</span></label>
       <input type="date" id="np-closing_date"/>
-      <div class="field-error" id="err-np-closing_date">Please select a closing date.</div>
     </div>
     <div class="form-field">
       <label>Tickets / Info Link</label>
@@ -1350,20 +1349,25 @@ async function handleNowPlayingSubmit() {
   else { document.getElementById('err-np-show_title').classList.remove('visible'); }
   if (!openingDate) { document.getElementById('err-np-opening_date').classList.add('visible'); valid=false; }
   else { document.getElementById('err-np-opening_date').classList.remove('visible'); }
-  if (!closingDate) { document.getElementById('err-np-closing_date').classList.add('visible'); valid=false; }
-  else { document.getElementById('err-np-closing_date').classList.remove('visible'); }
   if (!valid) return;
 
   const btn = document.getElementById('np-submit-btn');
   btn.disabled = true; btn.textContent = 'Adding…';
 
   try {
-    const { error } = await _supabase.from('now_playing').insert([{
+// Default closing date to 21 days after opening if not provided
+const finalClosingDate = closingDate || (() => {
+  const d = new Date(openingDate);
+  d.setDate(d.getDate() + 21);
+  return d.toISOString().split('T')[0];
+})();
+
+const { error } = await _supabase.from('now_playing').insert([{
       user_id:      currentUser.id,
       theater_name: theaterName,
       show_title:   showTitle,
       opening_date: openingDate,
-      closing_date: closingDate,
+      closing_date: finalClosingDate,
       tickets_url:  ticketsUrl || null,
       status:       'approved'
     }]);
