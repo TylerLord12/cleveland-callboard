@@ -2112,11 +2112,16 @@ ${a.audition_location?`<div class="detail-field"><div class="df-label">Audition 
       ${a.roles?`<div class="detail-section"><h4>Roles Being Cast</h4><div class="detail-body"><p>${esc(a.roles)}</p></div></div>`:''}
       ${a.description?`<div class="detail-section"><h4>Description &amp; Submission Instructions</h4><div class="detail-body"><p>${esc(a.description)}</p></div></div>`:''}
       <div class="detail-actions">
-        ${a.contact_info?`<button class="btn-apply" onclick="window.open(\'${a.contact_info.startsWith(\'http\')||a.contact_info.startsWith(\'mailto:\')||a.contact_info.startsWith(\'tel:\')?a.contact_info:\'https://\'+a.contact_info}\',\'_blank\')">Visit Website →</button>`
+        ${a.contact_info ? buildContactButton(a.contact_info) : ''}
         <p class="source-note">Listing posted by ${esc(a.theater_name||'this organization')}. Always verify details directly with them.</p>
       </div>
     </div>`;
   showPage('listing-detail', null);
+}
+
+function buildContactButton(ci) {
+  const url = ci.startsWith('http') || ci.startsWith('mailto:') || ci.startsWith('tel:') ? ci : 'https://' + ci;
+  return `<button class="btn-apply" onclick="window.open('${url}','_blank')">Visit Website →</button>`;
 }
 
 function closeDetail() {
