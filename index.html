@@ -1149,7 +1149,7 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
 ══════════════════════════════════════════════════════════════ -->
 <div class="page" id="page-listing-detail">
   <div style="max-width:720px;margin:0 auto;padding:32px 24px;">
-    <button onclick="history.back()" style="background:none;border:none;color:var(--ink3);font-family:var(--font-body);font-size:13px;cursor:pointer;padding:0;margin-bottom:24px;display:flex;align-items:center;gap:6px;">← Back</button>
+    <button onclick="showPage(detailReturnPage, null)" style="background:none;border:none;color:var(--ink3);font-family:var(--font-body);font-size:13px;cursor:pointer;padding:0;margin-bottom:24px;display:flex;align-items:center;gap:6px;">← Back</button>
     <div id="detail-content-full"></div>
   </div>
 </div>
@@ -2086,7 +2086,10 @@ function buildCard(a) {
     </article>`;
 }
 
+let detailReturnPage = 'auditions';
+
 function openDynamicDetail(id) {
+  detailReturnPage = 'auditions';
   const a = allAuditions.find(x => x.id == id);
   if (!a) return;
   const slug = a.slug || slugify(`${a.show_title}-${a.theater_name}`);
@@ -2246,6 +2249,7 @@ const empBadge = j.employment_type
 }
 
 function openJobDetail(id) {
+  detailReturnPage = 'jobs';
   const j = allJobs.find(x => x.id == id);
   if (!j) return;
   const catLabel = {
