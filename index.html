@@ -2112,7 +2112,7 @@ ${a.audition_location?`<div class="detail-field"><div class="df-label">Audition 
       ${a.roles?`<div class="detail-section"><h4>Roles Being Cast</h4><div class="detail-body"><p>${esc(a.roles)}</p></div></div>`:''}
       ${a.description?`<div class="detail-section"><h4>Description &amp; Submission Instructions</h4><div class="detail-body"><p>${esc(a.description)}</p></div></div>`:''}
       <div class="detail-actions">
-        ${a.contact_info?`<button class="btn-apply" onclick="window.open('${a.contact_info.startsWith('http')?a.contact_info:'mailto:'+a.contact_info}','_blank')">Get Submission Info</button>`:''}
+        ${a.contact_info?`<button class="btn-apply" onclick="window.open(\'${a.contact_info.startsWith(\'http\')||a.contact_info.startsWith(\'mailto:\')||a.contact_info.startsWith(\'tel:\')?a.contact_info:\'https://\'+a.contact_info}\',\'_blank\')">Visit Website →</button>`
         <p class="source-note">Listing posted by ${esc(a.theater_name||'this organization')}. Always verify details directly with them.</p>
       </div>
     </div>`;
@@ -2567,14 +2567,18 @@ function fmtDate(d) {
     return new Date(y,m-1,dd).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
   } catch { return d; }
 }
-  function fmtTime(t) {
+function fmtTime(t) {
   if (!t) return '';
-  try {
-    const [h, m] = t.split(':').map(Number);
-    const ampm = h >= 12 ? 'PM' : 'AM';
-    const hour = h % 12 || 12;
-    return `${hour}:${m.toString().padStart(2,'0')} ${ampm}`;
-  } catch { return t; }
+  // If it looks like HH:MM (browser time input), convert to 12-hour
+  if (/^\d{1,2}:\d{2}$/.test(String(t).trim())) {
+    try {
+      const [h, m] = String(t).split(':').map(Number);
+      const ampm = h >= 12 ? 'PM' : 'AM';
+      const hour = h % 12 || 12;
+      return `${hour}:${m.toString().padStart(2,'0')} ${ampm}`;
+    } catch { return t; }
+  }
+  return t; // Already human-readable
 }
 function slugify(str) {
   return String(str).toLowerCase().trim().replace(/[^a-z0-9\s-]/g,'').replace(/\s+/g,'-').replace(/-+/g,'-').substring(0,80);
