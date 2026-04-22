@@ -1149,7 +1149,7 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
 ══════════════════════════════════════════════════════════════ -->
 <div class="page" id="page-listing-detail">
   <div style="max-width:720px;margin:0 auto;padding:32px 24px;">
-    <button onclick="showPage('auditions',null)" style="background:none;border:none;color:var(--ink3);font-family:var(--font-body);font-size:13px;cursor:pointer;padding:0;margin-bottom:24px;display:flex;align-items:center;gap:6px;">← Back to Auditions</button>
+    <button onclick="history.back()" style="background:none;border:none;color:var(--ink3);font-family:var(--font-body);font-size:13px;cursor:pointer;padding:0;margin-bottom:24px;display:flex;align-items:center;gap:6px;">← Back</button>
     <div id="detail-content-full"></div>
   </div>
 </div>
@@ -2221,8 +2221,8 @@ function buildJobCard(j) {
     admin:'Admin', stage_management:'Stage Mgmt', design_crew:'Design / Crew',
     education:'Education', box_office:'Box Office'
   }[j.category] || j.category || '';
-  const empBadge = j.employment_type
-    ? `<span class="badge b-paid">${esc(j.employment_type)}</span>` : '';
+const empBadge = j.employment_type
+    ? `<span class="badge b-paid">${esc(j.employment_type.replace(/-/g,' ').replace(/\b\w/g, c => c.toUpperCase()))}</span>` : '';
   const catBadge = catLabel
     ? `<span class="badge b-admin">${esc(catLabel)}</span>` : '';
   const desc = j.description ? esc(j.description).substring(0,160)+(j.description.length>160?'…':'') : '';
@@ -2252,26 +2252,29 @@ function openJobDetail(id) {
     admin:'Admin', stage_management:'Stage Mgmt', design_crew:'Design / Crew',
     education:'Education', box_office:'Box Office'
   }[j.category] || j.category || '';
-  document.getElementById('detail-content').innerHTML = `
-    <div class="detail-org">${esc(j.org_name||'')}</div>
-    <div class="detail-title">${esc(j.job_title||'')}</div>
-    <div class="detail-badges">
-      ${j.employment_type?`<span class="badge b-paid">${esc(j.employment_type)}</span>`:''}
-      ${catLabel?`<span class="badge b-admin">${esc(catLabel)}</span>`:''}
-    </div>
-    <div class="detail-section"><h4>Key Details</h4><div class="detail-grid">
-      ${j.location?`<div class="detail-field"><div class="df-label">Location</div><div class="df-val">${esc(j.location)}</div></div>`:''}
-      ${j.salary?`<div class="detail-field"><div class="df-label">Salary / Pay</div><div class="df-val">${esc(j.salary)}</div></div>`:''}
-      ${j.employment_type?`<div class="detail-field"><div class="df-label">Employment Type</div><div class="df-val">${esc(j.employment_type)}</div></div>`:''}
-      ${catLabel?`<div class="detail-field"><div class="df-label">Category</div><div class="df-val">${esc(catLabel)}</div></div>`:''}
-    </div></div>
-    ${j.description?`<div class="detail-section"><h4>Full Description</h4><div class="detail-body"><p>${esc(j.description)}</p></div></div>`:''}
-    <div class="detail-actions">
-      ${j.contact_info?`<button class="btn-apply" onclick="window.open('${j.contact_info.startsWith('http')?j.contact_info:'mailto:'+j.contact_info}','_blank')">Apply / Contact</button>`:''}
-      <p class="source-note">Posted by ${esc(j.org_name||'this organization')}. Verify details before applying.</p>
+  const empLabel = j.employment_type
+    ? j.employment_type.replace(/-/g,' ').replace(/\b\w/g, c => c.toUpperCase()) : '';
+  document.getElementById('detail-content-full').innerHTML = `
+    <div style="background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:32px;">
+      <div class="detail-org">${esc(j.org_name||'')}</div>
+      <div class="detail-title" style="font-size:32px;">${esc(j.job_title||'')}</div>
+      <div class="detail-badges" style="margin-bottom:24px;">
+        ${empLabel?`<span class="badge b-paid">${esc(empLabel)}</span>`:''}
+        ${catLabel?`<span class="badge b-admin">${esc(catLabel)}</span>`:''}
+      </div>
+      <div class="detail-section"><h4>Key Details</h4><div class="detail-grid">
+        ${j.location?`<div class="detail-field"><div class="df-label">Location</div><div class="df-val">${esc(j.location)}</div></div>`:''}
+        ${j.salary?`<div class="detail-field"><div class="df-label">Salary / Pay</div><div class="df-val">${esc(j.salary)}</div></div>`:''}
+        ${empLabel?`<div class="detail-field"><div class="df-label">Employment Type</div><div class="df-val">${esc(empLabel)}</div></div>`:''}
+        ${catLabel?`<div class="detail-field"><div class="df-label">Category</div><div class="df-val">${esc(catLabel)}</div></div>`:''}
+      </div></div>
+      ${j.description?`<div class="detail-section"><h4>Full Description</h4><div class="detail-body"><p>${esc(j.description)}</p></div></div>`:''}
+      <div class="detail-actions">
+        ${j.contact_info ? buildContactButton(j.contact_info) : ''}
+        <p class="source-note">Posted by ${esc(j.org_name||'this organization')}. Verify details before applying.</p>
+      </div>
     </div>`;
-  document.getElementById('detail-overlay').classList.add('open');
-  document.body.style.overflow='hidden';
+  showPage('listing-detail', null);
 }
 
 // ── SUBMIT AUDITION ──
