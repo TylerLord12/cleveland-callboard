@@ -2120,7 +2120,13 @@ ${a.audition_location?`<div class="detail-field"><div class="df-label">Audition 
 }
 
 function buildContactButton(ci) {
-  const url = ci.startsWith('http') || ci.startsWith('mailto:') || ci.startsWith('tel:') ? ci : 'https://' + ci;
+  // If it's an email or phone, don't show a button — show the address as text instead
+  if (ci.startsWith('mailto:') || ci.startsWith('tel:') || (ci.includes('@') && !ci.startsWith('http'))) {
+    const display = ci.replace('mailto:','').replace('tel:','');
+    return `<a class="btn-apply" href="mailto:${display}" style="text-align:center;text-decoration:none;">Email to Apply</a>`;
+  }
+  // Otherwise it's a URL
+  const url = ci.startsWith('http') ? ci : 'https://' + ci;
   return `<button class="btn-apply" onclick="window.open('${url}','_blank')">Visit Website →</button>`;
 }
 
