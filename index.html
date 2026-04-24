@@ -1183,7 +1183,7 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
     <div id="signup-fields" style="display:none;">
       <div class="form-field"><label>Your Role</label><select id="signup-role"><option value="actor">Actor / Artist</option><option value="organization">Theater / Organization</option></select></div>
       <div class="form-field" id="org-name-field" style="display:none;"><label>Organization Name</label><input type="text" id="signup-org-name" placeholder="e.g. Beck Center for the Arts"/></div>
-<div class="form-field" id="org-website-field" style="display:none;"><label>Theater Website <span class="req">*</span></label><input type="text" id="signup-org-website" placeholder="e.g. https://beckcenter.org"/><div class="field-error" id="err-signup-org-website">Please enter your theater website.</div></div>
+<div class="form-field" id="org-website-field" style="display:none;"><label>Work Email Address <span class="req">*</span><span style="font-size:11px;color:var(--ink3);font-weight:400;"> — use your theater's official email (e.g. info@beckcenter.org)</span></label><input type="email" id="signup-org-website" placeholder="e.g. info@beckcenter.org"/><div class="field-error" id="err-signup-org-website">Please enter your theater's official email address.</div></div>
       <div class="form-field"><label>Email</label><input type="email" id="signup-email" placeholder="you@example.com" autocomplete="email"/><div class="field-error" id="err-signup-email">Please enter a valid email.</div></div>
       <div class="form-field"><label>Password <span style="font-size:11px;color:var(--ink3);">(min 8 characters)</span></label><input type="password" id="signup-password" placeholder="Create a password" autocomplete="new-password"/><div class="field-error" id="err-signup-password">Password must be at least 8 characters.</div></div>
       <button class="modal-submit" id="signup-btn" onclick="handleSignUp()">Create Free Account</button>
@@ -1353,7 +1353,7 @@ async function handleSignUp() {
   role, 
   org_name: orgName||null, 
   is_paid: false,
-  website_url: orgWebsite||null,
+  org_email: orgWebsite||null,
   is_verified: false
 });
   currentUser = data.user; await loadProfile(); updateNavForUser();
@@ -2483,7 +2483,7 @@ async function saveEditedListing() {
           ${org.is_verified ? '<span style="font-size:10px;font-weight:600;background:var(--green-bg);color:var(--green);padding:2px 8px;border-radius:var(--pill);margin-left:8px;">✓ Verified</span>' : '<span style="font-size:10px;font-weight:600;background:#fff8e6;color:#a07000;padding:2px 8px;border-radius:var(--pill);margin-left:8px;">Unverified</span>'}
         </div>
         <div class="admin-row-meta">
-          ${org.website_url ? `🌐 <a href="${esc(org.website_url)}" target="_blank" style="color:var(--blue);">${esc(org.website_url)}</a>` : '⚠️ No website provided'}<br/>
+          ${org.org_email ? `📧 <a href="mailto:${esc(org.org_email)}" style="color:var(--blue);">${esc(org.org_email)}</a>` : '⚠️ No work email provided'}<br/>
           📧 User ID: ${org.id.substring(0,8)}… · Joined: ${fmtDate(org.created_at)}
           ${org.is_paid ? ' · <strong style="color:var(--green);">Pro Member</strong>' : ''}
         </div>
