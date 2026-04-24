@@ -1277,6 +1277,14 @@ async function initAuth() {
   if (session) { currentUser = session.user; await loadProfile(); }
   updateNavForUser();
   if (window.location.search.includes('admin=1')) { showPage('admin',null); loadAdminListings(); loadAdminOrgs(); }
+
+  // Load correct page from URL on direct visit
+  const urlParams = new URLSearchParams(window.location.search);
+  const pageParam = urlParams.get('page');
+  const validPages = ['auditions','jobs','community','now-playing','about','support'];
+  if (pageParam && validPages.includes(pageParam)) {
+    showPage(pageParam, document.querySelector(`.nav-btn[onclick*="'${pageParam}'"]`));
+  }
   if (window.location.search.includes('stripe_success=1')) { await markUserPaid(); flash('Subscription activated!','success'); }
   if (window.location.search.includes('donated=1')) { flash('Thank you for your donation! 🎭','success'); }
   fetchAuditions();
@@ -2634,7 +2642,8 @@ function showPage(id, btn) {
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
   if (btn) btn.classList.add('active');
   window.scrollTo(0,0);
-  history.replaceState(null,'',window.location.pathname);
+  const urlId = id === 'auditions' ? '' : '?page=' + id;
+  history.replaceState(null,'', urlId || '/');
   // Reload jobs when navigating to jobs page
   if (id==='jobs') fetchJobs();
   if (id==='community') fetchCommunityPosts();
