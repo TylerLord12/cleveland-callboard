@@ -1088,6 +1088,15 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
   <div class="admin-wrap">
     <h2>Admin — Listing Review</h2>
     <div class="admin-sub">🔒 Administrators only. Approve or reject submitted listings below.</div>
+    <div class="dash-table" style="margin-top:20px;margin-bottom:32px;">
+      <div class="dash-table-hd">
+        <h3>Organization Verification</h3>
+        <span style="font-size:13px;color:var(--ink3);">Verify theaters before their listings go live</span>
+      </div>
+      <div id="admin-orgs-container">
+        <div class="empty-state"><p>Loading organizations…</p></div>
+      </div>
+    </div>
     <div class="dash-table" style="margin-top:20px;">
       <div class="dash-table-hd">
         <h3>Pending Listings</h3>
@@ -1174,6 +1183,7 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
     <div id="signup-fields" style="display:none;">
       <div class="form-field"><label>Your Role</label><select id="signup-role"><option value="actor">Actor / Artist</option><option value="organization">Theater / Organization</option></select></div>
       <div class="form-field" id="org-name-field" style="display:none;"><label>Organization Name</label><input type="text" id="signup-org-name" placeholder="e.g. Beck Center for the Arts"/></div>
+<div class="form-field" id="org-website-field" style="display:none;"><label>Theater Website <span class="req">*</span></label><input type="text" id="signup-org-website" placeholder="e.g. https://beckcenter.org"/><div class="field-error" id="err-signup-org-website">Please enter your theater website.</div></div>
       <div class="form-field"><label>Email</label><input type="email" id="signup-email" placeholder="you@example.com" autocomplete="email"/><div class="field-error" id="err-signup-email">Please enter a valid email.</div></div>
       <div class="form-field"><label>Password <span style="font-size:11px;color:var(--ink3);">(min 8 characters)</span></label><input type="password" id="signup-password" placeholder="Create a password" autocomplete="new-password"/><div class="field-error" id="err-signup-password">Password must be at least 8 characters.</div></div>
       <button class="modal-submit" id="signup-btn" onclick="handleSignUp()">Create Free Account</button>
@@ -1246,7 +1256,7 @@ async function initAuth() {
   const { data: { session } } = await _supabase.auth.getSession();
   if (session) { currentUser = session.user; await loadProfile(); }
   updateNavForUser();
-  if (window.location.search.includes('admin=1')) { showPage('admin',null); loadAdminListings(); }
+  if (window.location.search.includes('admin=1')) { showPage('admin',null); loadAdminListings(); loadAdminOrgs(); }
   if (window.location.search.includes('stripe_success=1')) { await markUserPaid(); flash('Subscription activated!','success'); }
   if (window.location.search.includes('donated=1')) { flash('Thank you for your donation! 🎭','success'); }
   fetchAuditions();
@@ -1268,7 +1278,7 @@ function updateNavForUser() {
     const isAdmin = currentUser.id === ADMIN_USER_ID;
     navRight.innerHTML = `
       <span class="nav-paid-badge" style="display:${isPaid?'inline':'none'};">⭐ Pro Member</span>
-      ${isAdmin ? `<button class="btn-ghost" onclick="showPage('admin',null);loadAdminListings()" style="color:var(--red);border-color:var(--red-border);">Admin</button>` : ''}
+      ${isAdmin ? `<button class="btn-ghost" onclick="showPage('admin',null);loadAdminListings();loadAdminOrgs()" style="color:var(--red);border-color:var(--red-border);">Admin</button>` : ''}
       <button class="btn-ghost" onclick="showPage('my-listings',null);loadMyListings()">My Listings</button>
       <button class="btn-cta" onclick="requireAuthThen(openPostPage)">Post a Listing</button>
       <button class="btn-ghost" onclick="handleLogout()" style="border-color:transparent;color:var(--ink3);">Log out</button>`;
@@ -1299,7 +1309,9 @@ function switchAuthMode(mode) {
 }
 
 document.getElementById('signup-role').addEventListener('change', function() {
-  document.getElementById('org-name-field').style.display = this.value==='organization'?'block':'none';
+  const isOrg = this.value === 'organization';
+  document.getElementById('org-name-field').style.display = isOrg ? 'block' : 'none';
+  document.getElementById('org-website-field').style.display = isOrg ? 'block' : 'none';
 });
 
 async function handleSignIn() {
@@ -1318,8 +1330,14 @@ async function handleSignIn() {
 }
 
 async function handleSignUp() {
-  const role    = document.getElementById('signup-role').value;
-  const orgName = document.getElementById('signup-org-name').value.trim();
+  const role       = document.getElementById('signup-role').value;
+  const orgName    = document.getElementById('signup-org-name').value.trim();
+  const orgWebsite = document.getElementById('signup-org-website').value.trim();
+  if (role === 'organization' && !orgWebsite) {
+    document.getElementById('err-signup-org-website').classList.add('visible');
+    return;
+  }
+  document.getElementById('err-signup-org-website').classList.remove('visible');
   const email   = document.getElementById('signup-email').value.trim();
   const pass    = document.getElementById('signup-password').value;
   let valid = true;
@@ -1330,7 +1348,14 @@ async function handleSignUp() {
   btn.disabled=true; btn.textContent='Creating account…';
   const { data, error } = await _supabase.auth.signUp({ email, password: pass });
   if (error) { btn.disabled=false; btn.textContent='Create Free Account'; showAuthError(error.message); return; }
-  await _supabase.from('profiles').insert({ id: data.user.id, role, org_name: orgName||null, is_paid: false });
+  await _supabase.from('profiles').insert({ 
+  id: data.user.id, 
+  role, 
+  org_name: orgName||null, 
+  is_paid: false,
+  website_url: orgWebsite||null,
+  is_verified: false
+});
   currentUser = data.user; await loadProfile(); updateNavForUser();
   btn.disabled=false; btn.textContent='Create Free Account';
   closeAuth(); flash('Account created! Check your email to confirm.','success');
@@ -2437,6 +2462,45 @@ async function saveEditedListing() {
 }
 
 // ── ADMIN ──
+  async function loadAdminOrgs() {
+  const { data } = await _supabase
+    .from('profiles')
+    .select('*')
+    .eq('role', 'organization')
+    .order('created_at', { ascending: false });
+  
+  const container = document.getElementById('admin-orgs-container');
+  if (!data || !data.length) {
+    container.innerHTML = '<div class="empty-state"><p>No organizations registered yet.</p></div>';
+    return;
+  }
+  
+  container.innerHTML = data.map(org => `
+    <div class="admin-row">
+      <div class="admin-row-info">
+        <div class="admin-row-title">
+          🏛️ ${esc(org.org_name||'Unnamed Org')}
+          ${org.is_verified ? '<span style="font-size:10px;font-weight:600;background:var(--green-bg);color:var(--green);padding:2px 8px;border-radius:var(--pill);margin-left:8px;">✓ Verified</span>' : '<span style="font-size:10px;font-weight:600;background:#fff8e6;color:#a07000;padding:2px 8px;border-radius:var(--pill);margin-left:8px;">Unverified</span>'}
+        </div>
+        <div class="admin-row-meta">
+          ${org.website_url ? `🌐 <a href="${esc(org.website_url)}" target="_blank" style="color:var(--blue);">${esc(org.website_url)}</a>` : '⚠️ No website provided'}<br/>
+          📧 User ID: ${org.id.substring(0,8)}… · Joined: ${fmtDate(org.created_at)}
+          ${org.is_paid ? ' · <strong style="color:var(--green);">Pro Member</strong>' : ''}
+        </div>
+      </div>
+      <div class="admin-btns">
+        ${!org.is_verified ? `<button class="btn-approve" onclick="verifyOrg('${org.id}', true)">✓ Verify</button>` : ''}
+        ${org.is_verified ? `<button class="btn-reject" onclick="verifyOrg('${org.id}', false)">Unverify</button>` : ''}
+      </div>
+    </div>`).join('');
+}
+
+async function verifyOrg(id, verified) {
+  const { error } = await _supabase.from('profiles').update({ is_verified: verified }).eq('id', id);
+  if (error) { flash('Update failed: ' + error.message, 'error'); return; }
+  flash(verified ? 'Organization verified!' : 'Organization unverified.', verified ? 'success' : 'info');
+  loadAdminOrgs();
+}
 async function loadAdminListings() {
   const { data: auditions } = await _supabase.from('auditions').select('*').order('created_at',{ascending:false});
   const { data: posts } = await _supabase.from('community_posts').select('*').order('created_at',{ascending:false});
