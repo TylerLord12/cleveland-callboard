@@ -1,21 +1,21 @@
 <!DOCTYPE html>  
 <html lang="en">   
+<head>
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "Organization",
   "name": "Cleveland Theater Alliance",
   "url": "https://clevelandtheateralliance.com",
+  "logo": "https://clevelandtheateralliance.com/og-image.png",
   "description": "Northeast Ohio's central resource for theatre auditions, casting calls, and arts jobs in Cleveland.",
   "areaServed": {
-    "@type": "City",
-    "name": "Cleveland",
-    "sameAs": "https://en.wikipedia.org/wiki/Cleveland"
+    "@type": "State",
+    "name": "Ohio"
   },
   "knowsAbout": ["Theatre auditions", "Casting calls", "Arts jobs", "Northeast Ohio theater"]
 }
-</script>
-<head>    
+</script>   
   <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-0GE7XDKN9Z"></script>
 <script>
@@ -36,12 +36,18 @@
 <meta property="og:description" content="Find every theatre audition, casting call, and arts job in Cleveland and Northeast Ohio — all in one place."/>
 <meta property="og:type" content="website"/>
 <meta property="og:url" content="https://clevelandtheateralliance.com/"/>
-<meta property="og:type" content="website"/>
-<meta property="og:url" content="https://clevelandtheateralliance.com/"/>
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Cleveland Theater Alliance — Theatre Auditions & Arts Jobs"/>
 <meta name="twitter:description" content="Find every theatre audition, casting call, and arts job in Cleveland and Northeast Ohio — all in one place."/>
 <meta name="twitter:site" content="@clevelandtheater"/>
+<meta property="og:image" content="https://clevelandtheateralliance.com/og-image.png"/>
+<meta property="og:image:width" content="1200"/>
+<meta property="og:image:height" content="630"/>
+<meta name="twitter:image" content="https://clevelandtheateralliance.com/og-image.png"/>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+<link rel="apple-touch-icon" href="/favicon.svg"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,700;1,400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://js.stripe.com/v3/"></script>
@@ -339,7 +345,17 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
 </style>
 </head>
 <body>
-
+<div style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);pointer-events:none;" aria-hidden="true">
+  <h1>Cleveland Theater Alliance — Theatre Auditions and Arts Jobs in Cleveland Ohio</h1>
+  <p>Cleveland Theater Alliance lists theatre auditions, casting calls, and arts jobs across Northeast Ohio including Cleveland, Lakewood, Parma, Aurora, Broadview Heights, Richfield, and surrounding areas. Find auditions at Dobama Theatre, Beck Center for the Arts, Blank Canvas Theatre, Cassidy Theatre, Great Lakes Theater, Cleveland Play House, Karamu House, Aurora Community Theatre, Chagrin Valley Little Theatre, Western Reserve Playhouse, and Broadview Heights Spotlights.</p>
+  <nav>
+    <a href="/?page=auditions">Theatre Auditions in Cleveland</a>
+    <a href="/?page=jobs">Arts Jobs in Cleveland</a>
+    <a href="/?page=now-playing">Now Playing in Cleveland</a>
+    <a href="/?page=community">Cleveland Theatre Community</a>
+    <a href="/?page=about">About Cleveland Theater Alliance</a>
+  </nav>
+</div>
 <div class="flash" id="flash-msg"></div>
 
 <!-- ── NAV — updated name ── -->
@@ -1841,6 +1857,10 @@ async function handleJobSubmit(e) {
     document.getElementById('post-job-error').textContent='✗ Error: '+(err.message||'Something went wrong.');
     document.getElementById('post-job-error').style.display='block';
   } finally { btn.disabled=false; btn.textContent='Submit Job for Review'; }
+}
+  function togglePayAmount(val) {
+  const field = document.getElementById('pay-amount-field');
+  if (field) field.style.display = (val === 'Paid' || val === 'Stipend') ? 'block' : 'none';
 }
   function toggleProdType(checkbox) {
   const label = document.getElementById(checkbox.id + '-label');
