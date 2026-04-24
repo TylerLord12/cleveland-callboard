@@ -356,11 +356,11 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
     <a href="/?page=about">About Cleveland Theater Alliance</a>
   </nav>
 </div>
-<div class="flash" id="flash-msg"></div>
+<div class="flash" id="flash-msg" role="alert" aria-live="polite"></div>
 
 <!-- ── NAV — updated name ── -->
 <nav>
-  <div class="nav-logo" onclick="showPage('auditions',null)">Cleveland <span>Theater Alliance</span></div>
+  <button class="nav-logo" onclick="showPage('auditions',null)" style="background:none;border:none;cursor:pointer;">Cleveland <span>Theater Alliance</span></button>
   <div class="nav-links">
     <button class="nav-btn active" onclick="showPage('auditions',this)">Auditions</button>
     <button class="nav-btn" onclick="showPage('jobs',this)">Jobs</button>
@@ -369,7 +369,7 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
     <button class="nav-btn" onclick="showPage('about',this)">About</button>
     <button class="nav-btn" onclick="showPage('support',this)">Support Us</button>
   </div>
-  <button class="hamburger" id="hamburger-btn" onclick="toggleMobileMenu()">
+  <button class="hamburger" id="hamburger-btn" onclick="toggleMobileMenu()" aria-label="Open navigation menu" aria-expanded="false">
     <span></span><span></span><span></span>
   </button>
   <div class="nav-right" id="nav-right">
@@ -414,7 +414,7 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
 
     <!-- FIXED: search bar is a flex row — button sits at far right, no overlap -->
     <div class="hero-search">
-      <input type="text" id="search-input" placeholder="Search by role, show, or theater…" oninput="filterCards()"/>
+      <input type="text" id="search-input" placeholder="Search by role, show, or theater…" oninput="filterCards()" aria-label="Search auditions by role, show, or theater"/>
       <button class="hero-search-btn" onclick="filterCards()">Search</button>
     </div>
 
@@ -463,12 +463,12 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
         <span class="result-count" id="result-count"><strong>—</strong> auditions found</span>
         <div class="toolbar-left">
 <div class="location-input-wrap">
-            <label for="location-sort-input">📍 City:</label>
+            <label for="location-sort-input"><span aria-hidden="true">📍</span> City:</label>
             <input class="location-input" type="text" id="location-sort-input"
               placeholder="e.g. Lakewood"
               oninput="debounceLocationSort()"/>
           </div>
-          <select class="sort-select" id="sort-select" onchange="sortAndRender()">
+          <select class="sort-select" id="sort-select" onchange="sortAndRender()" aria-label="Sort auditions">
             <option value="date_asc">Deadline soonest</option>
             <option value="date_desc">Newest first</option>
             <option value="az">A–Z</option>
@@ -507,7 +507,7 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
     <div class="content-area">
       <div class="content-toolbar">
         <span class="result-count" id="job-result-count"><strong>—</strong> jobs found</span>
-        <select class="sort-select" id="job-sort-select" onchange="sortAndRenderJobs()">
+        <select class="sort-select" id="job-sort-select" onchange="sortAndRenderJobs()" aria-label="Sort jobs">
           <option value="date_desc">Newest first</option>
           <option value="az">A–Z</option>
         </select>
@@ -1202,8 +1202,8 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
 
 <!-- Auth modal -->
 <div class="modal-overlay" id="auth-modal" onclick="closeAuthOnBg(event)">
-  <div class="modal">
-    <button class="modal-close-btn" onclick="closeAuth()">×</button>
+  <div class="modal" role="dialog" aria-modal="true" aria-label="Sign in or create account">
+    <button class="modal-close-btn" onclick="closeAuth()" aria-label="Close">×</button>
     <h3 id="auth-modal-title">Welcome back.</h3>
     <p class="modal-sub" id="auth-modal-sub">Sign in to your account.</p>
     <div class="modal-tabs">
@@ -2716,7 +2716,10 @@ function slugify(str) {
   return String(str).toLowerCase().trim().replace(/[^a-z0-9\s-]/g,'').replace(/\s+/g,'-').replace(/-+/g,'-').substring(0,80);
 }
 function toggleMobileMenu() {
-  document.getElementById('mobile-menu').classList.toggle('open');
+  const menu = document.getElementById('mobile-menu');
+  const btn = document.getElementById('hamburger-btn');
+  menu.classList.toggle('open');
+  btn.setAttribute('aria-expanded', menu.classList.contains('open') ? 'true' : 'false');
 }
 function closeMobileMenu() {
   document.getElementById('mobile-menu').classList.remove('open');
