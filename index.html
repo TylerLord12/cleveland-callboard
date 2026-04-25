@@ -1424,7 +1424,7 @@ async function fetchNowPlaying() {
       .from('now_playing')
       .select('*')
       .eq('status', 'approved')
-      .gte('closing_date', today)
+      .gte('closing_date', todayDate)
       .order('opening_date', { ascending: true });
     if (error) throw error;
     allNowPlaying = data || [];
@@ -1963,17 +1963,13 @@ async function markUserPaid() {
 // ════════════════════════════════════════════════════════════════
 async function fetchAuditions() {
   try {
-const today = new Date().toISOString().split('T')[0];
+const todayDate = new Date().toISOString().split('T')[0];
 const { data, error } = await _supabase
   .from('auditions').select('*').eq('status','approved')
-  .gte('audition_date', today)
+  .gte('audition_date', todayDate)
   .order('audition_date', { ascending: true });
     if (error) throw error;
     allAuditions = data || [];
-    renderAuditions(allAuditions);
-    const today = new Date();
-    const weekAgo = new Date(today); weekAgo.setDate(weekAgo.getDate()-7);
-const thisWeek = allAuditions.filter(a => new Date(a.created_at) >= weekAgo).length;
     renderAuditions(allAuditions);
   } catch(err) {
     console.warn('Supabase auditions fetch:', err.message);
