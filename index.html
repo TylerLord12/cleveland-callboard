@@ -1063,7 +1063,7 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
             <div class="field-error" id="err-fj-category">Please select a category.</div>
           </div>
         </div>
-        <div class="pf-row">
+<div class="pf-row">
           <div class="form-field">
             <label>Location <span class="req">*</span></label>
             <input type="text" id="fj-location" placeholder="e.g. Cleveland, OH"/>
@@ -1072,6 +1072,12 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
           <div class="form-field">
             <label>Salary / Pay</label>
             <input type="text" id="fj-salary" placeholder="e.g. $45,000/year or $18/hr"/>
+          </div>
+        </div>
+        <div class="pf-row">
+          <div class="form-field">
+            <label>Application Deadline</label>
+            <input type="date" id="fj-deadline"/>
           </div>
         </div>
         <div class="pf-section-title" style="margin-top:20px;">Description</div>
@@ -1844,7 +1850,8 @@ async function handleJobSubmit(e) {
     salary:document.getElementById('fj-salary').value.trim()||null,
     description:document.getElementById('fj-description').value.trim(),
     contact_info:document.getElementById('fj-contact_info').value.trim(),
-    slug:slugify(`${document.getElementById('fj-job_title').value.trim()}-${document.getElementById('fj-org_name').value.trim()}-${Date.now()}`),
+slug:slugify(`${document.getElementById('fj-job_title').value.trim()}-${document.getElementById('fj-org_name').value.trim()}-${Date.now()}`),
+    deadline:document.getElementById('fj-deadline').value||null,
     status:'pending'
   };
   try {
@@ -2221,8 +2228,10 @@ function closeDetailOnBg(e) { if(e.target===document.getElementById('detail-over
 // ════════════════════════════════════════════════════════════════
 async function fetchJobs() {
   try {
+const jobToday = new Date().toISOString().split('T')[0];
     const { data, error } = await _supabase
       .from('arts_jobs').select('*').eq('status','approved')
+      .or(`deadline.is.null,deadline.gte.${jobToday}`)
       .order('created_at', { ascending: false });
     if (error) throw error;
     allJobs = data || [];
