@@ -1419,7 +1419,7 @@ async function openPostPage() { showPage('post-choice',null); }
 
 async function fetchNowPlaying() {
   try {
-    const today = new Date().toISOString().split('T')[0];
+    const todayDate = new Date().toISOString().split('T')[0];
     const { data, error } = await _supabase
       .from('now_playing')
       .select('*')
