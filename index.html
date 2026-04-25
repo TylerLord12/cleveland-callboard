@@ -946,13 +946,17 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
             <input type="text" name="location" id="f-location" placeholder="e.g. Lakewood, OH"/>
             <div class="field-error" id="err-location">Please enter a location.</div>
           </div>
-          <div class="form-field">
+<div class="form-field">
             <label>Audition Date <span class="req">*</span></label>
             <input type="date" name="audition_date" id="f-audition_date"/>
             <div class="field-error" id="err-audition_date">Please select an audition date.</div>
           </div>
         </div>
         <div class="pf-row">
+          <div class="form-field">
+            <label>Submission Deadline <span style="font-size:11px;color:var(--ink3);">(optional — for virtual/online auditions)</span></label>
+            <input type="date" name="deadline" id="f-deadline"/>
+          </div>
           <div class="form-field">
             <label>Audition Time</label>
             <input type="time" name="audition_time" id="f-audition_time"/>
@@ -2186,6 +2190,7 @@ function openDynamicDetail(id) {
       <div class="detail-section"><h4>Key Details</h4><div class="detail-grid">
 ${a.audition_date?`<div class="detail-field"><div class="df-label">Audition Date</div><div class="df-val">${fmtDate(a.audition_date)}</div></div>`:''}
 ${a.audition_time?`<div class="detail-field"><div class="df-label">Audition Time</div><div class="df-val">${fmtTime(a.audition_time)}</div></div>`:''}
+${a.deadline?`<div class="detail-field"><div class="df-label">Submission Deadline</div><div class="df-val">${fmtDate(a.deadline)}</div></div>`:''}
 ${a.location?`<div class="detail-field"><div class="df-label">City</div><div class="df-val">${esc(a.location)}</div></div>`:''}
 ${a.audition_location?`<div class="detail-field"><div class="df-label">Audition Venue</div><div class="df-val">${esc(a.audition_location)}</div></div>`:''}
         ${a.pay?`<div class="detail-field"><div class="df-label">Compensation</div><div class="df-val">${esc(a.pay)}</div></div>`:''}
@@ -2399,6 +2404,7 @@ if (!prodTypes.length) {
     location:document.getElementById('f-location').value.trim(),
     audition_date:document.getElementById('f-audition_date').value||null,
     audition_time:document.getElementById('f-audition_time').value||null,
+    deadline:document.getElementById('f-deadline').value||null,
     audition_location:document.getElementById('f-audition_location').value.trim()||null,
     description:document.getElementById('f-description').value.trim(),
     contact_info:ciEl.value.trim(),
