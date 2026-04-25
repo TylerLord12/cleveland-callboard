@@ -1963,9 +1963,11 @@ async function markUserPaid() {
 // ════════════════════════════════════════════════════════════════
 async function fetchAuditions() {
   try {
-    const { data, error } = await _supabase
-      .from('auditions').select('*').eq('status','approved')
-      .order('audition_date', { ascending: true });
+const today = new Date().toISOString().split('T')[0];
+const { data, error } = await _supabase
+  .from('auditions').select('*').eq('status','approved')
+  .gte('audition_date', today)
+  .order('audition_date', { ascending: true });
     if (error) throw error;
     allAuditions = data || [];
     renderAuditions(allAuditions);
