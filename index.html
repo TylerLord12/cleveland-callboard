@@ -1948,12 +1948,13 @@ async function startStripeCheckout() {
   }
 }
   async function startDonation() {
-  const selected = document.querySelector('.tier.selected');
-  const amount = selected ? selected.querySelector('.amount').textContent.replace('$','') : '25';
+const selected = document.querySelector('.tier.selected');
+  const amountEl = selected ? selected.querySelector('.amount') : null;
+  const amount = amountEl ? amountEl.textContent.replace('$','').trim() : '25';
 const priceMap = { '5': DONATE_PRICE_5, '25': DONATE_PRICE_25, '100': DONATE_PRICE_100 };
   
   let fetchBody;
-  if (amount === 'custom') {
+  if (amount.toLowerCase() === 'custom') {
     const customVal = parseFloat(document.getElementById('custom-amount').value);
     if (!customVal || customVal < 1) { flash('Please enter a donation amount of at least $1.', 'error'); return; }
     fetchBody = { amount: customVal, mode: 'payment', success_url: window.location.origin + '?donated=1', cancel_url: window.location.origin };
@@ -2709,7 +2710,7 @@ function setTab(btn) {
 function selectTier(el, amount) {
   document.querySelectorAll('.tier').forEach(t=>t.classList.remove('selected'));
   el.classList.add('selected');
-  if (amount === 'custom') {
+  if (amount.toLowerCase() === 'custom') {
     const val = document.getElementById('custom-amount').value;
     document.getElementById('donate-btn').textContent = val ? `Support $${val} →` : 'Support → (enter amount)';
   } else {
