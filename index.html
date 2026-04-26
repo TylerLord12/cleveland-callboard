@@ -2007,9 +2007,9 @@ async function fetchAuditions() {
   try {
 const todayDate = new Date().toISOString().split('T')[0];
 const { data, error } = await _supabase
-  .from('auditions').select('*').eq('status','approved')
-  .gte('audition_date', todayDate)
-  .order('audition_date', { ascending: true });
+      .from('auditions').select('*').eq('status','approved')
+      .or(`audition_date.is.null,audition_date.gte.${todayDate}`)
+      .order('audition_date', { ascending: true, nullsFirst: false });
     if (error) throw error;
     allAuditions = data || [];
     renderAuditions(allAuditions);
