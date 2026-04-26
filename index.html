@@ -614,7 +614,7 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
 
       <h3 style="font-family:var(--font-display);font-size:18px;color:var(--ink);margin-bottom:10px;">2. Description of Service</h3>
       <p style="margin-bottom:24px;">Cleveland Theater Alliance provides a centralized platform connecting theater artists, organizations, and opportunities in Northeast Ohio. The Platform allows users to browse auditions, arts jobs, and community posts. Theater organizations may post listings subject to review and applicable membership terms.</p>
-
+      <p style="margin-bottom:24px;">Users who create accounts may opt in to receive periodic email communications about new listings and platform updates. These communications are optional and users may unsubscribe at any time.</p>
       <h3 style="font-family:var(--font-display);font-size:18px;color:var(--ink);margin-bottom:10px;">3. User Accounts</h3>
       <p style="margin-bottom:24px;">To post listings or participate in community features, you must create an account. You are responsible for maintaining the confidentiality of your account credentials and for all activity that occurs under your account. You agree to provide accurate and current information when creating your account.</p>
 
@@ -679,6 +679,7 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
         <li style="margin-bottom:6px;"><strong style="color:var(--ink);">Listing content</strong> — auditions, jobs, and community posts you submit</li>
         <li style="margin-bottom:6px;"><strong style="color:var(--ink);">Payment information</strong> — processed securely through Stripe; we do not store your card details</li>
         <li style="margin-bottom:6px;"><strong style="color:var(--ink);">Usage data</strong> — basic analytics about how the Platform is used</li>
+        <li style="margin-bottom:6px;"><strong style="color:var(--ink);">Email preferences</strong> — whether you have opted in to receive email updates about new auditions and job postings</li>
       </ul>
 
       <h3 style="font-family:var(--font-display);font-size:18px;color:var(--ink);margin-bottom:10px;">3. How We Use Your Information</h3>
@@ -690,7 +691,9 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
         <li style="margin-bottom:6px;">Communicate with you about your account or listings</li>
         <li style="margin-bottom:6px;">Enforce our Terms of Service and content standards</li>
       </ul>
-
+      <h3 style="font-family:var(--font-display);font-size:18px;color:var(--ink);margin-bottom:10px;">3a. Email Communications</h3>
+      <p style="margin-bottom:16px;">If you opt in during account creation, we may send you periodic email updates about new theatre auditions, job postings, and platform announcements. These emails are sent no more than once per week.</p>
+      <p style="margin-bottom:24px;">You may unsubscribe at any time by clicking the unsubscribe link in any email, or by contacting us at <a href="mailto:hello@clevelandtheateralliance.com" style="color:var(--red);">hello@clevelandtheateralliance.com</a>. We will never sell your email address or share it with third parties for marketing purposes.</p>
       <h3 style="font-family:var(--font-display);font-size:18px;color:var(--ink);margin-bottom:10px;">4. We Do Not Sell Your Data</h3>
       <p style="margin-bottom:24px;">Cleveland Theater Alliance does not sell, rent, or trade your personal information to third parties for marketing purposes. Ever.</p>
 
@@ -1172,6 +1175,18 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
     </div>
   </div>
 </div>
+  <div style="margin-top:24px;background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+        <h3 style="font-size:14px;font-weight:600;color:var(--ink);">📧 Email List Export</h3>
+        <button class="btn-approve" onclick="exportEmailList()">⬇ Download CSV</button>
+      </div>
+      <p style="font-size:13px;color:var(--ink3);">Downloads all actor emails who opted in to updates. Import directly into Mailchimp.</p>
+    </div>
+
+  </div>
+</div>
+<!-- ══════════════════════════════════════════════════════════════
+     NEW POST MODAL
 <!-- ══════════════════════════════════════════════════════════════
      NEW POST MODAL
 ══════════════════════════════════════════════════════════════ -->
@@ -1226,7 +1241,19 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
     <div id="detail-content-full"></div>
   </div>
 </div>
-
+<!-- ══ WELCOME GATE MODAL ══ -->
+<div class="modal-overlay" id="welcome-gate" style="z-index:700;">
+  <div class="modal" style="text-align:center;max-width:440px;">
+    <div style="font-size:36px;margin-bottom:12px;">🎭</div>
+    <h3 style="font-family:var(--font-display);font-size:22px;margin-bottom:8px;">Welcome to Cleveland Theater Alliance</h3>
+    <p style="font-size:14px;color:var(--ink2);line-height:1.7;margin-bottom:20px;">
+      Create a free account and we'll notify you whenever new auditions and jobs are posted — so you never miss an opportunity.
+    </p>
+    <button class="modal-submit" onclick="openAuth('signup');closeWelcomeGate()" style="margin-bottom:10px;">Create Free Account</button>
+    <button onclick="openAuth('signin');closeWelcomeGate()" class="btn-source" style="width:100%;padding:11px;">Sign In</button>
+    <p style="font-size:12px;color:var(--ink3);margin-top:14px;cursor:pointer;" onclick="closeWelcomeGate()">Just browsing for now →</p>
+  </div>
+</div>
 <!-- Auth modal -->
 <div class="modal-overlay" id="auth-modal" onclick="closeAuthOnBg(event)">
   <div class="modal" role="dialog" aria-modal="true" aria-label="Sign in or create account">
@@ -1242,10 +1269,31 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
     <div id="signin-fields">
       <div class="form-field"><label>Email</label><input type="email" id="signin-email" placeholder="you@example.com" autocomplete="email"/><div class="field-error" id="err-signin-email">Please enter a valid email.</div></div>
       <div class="form-field"><label>Password</label><input type="password" id="signin-password" placeholder="••••••••" autocomplete="current-password"/><div class="field-error" id="err-signin-password">Please enter your password.</div></div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
+  <input type="checkbox" id="signin-remember" checked
+    style="width:15px;height:15px;accent-color:var(--red);cursor:pointer;"/>
+  <label for="signin-remember" style="font-size:13px;color:var(--ink2);cursor:pointer;">
+    Remember me
+  </label>
+</div>
       <button class="modal-submit" id="signin-btn" onclick="handleSignIn()">Sign In</button>
     </div>
     <div id="signup-fields" style="display:none;">
       <div class="form-field"><label>Your Role</label><select id="signup-role"><option value="actor">Actor / Artist</option><option value="organization">Theater / Organization</option></select></div>
+      <div class="form-field" id="actor-name-field">
+        <label>Your Name</label>
+        <input type="text" id="signup-display-name" placeholder="e.g. Jane Smith"/>
+      </div>
+      <div class="form-field" id="actor-optin-field" style="background:var(--green-bg);border:1px solid rgba(30,107,62,0.2);border-radius:8px;padding:12px;">
+        <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;margin:0;">
+          <input type="checkbox" id="signup-email-updates" checked
+            style="width:16px;height:16px;accent-color:var(--red);margin-top:2px;flex-shrink:0;"/>
+          <span style="font-size:13px;color:var(--ink2);line-height:1.5;">
+            <strong style="color:var(--ink);">Notify me of new auditions & jobs</strong><br/>
+            Get a weekly roundup of new Cleveland theatre opportunities. Unsubscribe anytime.
+          </span>
+        </label>
+      </div>
       <div class="form-field" id="org-name-field" style="display:none;"><label>Organization Name</label><input type="text" id="signup-org-name" placeholder="e.g. Beck Center for the Arts"/></div>
 <div class="form-field" id="org-website-field" style="display:none;"><label>Work Email Address <span class="req">*</span><span style="font-size:11px;color:var(--ink3);font-weight:400;"> — use your theater's official email (e.g. info@beckcenter.org)</span></label><input type="email" id="signup-org-website" placeholder="e.g. info@beckcenter.org"/><div class="field-error" id="err-signup-org-website">Please enter your theater's official email address.</div></div>
       <div class="form-field"><label>Email</label><input type="email" id="signup-email" placeholder="you@example.com" autocomplete="email"/><div class="field-error" id="err-signup-email">Please enter a valid email.</div></div>
@@ -1303,7 +1351,15 @@ const DONATE_PRICE_5    = 'price_1TQGOpFGJxsOsCRBnDXQqUYz';
 const DONATE_PRICE_25   = 'price_1TQGP4FGJxsOsCRB1syIRdVq';
 const DONATE_PRICE_100  = 'price_1TQGPdFGJxsOsCRBklkdrro6';
 
-const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  auth: {
+    persistSession: true,
+    storageKey: 'cta-auth',
+    storage: window.localStorage,
+    autoRefreshToken: true,
+    detectSessionInUrl: true
+  }
+});
 let _stripe = null;
 try { _stripe = Stripe(STRIPE_PUBLIC_KEY); } catch(e) {}
 
@@ -1331,6 +1387,14 @@ async function initAuth() {
   }
   if (window.location.search.includes('stripe_success=1')) { await markUserPaid(); flash('Subscription activated!','success'); }
   if (window.location.search.includes('donated=1')) { flash('Thank you for your donation! 🎭','success'); }
+  // Show welcome gate to logged-out users after 2 seconds
+  if (!currentUser) {
+    setTimeout(() => {
+      if (!sessionStorage.getItem('gate_dismissed')) {
+        document.getElementById('welcome-gate').classList.add('open');
+      }
+    }, 2000);
+  }
   fetchAuditions();
   fetchJobs();
 }
@@ -1420,13 +1484,16 @@ async function handleSignUp() {
   btn.disabled=true; btn.textContent='Creating account…';
   const { data, error } = await _supabase.auth.signUp({ email, password: pass });
   if (error) { btn.disabled=false; btn.textContent='Create Free Account'; showAuthError(error.message); return; }
-  await _supabase.from('profiles').insert({ 
+await _supabase.from('profiles').insert({ 
   id: data.user.id, 
   role, 
-  org_name: orgName||null, 
+  org_name: orgName || null, 
   is_paid: false,
-  org_email: orgWebsite||null,
-  is_verified: false
+  org_email: orgWebsite || null,
+  is_verified: false,
+  display_name: document.getElementById('signup-display-name').value.trim() || null,
+  email_updates: document.getElementById('signup-email-updates').checked,
+  email: email
 });
   currentUser = data.user; await loadProfile(); updateNavForUser();
   btn.disabled=false; btn.textContent='Create Free Account';
@@ -2784,6 +2851,30 @@ function closeMobileMenu() {
 function mobileNav(page) {
   closeMobileMenu();
   showPage(page, null);
+}
+// ── WELCOME GATE ──
+function closeWelcomeGate() {
+  document.getElementById('welcome-gate').classList.remove('open');
+  sessionStorage.setItem('gate_dismissed', '1');
+}
+
+// ── EMAIL LIST EXPORT (admin only) ──
+async function exportEmailList() {
+  const { data } = await _supabase
+    .from('profiles')
+    .select('email, display_name, role, created_at')
+    .eq('email_updates', true)
+    .order('created_at', { ascending: false });
+  if (!data || !data.length) { flash('No opted-in emails yet.', 'info'); return; }
+  const csv = 'Email,Name,Role,Joined\n' + data.map(r =>
+    `${r.email||''},${r.display_name||''},${r.role||''},${r.created_at?.split('T')[0]||''}`
+  ).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `cta-emails-${new Date().toISOString().split('T')[0]}.csv`;
+  a.click();
+  flash(`Exported ${data.length} emails!`, 'success');
 }
 initAuth();
 </script>
