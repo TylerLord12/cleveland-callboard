@@ -961,8 +961,12 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
           </div>
 <div class="form-field">
             <label>Audition Date <span class="req">*</span></label>
+            <label style="display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:13px;font-weight:400;color:var(--ink2);cursor:pointer;">
+              <input type="checkbox" id="f-audition_date_tbd" onchange="toggleAuditionDateTBD(this)"/>
+              Audition date not yet announced (TBD)
+            </label>
             <input type="date" name="audition_date" id="f-audition_date"/>
-            <div class="field-error" id="err-audition_date">Please select an audition date.</div>
+            <div class="field-error" id="err-audition_date">Please select an audition date or check TBD.</div>
           </div>
         </div>
         <div class="pf-row">
@@ -1887,6 +1891,15 @@ slug:slugify(`${document.getElementById('fj-job_title').value.trim()}-${document
   const field = document.getElementById('pay-amount-field');
   if (field) field.style.display = (val === 'Paid' || val === 'Stipend') ? 'block' : 'none';
 }
+  function toggleAuditionDateTBD(checkbox) {
+  const dateInput = document.getElementById('f-audition_date');
+  if (checkbox.checked) {
+    dateInput.style.display = 'none';
+    dateInput.value = '';
+  } else {
+    dateInput.style.display = 'block';
+  }
+}
   function toggleProdType(checkbox) {
   const label = document.getElementById(checkbox.id + '-label');
   if (checkbox.checked) {
@@ -2166,7 +2179,7 @@ function buildCard(a) {
                    : '<span class="badge b-free">Volunteer</span>';
   const unionBadge = a.union_status&&a.union_status.includes('AEA')
                    ? `<span class="badge b-union">${esc(a.union_status)}</span>`:'';
-  const dateStr    = a.audition_date?`📅 ${fmtDate(a.audition_date)}`:'';
+ const dateStr    = a.audition_date ? `📅 ${fmtDate(a.audition_date)}` : `📅 Auditions TBD`;
   const desc       = a.description?esc(a.description).substring(0,160)+(a.description.length>160?'…':''):'';
   return `
     <article class="listing-card" id="listing-${slug}" itemscope itemtype="https://schema.org/Event" onclick="openDynamicDetail('${a.id}')">
@@ -2181,7 +2194,7 @@ function buildCard(a) {
       </div>
       ${desc?`<div class="card-desc" itemprop="description">${desc}</div>`:''}
       <div class="card-footer">
-        <span class="deadline-text">${a.audition_date?'⏰ Audition: '+fmtDate(a.audition_date):''}</span>
+        <span class="deadline-text">${a.audition_date ? '⏰ Audition: '+fmtDate(a.audition_date) : '⏰ Audition date TBD'}</span>
         <button class="detail-btn" onclick="event.stopPropagation();openDynamicDetail('${a.id}')">View full listing →</button>
       </div>
     </article>`;
@@ -2206,7 +2219,7 @@ function openDynamicDetail(id) {
       <div class="detail-title" style="font-size:32px;">${esc(a.show_title||'')}</div>
       <div class="detail-badges" style="margin-bottom:24px;">${payBadge}${unionBadge}</div>
       <div class="detail-section"><h4>Key Details</h4><div class="detail-grid">
-${a.audition_date?`<div class="detail-field"><div class="df-label">Audition Date</div><div class="df-val">${fmtDate(a.audition_date)}</div></div>`:''}
+<div class="detail-field"><div class="df-label">Audition Date</div><div class="df-val">${a.audition_date ? fmtDate(a.audition_date) : 'TBD — check theater website'}</div></div>
 ${a.audition_time?`<div class="detail-field"><div class="df-label">Audition Time</div><div class="df-val">${fmtTime(a.audition_time)}</div></div>`:''}
 ${a.deadline?`<div class="detail-field"><div class="df-label">Submission Deadline</div><div class="df-val">${fmtDate(a.deadline)}</div></div>`:''}
 ${a.location?`<div class="detail-field"><div class="df-label">City</div><div class="df-val">${esc(a.location)}</div></div>`:''}
@@ -2389,7 +2402,9 @@ function openJobDetail(id) {
 async function handleAuditionSubmit(e) {
   e.preventDefault();
   if (!currentUser) { openAuth('signin'); return; }
-  const required = ['theater_name','show_title','pay','union_status','location','audition_date','roles'];
+const tbd = document.getElementById('f-audition_date_tbd').checked;
+  const required = ['theater_name','show_title','pay','union_status','location','roles'];
+  if (!tbd) required.push('audition_date');
 const prodTypes = ['pt-play','pt-musical','pt-improv','pt-film','pt-newwork']
   .filter(id => document.getElementById(id).checked)
   .map(id => document.getElementById(id).value);
