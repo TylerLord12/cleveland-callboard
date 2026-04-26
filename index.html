@@ -850,10 +850,17 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
     <div style="background:var(--red-bg);border:1px solid var(--red-border);border-radius:var(--radius-lg);padding:18px 20px;margin-bottom:28px;font-size:14px;color:var(--ink2);line-height:1.7;text-align:center;">
       <strong style="color:var(--ink);">100% community-funded.</strong> No ads. No paywalls for actors. No data selling.
     </div>
-    <div class="donate-tiers">
+<div class="donate-tiers" style="grid-template-columns:repeat(4,1fr);">
       <div class="tier" onclick="selectTier(this,'5')"><div class="amount">$5</div><div class="tier-label">Actor</div><div class="tier-desc">Buy us a coffee. Keep the lights on.</div></div>
       <div class="tier selected" onclick="selectTier(this,'25')"><div class="amount">$25</div><div class="tier-label">Supporter</div><div class="tier-desc">Help us add new theaters and keep data fresh.</div></div>
       <div class="tier" onclick="selectTier(this,'100')"><div class="amount">$100</div><div class="tier-label">Sustainer</div><div class="tier-desc">Power a full month of updates for the whole community.</div></div>
+      <div class="tier" onclick="selectTier(this,'custom')" id="custom-tier">
+        <div class="amount" style="font-size:18px;margin-bottom:8px;">Custom</div>
+        <input type="number" id="custom-amount" min="1" placeholder="$ Amount" onclick="event.stopPropagation()"
+          style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:6px;font-family:var(--font-body);font-size:14px;color:var(--ink);padding:6px 10px;outline:none;text-align:center;margin-bottom:4px;"
+          oninput="updateCustomTier(this.value)"/>
+        <div class="tier-label">Your choice</div>
+      </div>
     </div>
     <button class="donate-btn" id="donate-btn" onclick="startDonation()">Support $25 →</button>
     <p class="support-note">Theaters: ask about our <strong style="color:var(--ink);">yearly membership plan ($79/year)</strong> for unlimited listings.</p>
@@ -1943,20 +1950,24 @@ async function startStripeCheckout() {
   async function startDonation() {
   const selected = document.querySelector('.tier.selected');
   const amount = selected ? selected.querySelector('.amount').textContent.replace('$','') : '25';
-  const priceMap = { '5': DONATE_PRICE_5, '25': DONATE_PRICE_25, '100': DONATE_PRICE_100 };
-  const priceId = priceMap[amount];
-  if (!priceId) { flash('Please select a donation amount.', 'error'); return; }
+const priceMap = { '5': DONATE_PRICE_5, '25': DONATE_PRICE_25, '100': DONATE_PRICE_100 };
+  
+  let fetchBody;
+  if (amount === 'custom') {
+    const customVal = parseFloat(document.getElementById('custom-amount').value);
+    if (!customVal || customVal < 1) { flash('Please enter a donation amount of at least $1.', 'error'); return; }
+    fetchBody = { amount: customVal, mode: 'payment', success_url: window.location.origin + '?donated=1', cancel_url: window.location.origin };
+  } else {
+    const priceId = priceMap[amount];
+    if (!priceId) { flash('Please select a donation amount.', 'error'); return; }
+    fetchBody = { price_id: priceId, mode: 'payment', success_url: window.location.origin + '?donated=1', cancel_url: window.location.origin };
+  }
   flash('Redirecting to checkout…', 'info');
   try {
     const res = await fetch('https://wzjdyzqspmnprsypxzea.supabase.co/functions/v1/rapid-endpoint', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        price_id: priceId,
-        mode: 'payment',
-        success_url: window.location.origin + '?donated=1',
-        cancel_url: window.location.origin
-      })
+body: JSON.stringify(fetchBody)
     });
     const data = await res.json();
     if (data.url) {
@@ -2698,7 +2709,18 @@ function setTab(btn) {
 function selectTier(el, amount) {
   document.querySelectorAll('.tier').forEach(t=>t.classList.remove('selected'));
   el.classList.add('selected');
-  document.getElementById('donate-btn').textContent=`Support $${amount} →`;
+  if (amount === 'custom') {
+    const val = document.getElementById('custom-amount').value;
+    document.getElementById('donate-btn').textContent = val ? `Support $${val} →` : 'Support → (enter amount)';
+  } else {
+    document.getElementById('donate-btn').textContent = `Support $${amount} →`;
+  }
+}
+
+function updateCustomTier(val) {
+  document.querySelectorAll('.tier').forEach(t=>t.classList.remove('selected'));
+  document.getElementById('custom-tier').classList.add('selected');
+  document.getElementById('donate-btn').textContent = val ? `Support $${val} →` : 'Support → (enter amount)';
 }
 
 function flash(msg, type) {
