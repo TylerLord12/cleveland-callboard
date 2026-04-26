@@ -962,10 +962,10 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
         </div>
         <div class="form-field">
           <label>Audition Date <span class="req">*</span></label>
-          <label style="display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:13px;font-weight:400;color:var(--ink2);cursor:pointer;">
-            <input type="checkbox" id="f-audition_date_tbd" onchange="toggleAuditionDateTBD(this)"/>
-            Audition date not yet announced (TBD)
-          </label>
+<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+            <input type="checkbox" id="f-audition_date_tbd" onchange="toggleAuditionDateTBD(this)" style="width:15px;height:15px;accent-color:var(--red);cursor:pointer;flex-shrink:0;"/>
+            <span style="font-size:13px;color:var(--ink2);cursor:pointer;" onclick="document.getElementById('f-audition_date_tbd').click();toggleAuditionDateTBD(document.getElementById('f-audition_date_tbd'))">Audition date not yet announced (TBD)</span>
+          </div>
           <input type="date" name="audition_date" id="f-audition_date"/>
           <div class="field-error" id="err-audition_date">Please select an audition date or check TBD.</div>
         </div>
