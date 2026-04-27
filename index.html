@@ -2269,7 +2269,7 @@ function openDynamicDetail(id) {
   const a = allAuditions.find(x => x.id == id);
   if (!a) return;
   const slug = a.slug || slugify(`${a.show_title}-${a.theater_name}`);
-  history.replaceState(null,'',`?listing=${slug}`);
+  history.pushState(null,'',`?listing=${slug}`);
   const payBadge   = a.pay==='Paid'?'<span class="badge b-paid">Paid</span>'
                    : a.pay==='Stipend'?'<span class="badge b-paid">Stipend</span>'
                    : '<span class="badge b-free">Volunteer</span>';
@@ -2772,7 +2772,7 @@ function showPage(id, btn) {
   if (btn) btn.classList.add('active');
   window.scrollTo(0,0);
   const urlId = id === 'auditions' ? '' : '?page=' + id;
-  history.replaceState(null,'', urlId || '/');
+  history.pushState(null,'', urlId || '/');
   // Reload jobs when navigating to jobs page
   if (id==='jobs') fetchJobs();
   if (id==='community') fetchCommunityPosts();
@@ -2871,6 +2871,21 @@ async function exportEmailList() {
   a.click();
   flash(`Exported ${data.length} emails!`, 'success');
 }
+window.addEventListener('popstate', () => {
+  const params = new URLSearchParams(window.location.search);
+  const page = params.get('page');
+  const listing = params.get('listing');
+  if (listing) {
+    const a = allAuditions.find(x => (x.slug || slugify(`${x.show_title}-${x.theater_name}`)) === listing);
+    const j = allJobs.find(x => x.slug === listing);
+    if (a) openDynamicDetail(a.id);
+    else if (j) openJobDetail(j.id);
+  } else if (page) {
+    showPage(page, null);
+  } else {
+    showPage('auditions', null);
+  }
+});
 initAuth();
 </script>
 
