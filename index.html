@@ -49,8 +49,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,700;1,400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet"/>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://js.stripe.com/v3/"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+<script src="https://js.stripe.com/v3/" defer></script>
 
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
@@ -145,7 +145,7 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
 .badge{font-size:10px;font-weight:600;padding:3px 8px;border-radius:var(--pill);white-space:nowrap;}
 .b-paid{background:var(--green-bg);color:var(--green);}
 .b-union{background:var(--blue-bg);color:var(--blue);}
-.b-free{background:var(--bg2);color:var(--ink3);}
+.b-free{background:var(--bg2);color:var(--ink2);}
 .b-feat{background:var(--gold-bg);color:var(--gold);border:1px solid #e8d9a8;}
 .b-new{background:var(--red-bg);color:var(--red);}
 .b-admin{background:#f0f0ff;color:#4a4ab0;}
@@ -1412,7 +1412,7 @@ function updateNavForUser() {
       ${isAdmin ? `<button class="btn-ghost" onclick="showPage('admin',null);loadAdminListings();loadAdminOrgs()" style="color:var(--red);border-color:var(--red-border);">Admin</button>` : ''}
       <button class="btn-ghost" onclick="showPage('my-listings',null);loadMyListings()">My Listings</button>
       <button class="btn-cta" onclick="requireAuthThen(openPostPage)">Post a Listing</button>
-      <button class="btn-ghost" onclick="handleLogout()" style="border-color:transparent;color:var(--ink3);">Log out</button>`;
+      <button class="btn-ghost" onclick="handleLogout()" style="border-color:transparent;color:var(--ink2);">Log out</button>`;
   } else {
     navRight.innerHTML = `
       <button class="btn-ghost" onclick="openAuth('signin')">Sign In</button>
