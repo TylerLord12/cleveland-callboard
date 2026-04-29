@@ -2665,10 +2665,10 @@ async function verifyOrg(id, verified) {
   loadAdminOrgs();
 }
 async function loadAdminListings() {
-  const { data: auditions } = await _supabase.from('auditions').select('*').order('created_at',{ascending:false});
-  const { data: posts } = await _supabase.from('community_posts').select('*').order('created_at',{ascending:false});
-  const { data: replies } = await _supabase.from('community_replies').select('*').order('created_at',{ascending:false});
-  const { data: nowPlaying } = await _supabase.from('now_playing').select('*').order('created_at',{ascending:false});
+const { data: auditions } = await _supabase.from('auditions').select('*').eq('status','pending').order('created_at',{ascending:false});
+const { data: posts } = await _supabase.from('community_posts').select('*').eq('status','pending').order('created_at',{ascending:false});
+const { data: replies } = await _supabase.from('community_replies').select('*').eq('status','pending').order('created_at',{ascending:false});
+const { data: nowPlaying } = await _supabase.from('now_playing').select('*').eq('status','pending').order('created_at',{ascending:false});
 
   const listings = auditions || [];
   const pending  = listings.filter(l => l.status === 'pending');
