@@ -2098,7 +2098,7 @@ function setHeroTab(btn, filter) {
     });
   } else if (filter === 'paid') {
     // Matches pay field values: 'Paid' or 'Stipend'
-    filtered = filtered.filter(a => a.pay === 'Paid' || a.pay === 'Stipend');
+    filtered = filtered.filter(a => a.pay === 'Paid' || (a.pay && a.pay.startsWith('Paid')) || a.pay === 'Stipend');
   } else if (filter === 'equity') {
     // Matches union_status containing 'AEA'
     filtered = filtered.filter(a => a.union_status && a.union_status.includes('AEA'));
@@ -2150,7 +2150,7 @@ if (anyPayChecked) {
       const pass =
         (wantPaid      && pay === 'paid') ||
         (wantStipend   && pay === 'stipend') ||
-        (wantVolunteer && (pay === 'volunteer' || pay === 'volunteer / unpaid'));
+        (wantVolunteer && (pay === 'unpaid' || pay === 'volunteer' || pay === 'volunteer / unpaid'));
       if (!pass) return false;
     }
 
