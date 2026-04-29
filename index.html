@@ -2237,9 +2237,10 @@ function renderAuditions(list) {
 function buildCard(a) {
   const slug = a.slug || slugify(`${a.show_title}-${a.theater_name}`);
 const payBadge = a.pay === 'Paid' ? '<span class="badge b-paid">Paid</span>'
-               : a.pay === 'Stipend' ? '<span class="badge b-paid">Stipend</span>'
-               : a.pay ? `<span class="badge b-free">${esc(a.pay)}</span>`
-               : '';
+               : a.pay && a.pay.startsWith('Paid') ? '<span class="badge b-paid">Paid</span>'
+               : a.pay === 'Stipend' ? '<span class="badge b-union">Stipend</span>'
+               : a.pay && a.pay.includes('stipend') ? '<span class="badge b-union">Stipend</span>'
+               : a.pay ? `<span class="badge b-free">${esc(a.pay)}</span>` : '';
   const unionBadge = a.union_status&&a.union_status.includes('AEA')
                    ? `<span class="badge b-union">${esc(a.union_status)}</span>`:'';
  const dateStr    = a.audition_date ? `📅 ${fmtDate(a.audition_date)}` : `📅 Auditions TBD`;
