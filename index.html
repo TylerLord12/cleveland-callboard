@@ -2859,26 +2859,38 @@ function closeWelcomeGate() {
 
 // ── EMAIL LIST EXPORT (admin only) ──
 async function exportEmailList() {
-  const { data } = await _supabase
+  if (!currentUser || currentUser.id !== ADMIN_USER_ID) {
+    flash('Admin only.', 'error'); return;
+  }
+
+  // Get opted-in profiles
+  const { data: profiles, error } = await _supabase
     .from('profiles')
-    .select('email, display_name, role')
-    .eq('email_updates', true)
-    .order('created_at', { ascending: false });
+    .select('id, email, display_name, role, email_updates')
+    .eq('email_updates', true);
 
-  if (!data || !data.length) { flash('No opted-in emails yet.', 'info'); return; }
+  if (error) { flash('Export error: ' + error.message, 'error'); return; }
+  if (!profiles || !profiles.length) { flash('No opted-in users yet.', 'info'); return; }
 
-  const valid = data.filter(r => r.email);
-  if (!valid.length) { flash('No emails found in profiles.', 'info'); return; }
+  // For profiles missing email, fall back to auth email
+  const rows = profiles.map(p => ({
+    email: p.email || currentUser.email || '',
+    name: p.display_name || '',
+    role: p.role || ''
+  })).filter(r => r.email);
 
-const csv = 'Email,Name,Role\n' + valid.map(r =>
-    `${r.email||''},${r.display_name||''},${r.role||''}`
+  if (!rows.length) { flash('No emails found.', 'info'); return; }
+
+  const csv = 'Email,Name,Role\n' + rows.map(r =>
+    `${r.email},${r.name},${r.role}`
   ).join('\n');
+
   const blob = new Blob([csv], { type: 'text/csv' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
   a.download = `cta-emails-${new Date().toISOString().split('T')[0]}.csv`;
   a.click();
-  flash(`Exported ${valid.length} emails!`, 'success');
+  flash(`Exported ${rows.length} emails!`, 'success');
 }
 window.addEventListener('popstate', () => {
   const params = new URLSearchParams(window.location.search);
