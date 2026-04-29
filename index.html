@@ -2676,7 +2676,6 @@ const pendingPosts = (posts || []).filter(p => p.status === 'pending');
 const pendingReplies = (replies || []).filter(r => r.status === 'pending');
 const pendingNowPlaying = (nowPlaying || []).filter(n => n.status === 'pending');
 const totalPending = pending.length + pendingPosts.length + pendingReplies.length + pendingNowPlaying.length;
-const totalPending = pending.length + pendingPosts.length + pendingReplies.length + pendingNowPlaying.length;
 document.getElementById('admin-pending-count').textContent = totalPending > 0 ? `${totalPending} items pending review` : 'All caught up ✓';
 
   const container = document.getElementById('admin-listings-container');
