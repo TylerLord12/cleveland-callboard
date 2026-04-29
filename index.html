@@ -2859,20 +2859,16 @@ function closeWelcomeGate() {
 
 // ── EMAIL LIST EXPORT (admin only) ──
 async function exportEmailList() {
-  const { data: profiles } = await _supabase
+  const { data } = await _supabase
     .from('profiles')
     .select('email, display_name, role, created_at')
     .eq('email_updates', true)
     .order('created_at', { ascending: false });
 
-  const { data: users } = await _supabase.auth.admin
-    ? null : null; // can't access admin from client
+  if (!data || !data.length) { flash('No opted-in emails yet.', 'info'); return; }
 
-  if (!profiles || !profiles.length) { flash('No opted-in emails yet.', 'info'); return; }
-
-  // Filter out rows with no email
-  const valid = profiles.filter(r => r.email);
-  if (!valid.length) { flash('No emails found — profiles may be missing email field.', 'info'); return; }
+  const valid = data.filter(r => r.email);
+  if (!valid.length) { flash('No emails found in profiles.', 'info'); return; }
 
   const csv = 'Email,Name,Role,Joined\n' + valid.map(r =>
     `${r.email||''},${r.display_name||''},${r.role||''},${r.created_at?.split('T')[0]||''}`
