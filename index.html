@@ -2861,7 +2861,7 @@ function closeWelcomeGate() {
 async function exportEmailList() {
   const { data } = await _supabase
     .from('profiles')
-    .select('email, display_name, role, created_at')
+    .select('email, display_name, role')
     .eq('email_updates', true)
     .order('created_at', { ascending: false });
 
@@ -2870,8 +2870,8 @@ async function exportEmailList() {
   const valid = data.filter(r => r.email);
   if (!valid.length) { flash('No emails found in profiles.', 'info'); return; }
 
-  const csv = 'Email,Name,Role,Joined\n' + valid.map(r =>
-    `${r.email||''},${r.display_name||''},${r.role||''},${r.created_at?.split('T')[0]||''}`
+const csv = 'Email,Name,Role\n' + valid.map(r =>
+    `${r.email||''},${r.display_name||''},${r.role||''}`
   ).join('\n');
   const blob = new Blob([csv], { type: 'text/csv' });
   const a = document.createElement('a');
