@@ -551,7 +551,7 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
   </div>
   <div style="max-width:900px;margin:0 auto;padding:28px 24px;">
     <div style="text-align:right;margin-bottom:20px;">
-      <button class="btn-cta" onclick="requireAuthThen(openNowPlayingModal)">+ Add Production</button>
+      <button class="btn-cta" id="add-production-btn" style="display:none;" onclick="openNowPlayingModal()">+ Add Production</button>
     </div>
     <div id="now-playing-container">
       <div style="padding:32px;text-align:center;color:var(--ink3);">Loading current productions…</div>
@@ -1413,11 +1413,13 @@ function updateNavForUser() {
       <button class="btn-ghost" onclick="showPage('my-listings',null);loadMyListings()">My Listings</button>
       <button class="btn-cta" onclick="requireAuthThen(openPostPage)">Post a Listing</button>
       <button class="btn-ghost" onclick="handleLogout()" style="border-color:transparent;color:var(--ink2);">Log out</button>`;
-  } else {
+} else {
     navRight.innerHTML = `
       <button class="btn-ghost" onclick="openAuth('signin')">Sign In</button>
       <button class="btn-cta" onclick="openAuth('signup')">Post a Listing</button>`;
   }
+  const addBtn = document.getElementById('add-production-btn');
+  if (addBtn) addBtn.style.display = (currentUser && currentUser.id === ADMIN_USER_ID) ? 'inline-block' : 'none';
 }
 
 // ── AUTH ──
@@ -2673,8 +2675,9 @@ async function loadAdminListings() {
 const pendingPosts = (posts || []).filter(p => p.status === 'pending');
 const pendingReplies = (replies || []).filter(r => r.status === 'pending');
 const pendingNowPlaying = (nowPlaying || []).filter(n => n.status === 'pending');
-document.getElementById('admin-pending-count').textContent =
-    `${pending.length} listings · ${pendingPosts.length} posts · ${pendingReplies.length} replies · ${pendingNowPlaying.length} productions pending`;
+const totalPending = pending.length + pendingPosts.length + pendingReplies.length + pendingNowPlaying.length;
+const totalPending = pending.length + pendingPosts.length + pendingReplies.length + pendingNowPlaying.length;
+document.getElementById('admin-pending-count').textContent = totalPending > 0 ? `${totalPending} items pending review` : 'All caught up ✓';
 
   const container = document.getElementById('admin-listings-container');
 const allItems = [
@@ -2682,7 +2685,11 @@ const allItems = [
     ...(posts || []).map(p => ({ ...p, _type: 'post' })),
     ...(replies || []).map(r => ({ ...r, _type: 'reply' })),
     ...(nowPlaying || []).map(n => ({ ...n, _type: 'nowplaying' }))
-  ].sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+].sort((a,b) => {
+    if (a.status === 'pending' && b.status !== 'pending') return -1;
+    if (a.status !== 'pending' && b.status === 'pending') return 1;
+    return new Date(b.created_at) - new Date(a.created_at);
+  });
 
   if (!allItems.length) {
     container.innerHTML = `<div class="empty-state"><p>No submissions yet.</p></div>`; return;
