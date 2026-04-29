@@ -1410,7 +1410,7 @@ function updateNavForUser() {
     navRight.innerHTML = `
       <span class="nav-paid-badge" style="display:${isPaid?'inline':'none'};">⭐ Pro Member</span>
       ${isAdmin ? `<button class="btn-ghost" onclick="showPage('admin',null);loadAdminListings();loadAdminOrgs()" style="color:var(--red);border-color:var(--red-border);">Admin</button>` : ''}
-      ${currentProfile.role !== 'actor' ? `<button class="btn-ghost" onclick="showPage('my-listings',null);loadMyListings()">My Listings</button>` : ''}
+      <button class="btn-ghost" onclick="showPage('my-listings',null);loadMyListings()">My Listings</button>
       <button class="btn-cta" onclick="requireAuthThen(openPostPage)">Post a Listing</button>
       <button class="btn-ghost" onclick="handleLogout()" style="border-color:transparent;color:var(--ink2);">Log out</button>`;
   } else {
