@@ -2319,12 +2319,12 @@ function formatDescription(text) {
     // Bullet points — lines starting with • or -
     } else if (line.startsWith('•') || line.startsWith('-')) {
       if (!inList) { html += '<ul style="padding-left:16px;margin:4px 0;">'; inList = true; }
-      html += `<li style="font-size:13px;color:var(--ink2);line-height:1.6;margin-bottom:4px;">${esc(line.replace(/^[•\-]\s*/, ''))}</li>`;
+      html += `<li style="font-size:15px;color:var(--ink);line-height:1.7;margin-bottom:4px;">${esc(line.replace(/^[•\-]\s*/, ''))}</li>`;
 
     // Regular paragraph line
     } else {
       if (inList) { html += '</ul>'; inList = false; }
-      html += `<p style="font-size:13px;color:var(--ink2);line-height:1.6;margin-bottom:6px;">${esc(line)}</p>`;
+      html += `<p style="font-size:15px;color:var(--ink);line-height:1.7;margin-bottom:6px;">${esc(line)}</p>`;
     }
   }
 
