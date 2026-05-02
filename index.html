@@ -2285,7 +2285,52 @@ const payBadge = a.pay === 'Paid' ? '<span class="badge b-paid">Paid</span>'
 }
 
 let detailReturnPage = 'auditions';
+function formatDescription(text) {
+  if (!text) return '';
 
+  // Known section headers to detect and style
+  const headers = [
+    'AUDITION DATES','AUDITION DATE','CALLBACK','CALLBACKS',
+    'PERFORMANCES','PERFORMANCE DATES','REHEARSALS','REHEARSAL',
+    'WHAT TO PREPARE','HOW TO APPLY','VIDEO SUBMISSIONS',
+    'VIDEO AUDITION','YOUTH AUDITIONS','ROLES AVAILABLE',
+    'ROLES','LOCATION','NOTE','NOTES','IN PERSON','SYNOPSIS',
+    'PRODUCTION TEAM','CONTACT','QUESTIONS'
+  ];
+
+  // Split into lines
+  const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+  let html = '';
+  let inList = false;
+
+  for (const line of lines) {
+    // Check if this line is a section header
+    const isHeader = headers.some(h =>
+      line.toUpperCase().startsWith(h + ':') ||
+      line.toUpperCase() === h ||
+      line.toUpperCase() === h + ':'
+    );
+
+    if (isHeader) {
+      if (inList) { html += '</ul>'; inList = false; }
+      const label = line.replace(/:\s*$/, '');
+      html += `<p style="font-size:11px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;color:var(--ink3);margin:16px 0 6px;padding-bottom:4px;border-bottom:1px solid var(--border);">${esc(label)}</p>`;
+
+    // Bullet points — lines starting with • or -
+    } else if (line.startsWith('•') || line.startsWith('-')) {
+      if (!inList) { html += '<ul style="padding-left:16px;margin:4px 0;">'; inList = true; }
+      html += `<li style="font-size:13px;color:var(--ink2);line-height:1.6;margin-bottom:4px;">${esc(line.replace(/^[•\-]\s*/, ''))}</li>`;
+
+    // Regular paragraph line
+    } else {
+      if (inList) { html += '</ul>'; inList = false; }
+      html += `<p style="font-size:13px;color:var(--ink2);line-height:1.6;margin-bottom:6px;">${esc(line)}</p>`;
+    }
+  }
+
+  if (inList) html += '</ul>';
+  return html;
+}
 function openDynamicDetail(id) {
   detailReturnPage = 'auditions';
   const a = allAuditions.find(x => x.id == id);
@@ -2314,7 +2359,7 @@ ${a.audition_location?`<div class="detail-field"><div class="df-label">Audition 
         ${a.union_status?`<div class="detail-field"><div class="df-label">Union Status</div><div class="df-val">${esc(a.union_status)}</div></div>`:''}
       </div></div>
       ${a.roles?`<div class="detail-section"><h4>Roles Being Cast</h4><div class="detail-body"><p>${esc(a.roles)}</p></div></div>`:''}
-      ${a.description?`<div class="detail-section"><h4>Description &amp; Submission Instructions</h4><div class="detail-body"><p>${esc(a.description)}</p></div></div>`:''}
+      ${a.description ? `<div class="detail-section"><h4>Description &amp; Submission Instructions</h4><div class="detail-body">${formatDescription(a.description)}</div></div>` : ''}
       <div class="detail-actions">
         ${a.contact_info ? buildContactButton(a.contact_info) : ''}
         <p class="source-note">Listing posted by ${esc(a.theater_name||'this organization')}. Always verify details directly with them.</p>
