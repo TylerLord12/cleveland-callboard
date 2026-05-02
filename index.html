@@ -2358,7 +2358,7 @@ ${a.audition_location?`<div class="detail-field"><div class="df-label">Audition 
         ${a.pay?`<div class="detail-field"><div class="df-label">Compensation</div><div class="df-val">${esc(a.pay)}</div></div>`:''}
         ${a.union_status?`<div class="detail-field"><div class="df-label">Union Status</div><div class="df-val">${esc(a.union_status)}</div></div>`:''}
       </div></div>
-      ${a.roles?`<div class="detail-section"><h4>Roles Being Cast</h4><div class="detail-body"><p>${esc(a.roles)}</p></div></div>`:''}
+      ${a.roles?`<div class="detail-section"><h4>Roles Being Cast</h4><div class="detail-body">${formatDescription(a.roles)}</div></div>`:''}
       ${a.description ? `<div class="detail-section"><h4>Description &amp; Submission Instructions</h4><div class="detail-body">${formatDescription(a.description)}</div></div>` : ''}
       <div class="detail-actions">
         ${a.contact_info ? buildContactButton(a.contact_info) : ''}
