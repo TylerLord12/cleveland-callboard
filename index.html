@@ -1537,16 +1537,34 @@ function renderNowPlaying(list) {
   }
 
   // Group by month of opening_date
-  const groups = {};
-  list.forEach(p => {
-    const d = new Date(p.opening_date + 'T12:00:00');
-    const key = d.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-    if (!groups[key]) groups[key] = [];
-    groups[key].push(p);
-  });
+const today = new Date();
+today.setHours(0, 0, 0, 0);
+const currentMonthKey = today.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
 
-  // Sort groups chronologically
-  const sortedKeys = Object.keys(groups).sort((a, b) => new Date(a) - new Date(b));
+const groups = {};
+list.forEach(p => {
+  const opening = new Date(p.opening_date + 'T12:00:00');
+  const closing = p.closing_date ? new Date(p.closing_date + 'T12:00:00') : null;
+  
+  // If show is currently running (opened already, not yet closed) → put in current month
+  // If show opens in the future → put in its actual opening month
+  let key;
+  if (opening <= today && (!closing || closing >= today)) {
+    key = currentMonthKey;
+  } else {
+    key = opening.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  }
+  
+  if (!groups[key]) groups[key] = [];
+  groups[key].push(p);
+});
+
+// Sort groups: current month always first, then chronologically
+const sortedKeys = Object.keys(groups).sort((a, b) => {
+  if (a === currentMonthKey) return -1;
+  if (b === currentMonthKey) return 1;
+  return new Date(a) - new Date(b);
+});
 
   container.innerHTML = sortedKeys.map(month => `
     <div style="margin-bottom:36px;">
