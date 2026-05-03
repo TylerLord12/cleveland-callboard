@@ -2409,8 +2409,8 @@ const jobToday = new Date().toISOString().split('T')[0];
       .or(`deadline.is.null,deadline.gte.${jobToday}`)
       .order('created_at', { ascending: false });
     if (error) throw error;
-    allJobs = data || [];
-    renderJobs(allJobs);
+allJobs = data || [];
+    sortAndRenderJobs();
   } catch(err) {
     console.warn('Supabase jobs fetch:', err.message);
     document.getElementById('jobs-container').innerHTML =
@@ -2443,6 +2443,7 @@ function filterJobs() {
     });
   }
 
+filtered.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
   renderJobs(filtered);
 }
 
