@@ -2476,7 +2476,10 @@ function renderJobs(list) {
   }
   container.innerHTML = list.map(j => buildJobCard(j)).join('');
 }
-
+function isEvergreen(dateStr) {
+  // Jobs set to Jan 1, 2024 are our sentinel date for evergreen/ongoing listings
+  return dateStr && dateStr.startsWith('2024-01-01');
+}
 function buildJobCard(j) {
   const catLabel = {
     admin:'Admin', stage_management:'Stage Mgmt', design_crew:'Design / Crew',
@@ -2499,8 +2502,10 @@ const empBadge = j.employment_type
         ${j.salary?`<span class="cmeta">💰 ${esc(j.salary)}</span>`:''}
       </div>
       ${desc?`<div class="card-desc">${desc}</div>`:''}
-      <div class="card-footer">
-        <span class="deadline-text"></span>
+<div class="card-footer">
+  <span class="deadline-text" style="color:var(--ink3);font-weight:400;">
+    ${isEvergreen(j.created_at) ? 'Open Hire' : '📅 Posted ' + fmtDate(j.created_at)}
+  </span>
         <button class="detail-btn" onclick="event.stopPropagation();openJobDetail('${j.id}')">View full listing →</button>
       </div>
     </article>`;
