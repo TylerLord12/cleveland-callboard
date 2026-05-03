@@ -816,8 +816,8 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
         <div style="background:var(--blue-bg);border:1px solid rgba(26,79,138,0.2);border-radius:var(--radius-lg);padding:24px;">
           <div style="font-weight:700;color:var(--blue);font-size:15px;margin-bottom:12px;">For Theater Organizations</div>
           <div style="font-size:13px;color:var(--ink2);line-height:1.8;">
-            <div style="margin-bottom:10px;"><strong style="color:var(--ink);">Basic Membership — Free</strong><br/>Create an account and post one free listing to get started.</div>
-            <div><strong style="color:var(--ink);">Pro Membership — $79/year</strong><br/>Unlimited audition and job postings, full platform access, and priority visibility. Membership revenue directly supports platform maintenance and development.</div>
+<div style="margin-bottom:10px;"><strong style="color:var(--ink);">Basic Membership — Free</strong><br/>Create an account and post your first listing at no cost. No credit card required.</div>
+<div><strong style="color:var(--ink);">Pro Membership — $79/year</strong><br/>Post unlimited auditions and jobs year-round. Less than the cost of a single Facebook ad boost. Membership revenue directly supports platform maintenance and development.</div>
           </div>
         </div>
 
@@ -867,7 +867,7 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
       </div>
     </div>
     <button class="donate-btn" id="donate-btn" onclick="startDonation()">Support $25 →</button>
-    <p class="support-note">Theaters: ask about our <strong style="color:var(--ink);">yearly membership plan ($79/year)</strong> for unlimited listings.</p>
+    <p class="support-note">Theaters: your first listing is free. <strong style="color:var(--ink);">Pro Membership ($79/year)</strong> unlocks unlimited auditions and job postings.</p>
 <p style="font-size:10px;color:var(--ink3);text-align:center;margin-top:6px;opacity:0.6;">Contributions are not tax-deductible.</p>
   </div>
 </div>
@@ -901,12 +901,12 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
   <div class="post-form-wrap">
     <button onclick="showPage('post-choice',null)" style="background:none;border:none;color:var(--ink3);font-family:var(--font-body);font-size:13px;cursor:pointer;padding:0;margin-bottom:16px;">← Back</button>
 <h2>Post an Audition</h2>
-<p style="font-size:14px;color:var(--ink2);margin-bottom:4px;">Listings go live within 24 hours after review. Your first listing is free.</p>
+<p style="font-size:14px;color:var(--ink2);margin-bottom:4px;">Listings go live within 24 hours after review. Your first listing is always free — no credit card required.</p>
     <div class="form-msg" id="post-success"></div>
     <div class="form-msg error" id="post-error" style="display:none;"></div>
     <div class="paywall-banner" id="paywall-banner" style="display:none;">
-      <h4>You've used your free listing.</h4>
-      <p>Subscribe for $79/year to post unlimited auditions and jobs.</p>
+<h4>Your first listing is live.</h4>
+<p>Subscribe for $79/year to post unlimited auditions and jobs — less than the cost of a single Facebook ad boost.</p>
       <button class="upgrade-btn" onclick="startStripeCheckout()">Subscribe — $79/year</button>
     </div>
     <div class="post-form-card" id="post-form-card">
@@ -1039,10 +1039,11 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
     <div class="form-msg" id="post-job-success"></div>
     <div class="form-msg error" id="post-job-error" style="display:none;"></div>
     <div class="paywall-banner" id="job-paywall-banner" style="display:none;">
-      <h4>You've used your free listing.</h4>
-      <p>Subscribe for $79/year to post unlimited auditions and jobs.</p>
-      <button class="upgrade-btn" onclick="startStripeCheckout()">Subscribe — $79/year</button>
-    </div>
+<h4>Your first listing is live.</h4>
+<p>Subscribe for $79/year to post unlimited auditions and jobs — less than the cost of a single Facebook ad boost.</p>
+<button class="upgrade-btn" onclick="startStripeCheckout()">Subscribe — $79/year</button>
+</div>
+    <div class="post-form-card" id="post-job-form-card">
     <div class="post-form-card" id="post-job-form-card">
       <form id="job-form" onsubmit="handleJobSubmit(event)" novalidate>
         <div class="pf-section-title">Organization Info</div>
@@ -1132,8 +1133,8 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
       <div class="dash-stat"><div class="ds-num" id="ds-pending">—</div><div class="ds-lbl">Pending review</div></div>
     </div>
     <div id="dash-paywall-notice" style="display:none;" class="paywall-banner">
-      <h4>Free listing used.</h4>
-      <p>Subscribe for $79/year to post unlimited auditions and jobs.</p>
+<h4>Your first listing is live.</h4>
+<p>Subscribe for $79/year to post unlimited auditions and jobs — less than the cost of a single Facebook ad boost.</p>
       <button class="upgrade-btn" onclick="startStripeCheckout()">Subscribe — $79/year</button>
     </div>
     <div class="dash-table">
@@ -1259,7 +1260,7 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px
       <button class="modal-tab active" id="tab-signin" onclick="switchAuthMode('signin')">Sign In</button>
       <button class="modal-tab" id="tab-signup" onclick="switchAuthMode('signup')">Create Account</button>
     </div>
-    <div class="org-note visible" id="auth-role-note">Actors browse free. Organizations get one free listing, then $79/year unlimited.</div>
+    <div class="org-note visible" id="auth-role-note">Actors browse free — always. Organizations post one listing free, then $79/year for unlimited postings.</div>
     <div class="auth-error" id="auth-error-msg"></div>
     <div id="signin-fields">
       <div class="form-field"><label>Email</label><input type="email" id="signin-email" placeholder="you@example.com" autocomplete="email"/><div class="field-error" id="err-signin-email">Please enter a valid email.</div></div>
