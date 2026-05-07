@@ -1582,7 +1582,10 @@ const sortedKeys = Object.keys(groups).sort((a, b) => {
               <div style="font-size:12px;color:var(--ink3);">📅 ${fmtDate(p.opening_date)}${p.closing_date ? ' — ' + fmtDate(p.closing_date) : ''}</div>
               ${p.location ? `<div style="font-size:12px;color:var(--ink3);">📍 ${esc(p.location)}</div>` : ''}
             </div>
-            ${p.tickets_url ? `<a href="${esc(p.tickets_url)}" target="_blank" style="display:inline-block;background:var(--red);color:#fff;font-family:var(--font-body);font-size:12px;font-weight:500;padding:7px 16px;border-radius:var(--pill);text-decoration:none;">Get Tickets →</a>` : ''}
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-top:4px;">
+  ${p.tickets_url ? `<a href="${esc(p.tickets_url)}" target="_blank" style="display:inline-block;background:var(--red);color:#fff;font-family:var(--font-body);font-size:12px;font-weight:500;padding:7px 16px;border-radius:var(--pill);text-decoration:none;">Get Tickets →</a>` : '<div></div>'}
+  <a href="mailto:tyler.lord@clevelandtheateralliance.com?subject=Now Playing Error Report&body=Hi Tyler, I noticed an issue with this listing:%0A%0ATheater: ${encodeURIComponent(p.theater_name)}%0AShow: ${encodeURIComponent(p.show_title)}%0A%0AWhat's wrong: [please describe]" style="font-size:11px;color:var(--ink3);text-decoration:none;border-bottom:1px dotted var(--border2);" title="Report incorrect information">Report an error</a>
+</div>
           </div>`
         ).join('')}
       </div>
